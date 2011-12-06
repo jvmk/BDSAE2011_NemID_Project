@@ -1,4 +1,6 @@
-﻿namespace AuthenticatorComponent
+﻿//-
+
+namespace AuthenticatorComponent
 {
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;

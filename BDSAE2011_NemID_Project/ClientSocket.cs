@@ -2,7 +2,7 @@
 // <copyright file="ClientSocket.cs" company="">
 // TODO: Update copyright text.
 // </copyright>
-// -----------------------------------------------------------------------
+// ----------------------------------------------------------------------
 
 namespace Communication
 {

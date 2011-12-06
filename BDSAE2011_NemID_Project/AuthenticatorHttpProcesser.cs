@@ -2,7 +2,7 @@
 // <copyright file="AuthenticatorHttpProcesser.cs" company="">
 // TODO: Update copyright text.
 // </copyright>
-// -----------------------------------------------------------------------
+// ----------------------------------------------------------------------
 
 namespace AuthenticationService
 {

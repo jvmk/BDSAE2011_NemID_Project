@@ -1,4 +1,5 @@
-﻿
+﻿//-
+
 namespace AuthenticatorComponent
 {
     /// <summary>

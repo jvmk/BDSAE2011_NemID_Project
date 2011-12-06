@@ -2,7 +2,7 @@
 // <copyright file="KeyCard.cs" company="">
 // TODO: Update copyright text.
 // </copyright>
-// -----------------------------------------------------------------------
+// ----------------------------------------------------------------------
 
 namespace AuthenticatorComponent
 {

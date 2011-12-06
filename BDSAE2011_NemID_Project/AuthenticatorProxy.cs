@@ -2,7 +2,7 @@
 // <copyright file="AuthenticatorProxy.cs" company="">
 // TODO: Update copyright text.
 // </copyright>
-// -----------------------------------------------------------------------
+// ----------------------------------------------------------------------
 
 namespace AuthenticationService
 {
