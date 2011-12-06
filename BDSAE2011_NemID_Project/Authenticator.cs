@@ -4,6 +4,9 @@ namespace AuthenticatorComponent
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
+    using System.IO;
+
+    using AuthenticationService;
 
     /// <summary>
     /// The component that mimics DANID in the current NemId-solution.
@@ -15,6 +18,10 @@ namespace AuthenticatorComponent
         /// </summary>
         private Dictionary<string, UserAccount> database = new Dictionary<string, UserAccount>(); // the string is the username for the associated useraccount
 
+        private String authPrivKeyPath = @"C:\SomePath"; // TODO update this path
+
+        private Cryptograph cryptograph = new Cryptograph();
+
         public Authenticator()
         {
             // TODO load persisted data (database).
@@ -23,13 +30,13 @@ namespace AuthenticatorComponent
         /// <summary>
         /// Is there a user in the database with this username?
         /// </summary>
-        /// <param name="username">Username to look up in database.</param>
+        /// <param name="username">Username to look up in database (encrypted).</param>
         /// <returns>True if the username is registered in the database, false otherwise.</returns>
         [Pure]
         private bool IsUserInDatabase(string username)
         {
-            Contract.Requires(!string.IsNullOrWhiteSpace(username));
-            return this.database.ContainsKey(username);
+            Contract.Requires(!string.IsNullOrWhiteSpace(username)); // TODO all contracts in this class compromised since data recieved is encrypted data
+            return this.database.ContainsKey(this.DecryptThisMessage(username));
         }
 
         /// <summary>
@@ -43,20 +50,18 @@ namespace AuthenticatorComponent
         {
             Contract.Requires(this.IsUserInDatabase(username));
             Contract.Requires(!string.IsNullOrWhiteSpace(password)); // !string.IsNullOrWhiteSpace(username) checked in contract for IsUserInDatabase
-            // decrypt ciphertext here...
-            return this.database[username].Password.Equals(password);
+            return this.database[this.DecryptThisMessage(username)].Password.Equals(this.DecryptThisMessage(password));
         }
 
         /// <summary>
-        /// What is the
+        /// What is the keyindex of the key the user has to enter?
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
         public string GetKeyIndex(string username)
         {
-            //decrypt username here...
-            //this.database[username].Keycard.
-            return "";
+            Contract.Requires(this.IsUserInDatabase(username));
+            return this.database[this.DecryptThisMessage(username)].Keycard.KeyIndex().ToString();
         }
 
         /// <summary>
@@ -70,16 +75,19 @@ namespace AuthenticatorComponent
             Contract.Requires(this.IsUserInDatabase(username));
             Contract.Requires(!string.IsNullOrWhiteSpace(username));
 
-            uint parsedHash = uint.Parse(submittedHash);
+            uint parsedHash = uint.Parse(this.DecryptThisMessage(submittedHash));
 
-            return database[username].VerifyKeyNumber(parsedHash);
+            return database[this.DecryptThisMessage(username)].VerifyKeyNumber(parsedHash);
         }
 
         public bool AddNewUser(string username, string password, string cprNumber)
         {
             Contract.Requires(!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password) && !string.IsNullOrWhiteSpace(cprNumber));
             Contract.Ensures(this.IsUserInDatabase(username));
-            if (this.IsUserInDatabase(username)) return false;
+            if (this.IsUserInDatabase(username)) return false; // decprytion performed in IsUserInDatabase
+            username = this.DecryptThisMessage(username); // decrypt all 3 parametres before inserting into database...
+            password = this.DecryptThisMessage(password);
+            cprNumber = this.DecryptThisMessage(cprNumber);
             this.database.Add(username, new UserAccount(username, password, cprNumber));
             return true;
         }
@@ -88,26 +96,42 @@ namespace AuthenticatorComponent
         {
             Contract.Requires(this.IsUserInDatabase(username));
             Contract.Ensures(!this.IsUserInDatabase(username));
-            database.Remove(username);
+            database.Remove(this.DecryptThisMessage(username));
             return true;
         }
 
-        // TODO Should this really be here? Should this be a method?
+        // TODO Should this really be here? Should this be a method? Should be in AuthHttpProcessor
         private void RecieveRedirectionFrom3rdParty()
         {
 
         }
 
-        // TODO Implement method...
+        // TODO Implement method... should also be in AuthHttpProcessor
         private void SendTokenTo3rdPartyAndUser()
         {
 
         }
 
-        // TODO Implement method
+        /// <summary>
+        /// Writes the keycard to a local file.
+        /// </summary>
+        /// <param name="username">The encrypted username.</param>
         private void SendKeyCardToUser(string username)
         {
-            // call ToString on keycard and write to local file
+            Contract.Requires(this.IsUserInDatabase(username));
+            String keycardPrint = this.database[this.DecryptThisMessage(username)].Keycard.ToString();
+            File.WriteAllText(@"C:\" + username +
+                this.database[this.DecryptThisMessage(username)].Keycard.GetKeyCardNumber() + 
+                ".txt", keycardPrint);
+        }
+
+        private String DecryptThisMessage(string encryptedMessage)
+        {
+            // Decrypt first layer using own private key
+            encryptedMessage = cryptograph.Decrypt(authPrivKeyPath, encryptedMessage);
+            // Decrypt second layer using senders public key
+            String decryptedMessage = cryptograph.Decrypt(, encryptedMessage); // TODO How to obtain public key? We don't know who is the sender here...
+            return decryptedMessage;
         }
 
         [ContractInvariantMethod]
