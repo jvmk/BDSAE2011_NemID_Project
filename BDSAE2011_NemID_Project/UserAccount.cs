@@ -77,7 +77,7 @@ namespace AuthenticatorComponent
 
         public bool VerifyKeyNumber(uint keyNumber)
         {
-            return this.keycard.VerifyKeyNumber(keyNumber);
+            return this.keycard.VerifyEnteredKey(keyNumber);
         }
     }
 }

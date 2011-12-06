@@ -98,7 +98,8 @@ namespace AuthenticatorComponent
         public string GetKeyIndex(string username)
         {
             //decrypt username here...
-            this.database[username].Keycard.
+            //this.database[username].Keycard.
+            return "";
         }
 
         /// <summary>
@@ -131,6 +132,7 @@ namespace AuthenticatorComponent
             Contract.Requires(this.IsUserInDatabase(username));
             Contract.Ensures(!this.IsUserInDatabase(username));
             database.Remove(username);
+            return true;
         }
 
         // TODO Should this really be here? Should this be a method?
