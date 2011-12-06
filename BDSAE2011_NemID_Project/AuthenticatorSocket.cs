@@ -111,7 +111,7 @@ namespace Communication
                 Thread.Sleep(5000);
                 stream.AuthenticateAsServer(this.serverCertificate);
             }
-            catch (AuthenticationException e)
+            catch (AuthenticationException)
             {
                 Console.WriteLine("Server authentication failed.");
             }

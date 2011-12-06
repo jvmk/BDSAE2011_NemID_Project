@@ -15,6 +15,10 @@ namespace AuthenticationService
 
     using Communication;
 
+    /// <summary>
+    /// Data structure that represents the properties of a client
+    /// http message.
+    /// </summary>
     internal struct HttpRequest
     {
         /// <summary>
@@ -226,7 +230,7 @@ namespace AuthenticationService
                 int s = messageBody.IndexOf('=', currentIndex);
                 int e = messageBody.IndexOf('&', currentIndex) - 1;
 
-                parameters[i] = requestLine.Substring(s, e);
+                parameters[i] = messageBody.Substring(s, e - s);
 
                 currentIndex = e;
             }
