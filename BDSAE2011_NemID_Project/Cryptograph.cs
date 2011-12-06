@@ -75,7 +75,7 @@ namespace AuthenticationService
         /// </returns>
         public string Encrypt(string keyPath, string dataToEncrypt)
         {
-            string encryptedMessage = string.Empty;
+            string encryptedMessage;
             using (var rsa = new RSACryptoServiceProvider())
             {
                 try
@@ -98,11 +98,6 @@ namespace AuthenticationService
                     //// Write the encrypted message to a file, for testing purposes
                     File.WriteAllBytes(@"C:\Test\encryptedBits.bin", byteMessage);
 
-                    /*var fileWriter = new FileStream("EncryptedFile", FileMode.Create);
-                    var writer = new StreamWriter(fileWriter);
-                    writer.Flush();
-                    writer.Close();
-                     * */
                 }
 
                 finally
@@ -152,12 +147,6 @@ namespace AuthenticationService
                     //// Write the text to a file
                     File.WriteAllText(@"C:\Test\decryptedText.txt", decryptedText);
 
-                    /*
-                    var fileWriter = new FileStream("DecryptedFile", FileMode.Create);
-                    var writer = new StreamWriter(fileWriter);
-                    writer.Flush();
-                    writer.Close();
-                     */
                 }
 
                 finally
@@ -174,7 +163,7 @@ namespace AuthenticationService
         /// </summary>
         public void GenerateKeys()
         {
-            using (var rsa = new RSACryptoServiceProvider())
+            using (var rsa = new RSACryptoServiceProvider(4096))
             {
                 try
                 {

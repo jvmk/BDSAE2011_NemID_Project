@@ -34,7 +34,7 @@ namespace AuthenticatorComponent
         /// <param name="password">Entered password.</param>
         /// <returns>True if the parametres correspond to database values, false otherwise.</returns>
         [Pure]
-        private bool IsLoginValid(string username, string password)
+        public bool IsLoginValid(string username, string password) //// TODO; Check visibility, mvh Simon, was private
         {
             Contract.Requires(this.IsUserInDatabase(username));
             Contract.Requires(!string.IsNullOrWhiteSpace(password)); // !string.IsNullOrWhiteSpace(username) checked in contract for IsUserInDatabase
@@ -47,10 +47,10 @@ namespace AuthenticatorComponent
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
-        private string GetKeyIndex(string username)
+        public string GetKeyIndex(string username) //// TODO: FIX VISIBILITY I just changed the visibility to private, since it was needed by the HTTPProcessor and I wanted it to compile, mvh Simon
         {
             //decrypt username here...
-            this.database[username].Keycard.
+            return this.database[username].Keycard.GetKeyIndex().ToString("D4");
         }
 
         /// <summary>

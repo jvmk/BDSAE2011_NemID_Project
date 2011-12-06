@@ -97,7 +97,7 @@ namespace AuthenticatorComponent
             {
                 sb.AppendLine("Index = " + element.Key.ToString("D4") + "  " + "key = " + element.Value.ToString("D6"));
             }
-            this.WriteToFile(sb.ToString() + this.KeyIndex());
+            this.WriteToFile(sb.ToString() + this.GetKeyIndex());
             return sb.ToString();
         }
 
@@ -107,6 +107,7 @@ namespace AuthenticatorComponent
         /// <param name="textToWrite">The string to write to a file</param>
         private void WriteToFile(string textToWrite)
         {
+
             File.WriteAllText(@"C:\test\testFile.txt", textToWrite);
         }
 
@@ -114,11 +115,20 @@ namespace AuthenticatorComponent
         /// Can I get the key index for the key I need to enter?
         /// </summary>
         /// <returns>Returns the key number the user has to enter to login</returns>
-        public uint KeyIndex()
+        public uint GetKeyIndex()
         {
             uint currentKey = this.keyCollection[this.currentIndex];
             //// TODO: Set a new key if timeout or?
             return currentKey;
+        }
+
+        /// <summary>
+        /// TODO: Evauluate: maybe have a string return that auto formats to 4 digits?
+        /// </summary>
+        /// <returns></returns>
+        public string GetKeyIndexAsString()
+        {
+            return this.keyCollection[this.currentIndex].ToString("D4");
         }
 
         /// <summary>
@@ -132,7 +142,6 @@ namespace AuthenticatorComponent
         /// </returns>
         public bool VerifyEnteredKey(uint enteredKey)
         {
-            ////Contract.Requires(this.currentKey != default(uint));
             uint keyToBeEntered = this.currentIndex;
             this.RemoveKeyPair(this.currentIndex);
             this.SetNextKeyIndex();
