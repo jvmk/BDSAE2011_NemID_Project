@@ -5,8 +5,6 @@
     /// </summary>
     public class UserAccount
     {
-
-        //// Hehe git hub test comment
         /// <summary>
         /// The username of the user
         /// </summary>
