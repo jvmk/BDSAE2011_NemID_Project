@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace NemIdProject_MyCode
+namespace AuthenticationService
 {
     using System;
     using System.Collections.Generic;
