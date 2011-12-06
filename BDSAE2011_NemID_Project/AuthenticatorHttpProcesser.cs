@@ -21,7 +21,15 @@ namespace AuthenticationService
         /// Represents the requested operation of the parameters for
         /// the operation.
         /// </summary>
-        private readonly string requestedOperation, parametersString;
+        private readonly string requestedOperation;
+
+        /// <summary>
+        /// Holds string representations of the parameters that the
+        /// requested operations takes.
+        /// The parameters are ordered in the same way as they are
+        /// declared in the requested operation.
+        /// </summary>
+        private readonly string[] parameters;
 
         /// <summary>
         /// Initializes a new instance of the HttpRequest struct.
@@ -29,14 +37,14 @@ namespace AuthenticationService
         /// <param name="requestedOperation">
         /// String representation of the requested operation.
         /// </param>
-        /// <param name="parameterString">
+        /// <param name="parameters">
         /// string representation of the requested operation's
         /// parameters.
         /// </param>
-        public HttpRequest(string requestedOperation, string parameterString)
+        public HttpRequest(string requestedOperation, string[] parameters)
         {
             this.requestedOperation = requestedOperation;
-            this.parametersString = parameterString;
+            this.parameters = parameters;
         }
 
         /// <summary>
@@ -55,11 +63,11 @@ namespace AuthenticationService
         /// Gets the string representing of the parameters
         /// of the http request.
         /// </summary>
-        public string ParametersString
+        public string[] Parameters
         {
             get
             {
-                return this.parametersString;
+                return this.parameters;
             }
         }
     }
@@ -67,7 +75,7 @@ namespace AuthenticationService
     /// <summary>
     /// TODO: Update summary.
     /// </summary>
-    public class AuthenticatorHttpProcesser
+    public class AuthenticatorHttpProcessor
     {
         /// <summary>
         /// The authenticator service provider.
@@ -84,7 +92,13 @@ namespace AuthenticationService
         /// </summary>
         private bool inService = true;
 
-        public AuthenticatorHttpProcesser(int authenticatorPort)
+        /// <summary>
+        /// Initializes a new instance of the AuthenticatorHttpProcessor class.
+        /// </summary>
+        /// <param name="authenticatorPort">
+        /// The port the authenticator will be listening to.
+        /// </param>
+        public AuthenticatorHttpProcessor(int authenticatorPort)
         {
             this.serverSocket = new AuthenticatorSocket(authenticatorPort);
         }
@@ -94,7 +108,7 @@ namespace AuthenticationService
         /// <summary>
         /// Starts the authenticator service.
         /// </summary>
-        public void serviceLoop()
+        public void ServiceLoop()
         {
             this.serverSocket.ListenForRequests();
 
@@ -104,42 +118,76 @@ namespace AuthenticationService
 
                 HttpRequest processedRequest = this.ProcessHttpRequest(clientRequest);
 
-                string[] methodParameters = processedRequest.ParametersString.Split(';');
-
                 string httpResponseMessageBody = string.Empty;
                 switch (processedRequest.RequestedOperation)
                 {
                     case "login":
-                        // TODO the authenticator encrypts the message?
+                        string encUserName = processedRequest.Parameters[0];
+                        string encPassword = processedRequest.Parameters[1];
+
                         bool validLogIn = this.authenticator.IsLoginValid(
-                            methodParameters[0], methodParameters[1]);
+                            encUserName, encPassword);
                         string keyIndex = string.Empty;
+
                         if (validLogIn)
                         {
-                            keyIndex = this.authenticator.GetKeyIndex(methodParameters[0]);
+                            // keyIndex is decrypted.
+                            keyIndex = this.authenticator.GetKeyIndex(encUserName);
                         }
 
+                        string reponseMessageBody = "submissionValid=" + validLogIn.ToString()
+                                                    + (validLogIn ? "&" + "keyIndex=" + keyIndex : string.Empty);
+
                         httpResponseMessageBody = this.CompileHttpResponse(
-                            "submissionValid=" + validLogIn.ToString() +
-                            (validLogIn ? ";" + "keyIndex=" + keyIndex : string.Empty));
+                            validLogIn, reponseMessageBody);
                         goto default;
                     case "submitKey":
-                        // TODO
+                        string encKey = processedRequest.Parameters[0];
+                        string encUserName1 = processedRequest.Parameters[1];
+
+                        bool validHash = this.authenticator.IsHashValueValid(encKey, encUserName1);
+
+                        httpResponseMessageBody = this.CompileHttpResponse(validHash, string.Empty);
                         goto default;
                     case "createAccount":
-                        // TODO
+                        string encUserName2 = processedRequest.Parameters[0];
+                        string encPassword2 = processedRequest.Parameters[1];
+                        string encCprNumber = processedRequest.Parameters[2];
+
+                        bool validNewUser = this.authenticator.AddNewUser(
+                            encUserName2, encPassword2, encCprNumber);
+
+                        httpResponseMessageBody = this.CompileHttpResponse(validNewUser, string.Empty);
                         goto default;
                     case "revokeAccount":
-                        // TODO
+                        // TODO How do we ensure, that the user has logged in before !!!!!!!!!!!!!!!!!!!!
+                        // TODO this request is made? !!!!!!!!!!!!!!!!!!!
+
+                        string encUserName3 = processedRequest.Parameters[0];
+
+                        bool validRevoke = this.authenticator.DeleteUser(encUserName3);
+
+                        httpResponseMessageBody = this.CompileHttpResponse(validRevoke, string.Empty);
                         goto default;
+
+                    // TODO Is this needed? The user must contact danid to do this, as
+                    // TODO it would not be possible to log in.
                     case "newKeyCard":
-                        // TODO
                         goto default;
                     default:
                         this.serverSocket.SendMessage(httpResponseMessageBody);
                         break;
                 }
             }
+        }
+
+        /// <summary>
+        /// Closes down the authentication service
+        /// properly.
+        /// </summary>
+        public void CloseDown()
+        {
+            this.inService = false;
         }
 
         /// <summary>
@@ -155,14 +203,45 @@ namespace AuthenticationService
         /// </returns>
         private HttpRequest ProcessHttpRequest(string httpMessage)
         {
-            // TODO
-            return new HttpRequest("login", "huhs;dkso");
+            string[] requestParts = httpMessage.Split('\n');
+
+            string requestLine = requestParts[0];
+            string messageBody = requestParts[requestParts.Count() - 1];
+
+            // Get string representation of requested operation invocation:
+            int start = requestLine.IndexOf("request=") + "request=".Length;
+            int end = requestLine.IndexOf(" ", start);
+
+            string requestedOperation = requestLine.Substring(start, end);
+
+            // Get string representation of the parameters to the requested operation
+            // invocation sent in the message.
+            int numberOfParameters = messageBody.Count(c => c.Equals('&')) + 1;
+
+            string[] parameters = new string[numberOfParameters];
+
+            int currentIndex = 0;
+            for (int i = 0; i < numberOfParameters; i++)
+            {
+                int s = messageBody.IndexOf('=', currentIndex);
+                int e = messageBody.IndexOf('&', currentIndex) - 1;
+
+                parameters[i] = requestLine.Substring(s, e);
+
+                currentIndex = e;
+            }
+
+            return new HttpRequest(requestedOperation, parameters);
         }
 
         /// <summary>
         /// Compiles a http response message with the specified
         /// messagebody.
         /// </summary>
+        /// <param name="acceptedRequest">
+        /// Indicates whether the request was accepted by the 
+        /// authenticator.
+        /// </param>
         /// <param name="messageBody">
         /// The message body containing the message to be sent
         /// back to the client.
@@ -170,24 +249,22 @@ namespace AuthenticationService
         /// <returns>
         /// A string representation of the http response message.
         /// </returns>
-        private string CompileHttpResponse(string messageBody)
+        private string CompileHttpResponse(bool acceptedRequest, string messageBody)
         {
             var httpResponse = new StringBuilder();
 
-            httpResponse.Append("HTTP/1.1 200 OK" + "\n");
-            httpResponse.Append("\n");
-            httpResponse.Append(messageBody);
+            if (acceptedRequest)
+            {
+                httpResponse.Append("HTTP/1.1 200 OK" + "\n");
+                httpResponse.Append("\n");
+                httpResponse.Append(messageBody);
+            }
+            else
+            {
+                httpResponse.Append("HTTP/1.1 400 Bad Request" + "\n");
+            }
 
             return httpResponse.ToString();
-        }
-
-        /// <summary>
-        /// Closes down the authentication service
-        /// properly.
-        /// </summary>
-        public void CloseDown()
-        {
-            this.inService = false;
         }
 
         // Example request message:
