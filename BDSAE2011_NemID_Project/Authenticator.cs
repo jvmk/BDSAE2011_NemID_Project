@@ -1,52 +1,9 @@
-﻿//-
-
+﻿
 namespace AuthenticatorComponent
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
-
-    /// <summary>
-    /// Struct that holds properties of a single
-    /// return value.
-    /// </summary>
-    internal struct ReturnValue
-    {
-        private readonly string type, value;
-
-        /// <summary>
-        /// Initializes a ned instance of the ReturnValue struct.
-        /// </summary>
-        /// <param name="type">
-        /// The type of the return value.
-        /// </param>
-        /// <param name="value">
-        /// The string representation of the return value.
-        /// </param>
-        public ReturnValue(string type, string value)
-        {
-            this.type = type;
-            this.value = value;
-        }
-
-        public string Type
-        {
-            get
-            {
-                return type;
-            }
-        }
-
-        public string Value
-        {
-            get
-            {
-                return value;
-            }
-        }
-    }
-
-
 
     /// <summary>
     /// The component that mimics DANID in the current NemId-solution.
@@ -60,7 +17,7 @@ namespace AuthenticatorComponent
 
         public Authenticator()
         {
-            //TODO load persisted data (database).
+            // TODO load persisted data (database).
         }
 
         /// <summary>

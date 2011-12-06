@@ -13,6 +13,10 @@ namespace AuthenticationService
 
     using Communication;
 
+    /// <summary>
+    /// Data structure representing the properties of the 
+    /// http response message from the authenticator.
+    /// </summary>
     internal struct HttpResponse
     {
         /// <summary>
@@ -27,6 +31,17 @@ namespace AuthenticationService
         /// </summary>
         private readonly string returnValue;
 
+        /// <summary>
+        /// Initializes a new instance of the HttpResponse struct.
+        /// </summary>
+        /// <param name="accepted">
+        /// Indicates whether the request, the response message is a 
+        /// response to, was accepted by the authenticator.
+        /// </param>
+        /// <param name="returnvalue">
+        /// String representation of the return value of the requested
+        /// authenticator operation.
+        /// </param>
         public HttpResponse(bool accepted, string returnvalue)
         {
             this.accepted = accepted;
@@ -319,7 +334,7 @@ namespace AuthenticationService
         // POST /request=login HTTP/1.1
         // Host: www.danid.dk
         //
-        // userName=3jd904kfh&passwork=29daflr03ja //TODO &-sign instead.
+        // userName=3jd904kfh&passwork=29daflr03ja
 
         // Example response message:
         //
