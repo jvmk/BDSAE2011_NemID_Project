@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace CryptoProject
+namespace AuthenticatorComponent
 {
     using System;
     using System.Collections.Generic;
@@ -16,7 +16,7 @@ namespace CryptoProject
     /// <summary>
     /// Represents instances of the clients’ key cards.
     /// </summary>
-    public class KeyCard
+    internal class KeyCard
     {
         /// <summary>
         /// A set of unique keys and key indexes, sorted by the index of the key.
@@ -32,7 +32,7 @@ namespace CryptoProject
         /// The number of cards the user has had so far.
         /// </summary>
         private uint cardNumber;
-        
+
 
 
         /// <summary>
@@ -95,7 +95,7 @@ namespace CryptoProject
             var sb = new StringBuilder();
             foreach (var element in this.keyCollection)
             {
-               sb.AppendLine("Index = " + element.Key.ToString("D4") + "  " + "key = " + element.Value.ToString("D6"));
+                sb.AppendLine("Index = " + element.Key.ToString("D4") + "  " + "key = " + element.Value.ToString("D6"));
             }
             this.WriteToFile(sb.ToString() + this.KeyIndex());
             return sb.ToString();
@@ -178,7 +178,7 @@ namespace CryptoProject
                     //// Checks to see if the key is not identical to another key already in the list
                     if (!this.keyCollection.ContainsValue(key))
                     {
-                        this.keyCollection.Add(index, key);   
+                        this.keyCollection.Add(index, key);
                     }
                 }
             }

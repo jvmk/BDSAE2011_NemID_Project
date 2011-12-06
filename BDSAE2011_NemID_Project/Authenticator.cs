@@ -1,4 +1,4 @@
-﻿namespace ExamProject_COMMUNICATOR
+﻿namespace AuthenticatorComponent
 {
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
@@ -6,13 +6,13 @@
     /// <summary>
     /// The component that mimics DANID in the current NemId-solution.
     /// </summary>
-    internal class Authenticator
+    public class Authenticator
     {
         /// <summary>
         /// Represents the underlying database where user information is stored.
         /// </summary>
         private Dictionary<string, UserAccount> database = new Dictionary<string, UserAccount>(); // the string is the username for the associated useraccount
-        
+
         /// <summary>
         /// Is there a user in the database with this username?
         /// </summary>
@@ -83,13 +83,13 @@
         // TODO Should this really be here? Should this be a method?
         private void RecieveRedirectionFrom3rdParty()
         {
-            
+
         }
 
         // TODO Implement method...
         private void SendTokenTo3rdPartyAndUser()
         {
-            
+
         }
 
         // TODO Implement method
@@ -107,13 +107,13 @@
         // TODO implement method
         private void AcknowledgeLoginRequest()
         {
-            
+
         }
 
         // TODO Is this really needed?
         private void AcknowledgeSubmittedKeycardNumber()
         {
-            
+
         }
 
         [ContractInvariantMethod]

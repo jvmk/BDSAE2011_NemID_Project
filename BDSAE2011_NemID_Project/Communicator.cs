@@ -7,6 +7,8 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
+//TODO OBSOLETE?
+
 namespace ExamProject_COMMUNICATOR
 {
     using System.Diagnostics.Contracts;
@@ -24,7 +26,7 @@ namespace ExamProject_COMMUNICATOR
         ///  The HttpListener used to listen for requests
         /// </summary>
         private readonly HttpListener server = new HttpListener();
-        
+
         /// <summary>
         /// TODO: Start the server from here?
         /// </summary>

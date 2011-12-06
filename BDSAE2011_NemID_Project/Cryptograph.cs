@@ -7,7 +7,7 @@
 // </summary>
 // --------------------------------------------------------------------------------------------------------------------
 
-namespace CryptoProject
+namespace AuthenticationService
 {
     using System;
     using System.IO;
@@ -97,7 +97,7 @@ namespace CryptoProject
 
                     //// Write the encrypted message to a file, for testing purposes
                     File.WriteAllBytes(@"C:\Test\encryptedBits.bin", byteMessage);
-                    
+
                     /*var fileWriter = new FileStream("EncryptedFile", FileMode.Create);
                     var writer = new StreamWriter(fileWriter);
                     writer.Flush();
@@ -129,7 +129,7 @@ namespace CryptoProject
         public string Decrypt(string keyPath, string dataToDecrypt)
         {
             string decryptedText;
-             using (var rsa = new RSACryptoServiceProvider())
+            using (var rsa = new RSACryptoServiceProvider())
             {
                 try
                 {

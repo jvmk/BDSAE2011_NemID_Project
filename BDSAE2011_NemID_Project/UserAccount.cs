@@ -1,9 +1,10 @@
-﻿namespace ExamProject_COMMUNICATOR
+﻿
+namespace AuthenticatorComponent
 {
     /// <summary>
     /// Represents the account each user has at the authenticator.
     /// </summary>
-    public class UserAccount
+    internal class UserAccount
     {
         /// <summary>
         /// The username of the user

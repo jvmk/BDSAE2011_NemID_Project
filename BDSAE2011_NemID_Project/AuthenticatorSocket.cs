@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace NemIdProject_MyCode
+namespace Communication
 {
     using System;
     using System.Collections.Generic;

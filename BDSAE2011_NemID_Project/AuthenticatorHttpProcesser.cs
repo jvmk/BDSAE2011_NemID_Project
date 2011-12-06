@@ -11,6 +11,10 @@ namespace AuthenticationService
     using System.Linq;
     using System.Text;
 
+    using AuthenticatorComponent;
+
+    using Communication;
+
     internal struct HttpRequest
     {
         /// <summary>
