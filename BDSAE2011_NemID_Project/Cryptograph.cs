@@ -10,6 +10,7 @@
 namespace AuthenticationService
 {
     using System;
+    using System.Diagnostics.Contracts;
     using System.IO;
     using System.Security.Cryptography;
     using System.Text;
@@ -23,23 +24,36 @@ namespace AuthenticationService
     public class Cryptograph
     {
         /// <summary>
+        /// The public key infrastructure
+        /// </summary>
+        private readonly PublicKeyInfrastructure pki = new PublicKeyInfrastructure();
+
+        /// <summary>
         /// Is this public key valid?
         /// </summary>
+        /// <param name="uniqueIdentifier">
+        /// The unique ID of the domain of the key
+        /// </param>
         /// <returns>
         /// True if the public key is deemed valid, otherwise false
         /// </returns>
-        public bool IsValid()
+        public bool IsValid(string uniqueIdentifier)
         {
-            return true;
+            return this.pki.ContainsKey(uniqueIdentifier);
         }
 
         /// <summary>
         /// Can I have the public key of this domain?
         /// </summary>
-        /// <returns>True if a key is succesfully retrieved from a PKI</returns>
-        public bool GetPublicKey()
+        /// <param name="uniqueIdentifier">
+        /// The unique Identifier. this should either be a URI or something like CPRNumber
+        /// </param>
+        /// <returns>
+        /// The public key from the PKI belonging to the unique domain
+        /// </returns>
+        public string GetPublicKey(string uniqueIdentifier)
         {
-            return true;
+            return this.pki.GetKey(uniqueIdentifier);
         }
 
         /// <summary>
@@ -101,7 +115,6 @@ namespace AuthenticationService
                     File.WriteAllBytes(@"C:\Test\encryptedBits.bin", encryptedBytes);
 
                 }
-
                 finally
                 {
                     //// Clear the RSA key container, deleting generated keys.
@@ -144,9 +157,9 @@ namespace AuthenticationService
 
                     byte[] aux = new byte[512];
 
-                    for (int j = 0; j <= dataToDecrypt.Length; j+=512)
+                    for (int j = 0; j <= dataToDecrypt.Length; j += 512)
                     {
-                        encoder.GetBytes(dataToDecrypt, j, 512, aux, j);
+                        //encryptedBytes
                         byte[] auxDecrypted = rsa.Decrypt(aux, false);
                         auxDecrypted.CopyTo(decryptedBytes, j);
                     }
@@ -162,7 +175,6 @@ namespace AuthenticationService
                     File.WriteAllText(@"C:\Test\decryptedText.txt", decryptedText);
 
                 }
-
                 finally
                 {
                     //// Clear the RSA key container, deleting generated keys.
@@ -181,19 +193,21 @@ namespace AuthenticationService
         /// </param>
         public void GenerateKeys(string uniqueIdentifier)
         {
-            var pki = new PublicKeyInfrastructure();
            using (var rsa = new RSACryptoServiceProvider(4096))
             {
                 try
                 {
                     string privateKey = rsa.ToXmlString(true);
                     string publicKey = rsa.ToXmlString(false);
+                    //// Save the private key
                     var xdocPrivate = new XmlDocument();
-                    var xdocPublic = new XmlDocument();
                     xdocPrivate.LoadXml(privateKey);
-                    xdocPublic.LoadXml(publicKey);
                     xdocPrivate.Save(@"C:\Test\PrivateKeyInfo.xml");
-                    xdocPublic.Save(@"C:\Test\PublicKeyInfo.xml");
+
+                    //// Save the public key
+                    //var xdocPublic = new XmlDocument();
+                    //xdocPublic.LoadXml(publicKey);
+                    //xdocPublic.Save(@"C:\Test\PublicKeyInfo.xml");
 
                     //// Store the key as an xml string along with the unique id in the PKI.
                     this.PublishKey(publicKey, uniqueIdentifier);
@@ -215,17 +229,13 @@ namespace AuthenticationService
         /// <param name="uniqueIdentifier">
         /// The unique Identifier.
         /// </param>
-        public void PublishKey(string publicKey, string uniqueIdentifier)
+        /// <returns>
+        /// True if the key was succesfully added to the PKI
+        /// </returns>
+        public bool PublishKey(string publicKey, string uniqueIdentifier)
         {
-            PublicKeyInfrastructure PKI = new PublicKeyInfrastructure();
-            if (!publicKey.Contains("<P>"))
-            {
-                PKI.StoreKey(publicKey, uniqueIdentifier);
-            }
-                
-            
-            ////Todo: make sure only public key info gets uploaded
-
+            Contract.Requires(!publicKey.Contains("<P>"));
+            return this.pki.StoreKey(publicKey, uniqueIdentifier);
         }
     }
 }
