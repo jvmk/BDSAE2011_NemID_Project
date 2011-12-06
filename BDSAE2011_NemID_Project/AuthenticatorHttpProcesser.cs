@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace AuthenticationService
+namespace AuthenticationService2
 {
     using System;
     using System.Collections.Generic;
