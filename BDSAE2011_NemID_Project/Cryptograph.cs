@@ -59,13 +59,16 @@ namespace AuthenticationService
         /// <summary>
         /// Generate a symmetric key
         /// </summary>
-        /// <param name="publicKeyPath">The key</param>
-        public void GenerateSymmetricKey(string publicKeyPath)
+        public string GenerateSymmetricKey()
         {
+            string symKey = string.Empty;
             using (var rijndael = new RijndaelManaged())
             {
                 try
                 {
+                    byte[] buffer = rijndael.Key;
+                    symKey = System.Convert.ToBase64String(buffer);
+                    
                     var keyWriter = new FileStream("SymmetricKey.bin", FileMode.Create);
                     keyWriter.Write(rijndael.Key, 0, rijndael.Key.Length);
                     keyWriter.Close();
@@ -75,6 +78,18 @@ namespace AuthenticationService
                     Console.Write(e);
                 }
             }
+            return symKey;
+        }
+
+        public string sendSecureMessage(string senderUniqueIdent, string receiverUniqueIdent, string messageToEncrypt)
+        {
+            //// Maybe have a seperate method just to generate key, so we generate one key per session and no one per message.
+            using (var rijndael = new RijndaelManaged())
+            {
+                byte[] secretKey = rijndael.Key;
+
+            }
+            return "";
         }
 
         /// <summary>

@@ -66,7 +66,7 @@ namespace BDSAE2011_NemID_Project
             Contract.Requires(this.keyCollection.ContainsKey(uniqueIdentifier));
             Contract.Ensures(
                 Contract.Result<bool>() == (this.keyCollection.Count == Contract.OldValue(this.keyCollection.Count) - 1));
-            this.keyCollection.Remove(uniqueIdentifier);
+            return this.keyCollection.Remove(uniqueIdentifier);
         }
 
         /// <summary>
