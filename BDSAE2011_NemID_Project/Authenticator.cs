@@ -2,8 +2,51 @@
 
 namespace AuthenticatorComponent
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
+
+    /// <summary>
+    /// Struct that holds properties of a single
+    /// return value.
+    /// </summary>
+    internal struct ReturnValue
+    {
+        private readonly string type, value;
+
+        /// <summary>
+        /// Initializes a ned instance of the ReturnValue struct.
+        /// </summary>
+        /// <param name="type">
+        /// The type of the return value.
+        /// </param>
+        /// <param name="value">
+        /// The string representation of the return value.
+        /// </param>
+        public ReturnValue(string type, string value)
+        {
+            this.type = type;
+            this.value = value;
+        }
+
+        public string Type
+        {
+            get
+            {
+                return type;
+            }
+        }
+
+        public string Value
+        {
+            get
+            {
+                return value;
+            }
+        }
+    }
+
+
 
     /// <summary>
     /// The component that mimics DANID in the current NemId-solution.
@@ -14,6 +57,11 @@ namespace AuthenticatorComponent
         /// Represents the underlying database where user information is stored.
         /// </summary>
         private Dictionary<string, UserAccount> database = new Dictionary<string, UserAccount>(); // the string is the username for the associated useraccount
+
+        public Authenticator()
+        {
+            //TODO load persisted data (database).
+        }
 
         /// <summary>
         /// Is there a user in the database with this username?
@@ -34,7 +82,7 @@ namespace AuthenticatorComponent
         /// <param name="password">Entered password.</param>
         /// <returns>True if the parametres correspond to database values, false otherwise.</returns>
         [Pure]
-        public bool IsLoginValid(string username, string password) //// TODO; Check visibility, mvh Simon, was private
+        public bool IsLoginValid(string username, string password)
         {
             Contract.Requires(this.IsUserInDatabase(username));
             Contract.Requires(!string.IsNullOrWhiteSpace(password)); // !string.IsNullOrWhiteSpace(username) checked in contract for IsUserInDatabase
@@ -47,10 +95,10 @@ namespace AuthenticatorComponent
         /// </summary>
         /// <param name="username"></param>
         /// <returns></returns>
-        public string GetKeyIndex(string username) //// TODO: FIX VISIBILITY I just changed the visibility to private, since it was needed by the HTTPProcessor and I wanted it to compile, mvh Simon
+        public string GetKeyIndex(string username)
         {
             //decrypt username here...
-            return this.database[username].Keycard.GetKeyIndex().ToString("D4");
+            this.database[username].Keycard.
         }
 
         /// <summary>
@@ -59,14 +107,17 @@ namespace AuthenticatorComponent
         /// <param name="submittedHash">The value the user submitted.</param>
         /// <param name="username">The user that the hash value corresponds to.</param>
         /// <returns></returns>
-        private bool IsHashValueValid(uint submittedHash, string username)
+        public bool IsHashValueValid(string submittedHash, string username)
         {
             Contract.Requires(this.IsUserInDatabase(username));
             Contract.Requires(!string.IsNullOrWhiteSpace(username));
-            return database[username].VerifyKeyNumber(submittedHash);
+
+            uint parsedHash = uint.Parse(submittedHash);
+
+            return database[username].VerifyKeyNumber(parsedHash);
         }
 
-        private bool AddNewUser(string username, string password, string cprNumber)
+        public bool AddNewUser(string username, string password, string cprNumber)
         {
             Contract.Requires(!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password) && !string.IsNullOrWhiteSpace(cprNumber));
             Contract.Ensures(this.IsUserInDatabase(username));
@@ -75,7 +126,7 @@ namespace AuthenticatorComponent
             return true;
         }
 
-        private void DeleteUser(string username)
+        public bool DeleteUser(string username)
         {
             Contract.Requires(this.IsUserInDatabase(username));
             Contract.Ensures(!this.IsUserInDatabase(username));
@@ -98,24 +149,6 @@ namespace AuthenticatorComponent
         private void SendKeyCardToUser(string username)
         {
             // call ToString on keycard and write to local file
-        }
-
-        // TODO Is this really needed? Alternatively make AddNewUser have return type bool.
-        private void AcknowledgeAccountCreation()
-        {
-            // 
-        }
-
-        // TODO implement method
-        private void AcknowledgeLoginRequest()
-        {
-
-        }
-
-        // TODO Is this really needed?
-        private void AcknowledgeSubmittedKeycardNumber()
-        {
-
         }
 
         [ContractInvariantMethod]

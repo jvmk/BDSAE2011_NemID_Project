@@ -33,8 +33,6 @@ namespace AuthenticatorComponent
         /// </summary>
         private uint cardNumber;
 
-
-
         /// <summary>
         /// Initializes a new instance of the <see cref="KeyCard"/> class. 
         /// Constructor for the keycard class
@@ -48,7 +46,6 @@ namespace AuthenticatorComponent
         /// <summary>
         /// Pseudo-randomly determines the next index to be stored as the next reference value for the key.
         /// </summary>
-        /// <returns>Returns the value of the next keyIndex</returns>
         private void SetNextKeyIndex()
         {
             //// Generate a number between 0 and the amount of keys.
@@ -84,7 +81,7 @@ namespace AuthenticatorComponent
         }
 
         /// <summary>
-        /// Can I get a text-representation of the key card?
+        /// Can I get a text-representation of the key card? Also writes to file TODO: how should we deal with writing to file?
         /// </summary>
         /// <returns>
         /// A <see cref="T:System.String"/> that represents the current <see cref="T:System.Object"/>.
@@ -97,24 +94,14 @@ namespace AuthenticatorComponent
             {
                 sb.AppendLine("Index = " + element.Key.ToString("D4") + "  " + "key = " + element.Value.ToString("D6"));
             }
-            this.WriteToFile(sb.ToString() + this.GetKeyIndex());
+            File.WriteAllText(@"C:\test\testFile.txt", sb.ToString() + this.GetKeyIndex());
             return sb.ToString();
-        }
-
-        /// <summary>
-        /// Writes the keycard to a local file
-        /// </summary>
-        /// <param name="textToWrite">The string to write to a file</param>
-        private void WriteToFile(string textToWrite)
-        {
-
-            File.WriteAllText(@"C:\test\testFile.txt", textToWrite);
         }
 
         /// <summary>
         /// Can I get the key index for the key I need to enter?
         /// </summary>
-        /// <returns>Returns the key number the user has to enter to login</returns>
+        /// <returns>Returns the index of the key the user has to enter to login</returns>
         public uint GetKeyIndex()
         {
             uint currentKey = this.keyCollection[this.currentIndex];
@@ -125,7 +112,7 @@ namespace AuthenticatorComponent
         /// <summary>
         /// TODO: Evauluate: maybe have a string return that auto formats to 4 digits?
         /// </summary>
-        /// <returns></returns>
+        /// <returns>Returns the index of the key the user has to login as a string </returns>
         public string GetKeyIndexAsString()
         {
             return this.keyCollection[this.currentIndex].ToString("D4");
@@ -134,24 +121,34 @@ namespace AuthenticatorComponent
         /// <summary>
         /// Is this the correct key for the current key index?
         /// </summary>
-        /// <param name="key">
-        /// The key to validify
+        /// <param name="enteredKey">
+        /// The entered Key.
         /// </param>
         /// <returns>
         /// Returns true if the keyNumber is correct for the current sequence number
         /// </returns>
         public bool VerifyEnteredKey(uint enteredKey)
         {
-            uint keyToBeEntered = this.currentIndex;
-            this.RemoveKeyPair(this.currentIndex);
-            this.SetNextKeyIndex();
-            return keyToBeEntered.Equals(enteredKey);
+            //// Sets the key to be entered as the key corresponding to the current index value
+            uint keyToBeEntered = this.keyCollection[this.currentIndex];
+
+            bool success = false;
+
+            //// Checks if the entered key corresponds to the expected key.
+            if (enteredKey.Equals(keyToBeEntered))
+            {
+                this.RemoveKeyPair(this.currentIndex);
+                this.SetNextKeyIndex();
+                success = true;
+            }
+
+            return success;
         }
 
         /// <summary>
         /// Generate key card.
         /// </summary>
-        public void GenerateCard()
+        private void GenerateCard()
         {
             //// Clears the collection, removing all the entries.
             this.keyCollection.Clear();

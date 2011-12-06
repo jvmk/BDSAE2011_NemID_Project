@@ -12,8 +12,10 @@ namespace AuthenticationService
     using System;
     using System.IO;
     using System.Security.Cryptography;
-    using System.Xml;
     using System.Text;
+    using System.Xml;
+
+    using BDSAE2011_NemID_Project;
 
     /// <summary>
     /// The class for handling encryption and decryption of data
@@ -89,14 +91,14 @@ namespace AuthenticationService
                     UTF8Encoding encoder = new UTF8Encoding();
                     var byteMessage = encoder.GetBytes(dataToEncrypt);
 
-                    byteMessage = rsa.Encrypt(byteMessage, false);
+                    byte[] encryptedBytes = rsa.Encrypt(byteMessage, false);
 
                     //// Convert the byte array back to a string message
-                    encryptedMessage = encoder.GetString(byteMessage);
+                    encryptedMessage = encoder.GetString(encryptedBytes);
                     File.WriteAllText(@"C:\Test\EncryptedStringMessage.txt", encryptedMessage);
 
                     //// Write the encrypted message to a file, for testing purposes
-                    File.WriteAllBytes(@"C:\Test\encryptedBits.bin", byteMessage);
+                    File.WriteAllBytes(@"C:\Test\encryptedBits.bin", encryptedBytes);
 
                 }
 
@@ -135,14 +137,26 @@ namespace AuthenticationService
 
                     //// Convert the text from string to byte array for decryption
                     UTF8Encoding encoder = new UTF8Encoding();
-                    var byteMessage = encoder.GetBytes(dataToDecrypt);
+                    var encryptedBytes = encoder.GetBytes(dataToDecrypt);
+
+                    //// Create an aux array to store all the encrypted bytes
+                    byte[] decryptedBytes = new byte[encryptedBytes.Length];
+
+                    byte[] aux = new byte[512];
+
+                    for (int j = 0; j <= dataToDecrypt.Length; j+=512)
+                    {
+                        encoder.GetBytes(dataToDecrypt, j, 512, aux, j);
+                        byte[] auxDecrypted = rsa.Decrypt(aux, false);
+                        auxDecrypted.CopyTo(decryptedBytes, j);
+                    }
 
                     //// Decrypt the message
-                    byteMessage = rsa.Decrypt(byteMessage, false);
+                    ////   byte[] decryptedBytes = rsa.Decrypt(encryptedBytes, false);
 
-                    File.WriteAllBytes(@"C:\Test\decryptedBits.bin", byteMessage);
+                    File.WriteAllBytes(@"C:\Test\decryptedBits.bin", decryptedBytes);
                     //// Convert from bytes to string
-                    decryptedText = encoder.GetString(byteMessage);
+                    decryptedText = encoder.GetString(decryptedBytes);
 
                     //// Write the text to a file
                     File.WriteAllText(@"C:\Test\decryptedText.txt", decryptedText);
@@ -161,9 +175,14 @@ namespace AuthenticationService
         /// <summary>
         /// Generate public-private key pair.
         /// </summary>
-        public void GenerateKeys()
+        /// <param name="uniqueIdentifier">
+        /// For a client this could be his/her CPRNumber, for the server this could be its domain. Used to identify the public key.
+        /// TODO: Is the this right way to go about it?
+        /// </param>
+        public void GenerateKeys(string uniqueIdentifier)
         {
-            using (var rsa = new RSACryptoServiceProvider(4096))
+            var pki = new PublicKeyInfrastructure();
+           using (var rsa = new RSACryptoServiceProvider(4096))
             {
                 try
                 {
@@ -173,8 +192,11 @@ namespace AuthenticationService
                     var xdocPublic = new XmlDocument();
                     xdocPrivate.LoadXml(privateKey);
                     xdocPublic.LoadXml(publicKey);
-                    xdocPrivate.Save("PrivateKeyInfo.xml");
-                    xdocPublic.Save("PublicKeyInfo.xml");
+                    xdocPrivate.Save(@"C:\Test\PrivateKeyInfo.xml");
+                    xdocPublic.Save(@"C:\Test\PublicKeyInfo.xml");
+
+                    //// Store the key as an xml string along with the unique id in the PKI.
+                    this.PublishKey(publicKey, uniqueIdentifier);
                 }
                 finally
                 {
@@ -187,9 +209,21 @@ namespace AuthenticationService
         /// <summary>
         /// Upload public key to public key repository.
         /// </summary>
-        /// <param name="Key"></param>
-        public void PublishKey(String Key)
+        /// <param name="publicKey">
+        /// The public Key.
+        /// </param>
+        /// <param name="uniqueIdentifier">
+        /// The unique Identifier.
+        /// </param>
+        public void PublishKey(string publicKey, string uniqueIdentifier)
         {
+            PublicKeyInfrastructure PKI = new PublicKeyInfrastructure();
+            if (!publicKey.Contains("<P>"))
+            {
+                PKI.StoreKey(publicKey, uniqueIdentifier);
+            }
+                
+            
             ////Todo: make sure only public key info gets uploaded
 
         }
