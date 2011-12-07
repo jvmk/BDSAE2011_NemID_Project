@@ -52,6 +52,8 @@
     <Compile Include="Cryptograph.cs" />
     <Compile Include="KeyCard.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PublicKeyInfrastructure.cs" />
+    <Compile Include="ThirdParty.cs" />
     <Compile Include="UserAccount.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
