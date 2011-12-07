@@ -88,7 +88,7 @@ namespace Communication
 
             // Returns when a client connects
             TcpClient client = this.server.AcceptTcpClient();
-
+            
             Console.WriteLine("Client connected, initiate ssl establishment.");
 
             SslStream sslStream = new SslStream(client.GetStream(), false);
