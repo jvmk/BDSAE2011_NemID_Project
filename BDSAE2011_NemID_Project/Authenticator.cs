@@ -5,6 +5,7 @@ namespace AuthenticatorComponent
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
     using System.IO;
+    using System.Security.Cryptography;
 
     using AuthenticationService;
 
@@ -18,7 +19,7 @@ namespace AuthenticatorComponent
         /// </summary>
         private Dictionary<string, UserAccount> database = new Dictionary<string, UserAccount>(); // the string is the username for the associated useraccount
 
-        private String authPrivKeyPath = @"C:\SomePath"; // TODO update this path
+        private RSAParameters authPrivKeyPath = new RSAParameters(); // TODO update this path // TODO find out what to do about the keytype
 
         private Cryptograph cryptograph = new Cryptograph();
 
@@ -61,7 +62,7 @@ namespace AuthenticatorComponent
         public string GetKeyIndex(string username)
         {
             Contract.Requires(this.IsUserInDatabase(username));
-            return this.database[this.DecryptThisMessage(username)].Keycard.KeyIndex().ToString();
+            return this.database[this.DecryptThisMessage(username)].Keycard.GetKeyIndex().ToString();
         }
 
         /// <summary>
@@ -128,9 +129,9 @@ namespace AuthenticatorComponent
         private String DecryptThisMessage(string encryptedMessage)
         {
             // Decrypt first layer using own private key
-            encryptedMessage = cryptograph.Decrypt(authPrivKeyPath, encryptedMessage);
+            encryptedMessage = Cryptograph.Decrypt(encryptedMessage, authPrivKeyPath);
             // Decrypt second layer using senders public key
-            String decryptedMessage = cryptograph.Decrypt(, encryptedMessage); // TODO How to obtain public key? We don't know who is the sender here...
+            String decryptedMessage = Cryptograph.Decrypt(encryptedMessage, authPrivKeyPath); // TODO How to obtain public key? We don't know who is the sender here... // TODO FIX THIS SIMON!
             return decryptedMessage;
         }
 
