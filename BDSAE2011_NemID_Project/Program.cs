@@ -23,10 +23,11 @@
         {
             PublicKeyInfrastructure pki = new PublicKeyInfrastructure();
             Cryptograph crypto = new Cryptograph();
-            RSAParameters privateKey = crypto.GenerateKeys("simonlanghoff@gmail.com");
+            RSAParameters privateKey = crypto.GenerateKeys("simlanghoff@gmail.com");
 
-            const string PlainText = "hi";
-            RSAParameters publicKey = crypto.GetPublicKey("simonlanghoff@gmail.com");
+            const string PlainText = "This is really sent by me, really!";
+ 
+            RSAParameters publicKey = crypto.GetPublicKey("simlanghoff@gmail.com");
 
             string encryptedText = Cryptograph.Encrypt(PlainText, publicKey);
 
@@ -36,6 +37,15 @@
 
             Console.WriteLine("This is the decrypted text: " + decryptedText);
 
+            string messageToSign = encryptedText;
+
+            string signedMessage = Cryptograph.SignData(messageToSign, privateKey);
+
+            //// Is this message really, really, REALLY sent by me?
+            bool success = Cryptograph.VerifyData(messageToSign, signedMessage, publicKey);
+
+            Console.WriteLine("Is this message really, really, REALLY sent by me? " + success);
+            
         }
     }
 }
