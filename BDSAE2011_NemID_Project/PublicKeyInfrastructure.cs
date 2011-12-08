@@ -8,6 +8,7 @@ namespace BDSAE2011_NemID_Project
 {
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
+    using System.Security.Cryptography;
 
     /// <summary>
     /// TODO: Update summary.
@@ -17,13 +18,13 @@ namespace BDSAE2011_NemID_Project
         /// <summary>
         /// The collection to store the Xml strings and their ID
         /// </summary>
-        private readonly Dictionary<string, string> keyCollection = new Dictionary<string, string>(); 
+        private Dictionary<string, RSAParameters> keyCollection = new Dictionary<string, RSAParameters>(); 
 
         /// <summary>
         /// Stores the specified public key in the PKI
         /// </summary>
-        /// <param name="xmlKeyString">
-        /// The xml Key String.
+        /// <param name="publicKeyParameters">
+        /// The public Key Parameters.
         /// </param>
         /// <param name="uniqueIdentifier">
         /// The unique Identifier. 
@@ -31,14 +32,14 @@ namespace BDSAE2011_NemID_Project
         /// <returns>
         /// True if the key was succesfully stored, otherwise false
         /// </returns>
-        public bool StoreKey(string xmlKeyString, string uniqueIdentifier)
+        public bool StoreKey(RSAParameters publicKeyParameters, string uniqueIdentifier)
         {
-            Contract.Requires(xmlKeyString != null);
-            if (!this.keyCollection.ContainsKey(xmlKeyString))
+            Contract.Requires(!publicKeyParameters.Equals(null));
+            if (!this.keyCollection.ContainsKey(uniqueIdentifier))
             {
-                if (!this.keyCollection.ContainsValue(uniqueIdentifier))
+                if (!this.keyCollection.ContainsValue(publicKeyParameters))
                 {
-                    this.keyCollection.Add(uniqueIdentifier, xmlKeyString);
+                    this.keyCollection.Add(uniqueIdentifier, publicKeyParameters);
                 }
             }
 
@@ -50,7 +51,7 @@ namespace BDSAE2011_NemID_Project
         /// </summary>
         /// <param name="uniqueIdentifier">The unique identifier for the domain</param>
         /// <returns>the corresponding key for the domain</returns>
-        public string GetKey(string uniqueIdentifier)
+        public RSAParameters GetKey(string uniqueIdentifier)
         {
             Contract.Requires(this.keyCollection.ContainsKey(uniqueIdentifier));
             return this.keyCollection[uniqueIdentifier];
@@ -59,7 +60,7 @@ namespace BDSAE2011_NemID_Project
         /// <summary>
         /// Removes the key from the PKI
         /// </summary>
-        /// <param name="uniqueIdentifier"></param>
+        /// <param name="uniqueIdentifier">The unique identifier for the domain</param>
         /// <returns>True if the key is removed, otherwise false</returns>
         public bool RevokeKey(string uniqueIdentifier)
         {
