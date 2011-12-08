@@ -17,17 +17,13 @@
     /// </summary>
     public class Program
     {
-        PublicKeyInfrastructure pki = new PublicKeyInfrastructure();
-
         public static void Main(string[] args)
         {
-            PublicKeyInfrastructure pki = new PublicKeyInfrastructure();
-            Cryptograph crypto = new Cryptograph();
-            RSAParameters privateKey = crypto.GenerateKeys("simlanghoff@gmail.com");
+            RSAParameters privateKey = Cryptograph.GenerateKeys("simlanghoff@gmail.com");
 
             const string PlainText = "This is really sent by me, really!";
  
-            RSAParameters publicKey = crypto.GetPublicKey("simlanghoff@gmail.com");
+            RSAParameters publicKey = Cryptograph.GetPublicKey("simlanghoff@gmail.com");
 
             string encryptedText = Cryptograph.Encrypt(PlainText, publicKey);
 

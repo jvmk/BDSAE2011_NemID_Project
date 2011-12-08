@@ -11,23 +11,16 @@ namespace AuthenticationService
 {
     using System;
     using System.Diagnostics.Contracts;
-    using System.IO;
     using System.Security.Cryptography;
     using System.Text;
-    using System.Xml;
 
     using BDSAE2011_NemID_Project;
 
     /// <summary>
     /// The class for handling encryption and decryption of data
     /// </summary>
-    public class Cryptograph
+    public static class Cryptograph
     {
-        /// <summary>
-        /// The public key infrastructure
-        /// </summary>
-        private readonly PublicKeyInfrastructure pki = new PublicKeyInfrastructure();
-
         /// <summary>
         /// Is this public key valid?
         /// </summary>
@@ -37,9 +30,9 @@ namespace AuthenticationService
         /// <returns>
         /// True if the public key is deemed valid, otherwise false
         /// </returns>
-        public bool IsValid(string uniqueIdentifier)
+        public static bool IsValid(string uniqueIdentifier)
         {
-            return this.pki.ContainsKey(uniqueIdentifier);
+            return PublicKeyInfrastructure.ContainsKey(uniqueIdentifier);
         }
 
         /// <summary>
@@ -51,9 +44,9 @@ namespace AuthenticationService
         /// <returns>
         /// The public key from the PKI belonging to the unique domain
         /// </returns>
-        public RSAParameters GetPublicKey(string uniqueIdentifier)
+        public static RSAParameters GetPublicKey(string uniqueIdentifier)
         {
-            return this.pki.GetKey(uniqueIdentifier);
+            return PublicKeyInfrastructure.GetKey(uniqueIdentifier);
         }
 
         /// <summary>
@@ -208,7 +201,10 @@ namespace AuthenticationService
         /// For a client this could be his/her CPRNumber, for the server this could be its domain. Used to identify the public key.
         /// TODO: Returning privateKey, no?
         /// </param>
-        public RSAParameters GenerateKeys(string uniqueIdentifier)
+        /// <returns>
+        /// The generated keys.
+        /// </returns>
+        public static RSAParameters GenerateKeys(string uniqueIdentifier)
         {
             RSAParameters privateKey;
            using (var rsa = new RSACryptoServiceProvider(4096))
@@ -226,7 +222,7 @@ namespace AuthenticationService
                     //// xdocPrivate.Save(@"C:\Test\PrivateKeyInfo.xml");
 
                     //// Store the key as an xml string along with the unique id in the PKI.
-                    this.pki.StoreKey(publicKey, uniqueIdentifier);
+                    PublicKeyInfrastructure.StoreKey(publicKey, uniqueIdentifier);
                 }
                 finally
                 {
@@ -309,10 +305,6 @@ namespace AuthenticationService
                 {
                     rsa.ImportParameters(publicKey);
 
-                    SHA512Managed Hash = new SHA512Managed();
-
-                    byte[] hashedData = Hash.ComputeHash(signedBytes);
-
                     success = rsa.VerifyData(bytesToVerify, CryptoConfig.MapNameToOID("SHA512"), signedBytes);
                 }
                 catch (CryptographicException e)
@@ -339,10 +331,10 @@ namespace AuthenticationService
         /// <returns>
         /// True if the key was succesfully added to the PKI
         /// </returns>
-        public bool PublishKey(RSAParameters publicKey, string uniqueIdentifier)
+        public static bool PublishKey(RSAParameters publicKey, string uniqueIdentifier)
         {
             Contract.Requires(publicKey.P == null);
-            return this.pki.StoreKey(publicKey, uniqueIdentifier);
+            return PublicKeyInfrastructure.StoreKey(publicKey, uniqueIdentifier);
         }
         
         /// <summary>
@@ -351,7 +343,7 @@ namespace AuthenticationService
         /// <param name="bytes"></param>
         /// <param name="encryptionMode"></param>
         /// <returns></returns>
-        private byte[] BlockCihper(byte[] bytes, bool encryptionMode)
+        private static  byte[] BlockCihper(byte[] bytes, bool encryptionMode, RSAParameters keyInfo)
         {
             //// Create 2 arrays, aux to be the buffer array, toReturn to hold the complete data
             byte[] aux = new byte[0];

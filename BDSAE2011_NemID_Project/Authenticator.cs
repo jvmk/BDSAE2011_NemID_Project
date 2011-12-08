@@ -21,8 +21,6 @@ namespace AuthenticatorComponent
 
         private RSAParameters authPrivKeyPath = new RSAParameters(); // TODO update this path // TODO find out what to do about the keytype
 
-        private Cryptograph cryptograph = new Cryptograph();
-
         public Authenticator()
         {
             // TODO load persisted data (database).
