@@ -204,15 +204,26 @@ namespace Miscellaneoues
         /// </returns>
         public static byte[] GenerateKeys(string uniqueIdentifier)
         {
+<<<<<<< HEAD
             byte[] privateKeyBlob;
 
+=======
+            RSAParameters privateKey;
+>>>>>>> d1b8ac162aad1ea19c41aab4fdee3ee4a69aa24b
             using (var rsa = new RSACryptoServiceProvider(4096))
             {
                 try
                 {
+<<<<<<< HEAD
                     byte[] publicKey = rsa.ExportCspBlob(false);
 
                     privateKeyBlob = rsa.ExportCspBlob(true);
+=======
+                    //// string privateKey = rsa.ToXmlString(true);
+                    //// string publicKey = rsa.ToXmlString(false);
+                    privateKey = rsa.ExportParameters(true);
+                    RSAParameters publicKey = rsa.ExportParameters(false);
+>>>>>>> d1b8ac162aad1ea19c41aab4fdee3ee4a69aa24b
 
                     //// Save the private key
                     //// var xdocPrivate = new XmlDocument();
@@ -341,7 +352,11 @@ namespace Miscellaneoues
         /// <param name="bytes"></param>
         /// <param name="encryptionMode"></param>
         /// <returns></returns>
+<<<<<<< HEAD
         private static byte[] BlockCihper(byte[] bytes, bool encryptionMode, byte[] keyInfo)
+=======
+        private static byte[] BlockCihper(byte[] bytes, bool encryptionMode, RSAParameters keyInfo)
+>>>>>>> d1b8ac162aad1ea19c41aab4fdee3ee4a69aa24b
         {
             //// Create 2 arrays, aux to be the buffer array, toReturn to hold the complete data
             byte[] aux = new byte[0];
