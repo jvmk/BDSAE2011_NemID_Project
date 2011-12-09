@@ -1,4 +1,11 @@
-﻿//-
+﻿// --------------------------------------------------------------------------------------------------------------------
+// <copyright file="UserAccount.cs" company="">
+//   
+// </copyright>
+// <summary>
+//   Represents the account each user has at the authenticator.
+// </summary>
+// --------------------------------------------------------------------------------------------------------------------
 
 namespace AuthenticatorComponent
 {

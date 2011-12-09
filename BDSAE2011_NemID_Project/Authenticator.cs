@@ -5,8 +5,9 @@ namespace AuthenticatorComponent
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
     using System.IO;
+    using System.Security.Cryptography;
 
-    using Test;
+    using AuthenticationService;
 
     /// <summary>
     /// The component that mimics DANID in the current NemId-solution.
@@ -18,9 +19,7 @@ namespace AuthenticatorComponent
         /// </summary>
         private Dictionary<string, UserAccount> database = new Dictionary<string, UserAccount>(); // the string is the username for the associated useraccount
 
-        private String authPrivKeyPath = @"C:\SomePath"; // TODO update this path
-
-        private Cryptograph cryptograph = new Cryptograph();
+        private RSAParameters authPrivKeyPath = new RSAParameters(); // TODO update this path // TODO find out what to do about the keytype
 
         public Authenticator()
         {
@@ -61,7 +60,7 @@ namespace AuthenticatorComponent
         public string GetKeyIndex(string username)
         {
             Contract.Requires(this.IsUserInDatabase(username));
-            return this.database[this.DecryptThisMessage(username)].Keycard.KeyIndex().ToString();
+            return this.database[this.DecryptThisMessage(username)].Keycard.GetKeyIndex().ToString();
         }
 
         /// <summary>
@@ -121,16 +120,16 @@ namespace AuthenticatorComponent
             Contract.Requires(this.IsUserInDatabase(username));
             String keycardPrint = this.database[this.DecryptThisMessage(username)].Keycard.ToString();
             File.WriteAllText(@"C:\" + username +
-                this.database[this.DecryptThisMessage(username)].Keycard.GetKeyCardNumber() +
+                this.database[this.DecryptThisMessage(username)].Keycard.GetKeyCardNumber() + 
                 ".txt", keycardPrint);
         }
 
         private String DecryptThisMessage(string encryptedMessage)
         {
             // Decrypt first layer using own private key
-            encryptedMessage = cryptograph.Decrypt(authPrivKeyPath, encryptedMessage);
+            encryptedMessage = Cryptograph.Decrypt(encryptedMessage, authPrivKeyPath);
             // Decrypt second layer using senders public key
-            String decryptedMessage = "";//cryptograph.Decrypt(, encryptedMessage); // TODO How to obtain public key? We don't know who is the sender here...
+            String decryptedMessage = Cryptograph.Decrypt(encryptedMessage, authPrivKeyPath); // TODO How to obtain public key? We don't know who is the sender here... // TODO FIX THIS SIMON!
             return decryptedMessage;
         }
 

@@ -43,6 +43,7 @@ namespace ThirdPartyComponent
         /// </summary>
         public void StartServer()
         {
+            /*
             inService = true;
             while (this.inService)
             {
@@ -63,6 +64,7 @@ namespace ThirdPartyComponent
                         // TODO do nothing..?
                 }
             }
+             */
         }
 
         /// <summary>
