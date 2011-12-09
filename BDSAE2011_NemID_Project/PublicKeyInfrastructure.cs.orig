@@ -18,7 +18,11 @@ namespace Miscellaneoues
         /// <summary>
         /// A collection to store a unique ID corresponding to a specific key.
         /// </summary>
+<<<<<<< HEAD
         private static readonly Dictionary<string, byte[]> keyCollection = new Dictionary<string, byte[]>();
+=======
+        private static readonly Dictionary<string, RSAParameters> keyCollection = new Dictionary<string, RSAParameters>();
+>>>>>>> d1b8ac162aad1ea19c41aab4fdee3ee4a69aa24b
 
         /// <summary>
         /// Stores the specified public key in the PKI
