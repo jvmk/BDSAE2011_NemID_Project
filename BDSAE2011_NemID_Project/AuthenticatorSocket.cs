@@ -8,6 +8,7 @@ namespace AuthenticatorComponent
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
     using System.IO;
     using System.Linq;
     using System.Net;
@@ -17,6 +18,8 @@ namespace AuthenticatorComponent
     using System.Security.Cryptography.X509Certificates;
     using System.Text;
     using System.Threading;
+
+    using Miscellaneoues;
 
     /// <summary>
     /// Data structure that represents the properties of a client
@@ -127,6 +130,8 @@ namespace AuthenticatorComponent
         private string authenticatorDomain;
 
 
+        private byte[] authenticatorPrivateKey;
+
         /// <summary>
         /// Initializes a new instance of the AuthenticatorSocket class.
         /// </summary>
@@ -135,10 +140,12 @@ namespace AuthenticatorComponent
         /// </param>
         public AuthenticatorSocket(string authenticatorDomain)
         {
-            // TODO GENERATE CERTIFICATE.
             this.authenticatorDomain = authenticatorDomain;
             this.server = new HttpListener();
             this.server.Prefixes.Add(authenticatorDomain + "/");
+
+            // Generate a public/private key pair
+            this.authenticatorPrivateKey = Cryptograph.GenerateKeys(this.authenticatorDomain);
         }
 
         /// <summary>
@@ -168,7 +175,7 @@ namespace AuthenticatorComponent
             Stream requestDataStream = request.InputStream;
             string rawMessageBody = this.ReadFrom(requestDataStream);
 
-            // Get requester's domain
+            // Get requester's domain.
             string requesterDomain = this.GetRequesterDomain(rawMessageBody);
 
             // Get the requested operation.
@@ -178,6 +185,8 @@ namespace AuthenticatorComponent
             // Get requester's parameters.
             string[] parameters = this.GetParameters(rawMessageBody, requesterDomain);
 
+            // Return a Request struct containing the properties just
+            // achieved.
             return new Request(requesterDomain, requestedOperation, parameters);
         }
 
@@ -185,13 +194,17 @@ namespace AuthenticatorComponent
         /// Sends the specified message as a response to the
         /// request received by the ReadMessage-call.
         /// </summary>
-        /// <param name="reqeust">
+        /// <param name="request">
         /// The request this new message is a response to.
         /// </param>
         /// <param name="accepted"></param>
         /// <param name="message"></param>
-        public void SendMessage(Request reqeust, bool accepted, string message)
+        public void SendMessage(Request request, bool accepted, string message)
         {
+            Contract.Requires(string.IsNullOrEmpty(message));
+            // Contract.Requires(this.IsMessageWellFormed(message));
+            // Contract.Ensures(this.IsSentRawMessageBodyWellFormed()));
+
             // Obtain a response object.
             HttpListenerResponse responseMessage = this.currentListenerContext.Response;
 
@@ -199,7 +212,8 @@ namespace AuthenticatorComponent
             Stream output = null;
 
             // Encrypted in requester's public key
-            string encOrigin = ""; // Cyrptograph.Encrypt(this.authenticatorDomain, Cryptograph.GetPublicKey(request.Domain))
+            string encOrigin = Cryptograph.Encrypt(
+                this.authenticatorDomain, Cryptograph.GetPublicKey(request.RequesterDomain));
 
             // If the request was not succesfully completed.
             if (!accepted)
@@ -216,14 +230,16 @@ namespace AuthenticatorComponent
                 return;
             }
 
-            // HTTP status code 200: OK
+            // The request was accepted; HTTP status code 200 OK
             responseMessage.StatusCode = 200;
 
             // Encrypt message in requester's public key.
-            string encMessage = ""; // Cryptograph.Encrypt(message, Cryptograph.GetPublicKey(request.Domain));
+            string encMessage = Cryptograph.Encrypt(
+                message, Cryptograph.GetPublicKey(request.RequesterDomain));
 
             // Sign the encrypted message with the authenticator's private key.
-            string signedEncMessage = ""; //Cryptograph.Sign(ensMessage, /*authenticator's private key*/)
+            string signedEncMessage = Cryptograph.SignData(
+                encMessage, Cryptograph.GetPublicKey(request.RequesterDomain));
 
             // Finally assemble the message body that the requester will
             // receive.
@@ -241,8 +257,20 @@ namespace AuthenticatorComponent
             output.Close();
         }
 
+        /// <summary>
+        /// Gets the requested operation specified in the given URL.
+        /// </summary>
+        /// <param name="url">
+        /// The url containing the string representation of an operation.
+        /// </param>
+        /// <returns>
+        /// String representation of the requested operation.
+        /// </returns>
         private string GetRequestedOperation(string url)
         {
+            Contract.Requires(string.IsNullOrEmpty(url));
+            // Contract.Requires(this.DoesUrlContainRequest(url));
+
             int start = url.IndexOf("request=") + "request=".Length;
             int end = url.IndexOf('/', start);
 
@@ -250,10 +278,16 @@ namespace AuthenticatorComponent
         }
 
         /// <summary>
-        /// 
+        /// Reads the bytes from the specified stream and
+        /// encodes them in UTF8.
         /// </summary>
-        /// <param name="stream"></param>
-        /// <returns></returns>
+        /// <param name="stream">
+        /// The stream to be read from.
+        /// </param>
+        /// <returns>
+        /// The string encoded in UTF8 from the bytes read
+        /// in the specified stream.
+        /// </returns>
         private string ReadFrom(Stream stream)
         {
             // Read the message sent by the client.
@@ -288,13 +322,14 @@ namespace AuthenticatorComponent
         private string GetRequesterDomain(string rawMessageBody)
         {
             int start = rawMessageBody.IndexOf("origin=") + "origin=".Length;
-            // Get the index of the first occurence of '&':
+
+            // Get the index of the last character i in the encrypted domain
+            // string:
             int end = rawMessageBody.IndexOf('&') - 1;
 
+            // This string is encrypted in the authenticator's public key.
             string encRequesterDomain = rawMessageBody.Substring(start, end - start);
-
-            //TODO decrypt using authenticator's private key.
-            return ""; // Cryptograph.Decrypt(encRequesterDomain, /*Authenticator's private key*/);
+            return Cryptograph.Decrypt(encRequesterDomain, this.authenticatorPrivateKey);
         }
 
         /// <summary>
@@ -305,7 +340,10 @@ namespace AuthenticatorComponent
         /// The domain of the requester, who sent the original HTTP message.
         /// Used for verification of the signed message body part.
         /// </param>
-        /// <returns></returns>
+        /// <returns>
+        /// String representations of the parameters in the specified raw
+        /// message body.
+        /// </returns>
         private string[] GetParameters(string rawMessageBody, string clientDomain)
         {
             // Get string representation of the parameters to the requested operation
@@ -314,6 +352,8 @@ namespace AuthenticatorComponent
             Console.WriteLine("MessageBody: " + rawMessageBody);
             string decryptedMessage = this.ProcessRawMessageBody(rawMessageBody, clientDomain);
 
+            // Process the decrypted messagebody to obtain parameters sent from
+            // the client.
             int numberOfParameters = decryptedMessage.Count(c => c.Equals('&')) + 1;
             string[] parameters = new string[numberOfParameters];
 
@@ -352,7 +392,7 @@ namespace AuthenticatorComponent
         /// <param name="rawMessageBody"></param>
         /// <param name="clientDomain"></param>
         /// <returns>
-        /// The decrypted message of the messagebody.
+        /// The decrypted messagebody.
         /// </returns>
         private string ProcessRawMessageBody(string rawMessageBody, string clientDomain)
         {
@@ -362,17 +402,21 @@ namespace AuthenticatorComponent
             // key. This text represents the text that is signed by the
             // client.
             string encMessageBody = parts[1];
-            string signedMessage = parts[2];
 
-            //TODO
-            bool verified = 1 == rawMessageBody.Length;// Cryptograph.Verify(encMasse, signedMessage, Cryptograph.GetPublicKey(clientDomain));
+            // signedEncMessageBody is the signed text of the encMessageBody.
+            // It has been signed by the client's private key.
+            string signedEncMessageBody = parts[2];
+
+            bool verified = Cryptograph.VerifyData(
+                encMessageBody, signedEncMessageBody, Cryptograph.GetPublicKey(clientDomain));
 
             if (verified)
             {
-                //TODO
-                return "";// Cryptograph.Decypt( /*authenticator's private key*/ );
+                return Cryptograph.Decrypt(
+                    encMessageBody, Cryptograph.GetPublicKey(clientDomain));
             }
 
+            // TODO way to end?
             // The message has been tangled with:
             throw new Exception();
         }
