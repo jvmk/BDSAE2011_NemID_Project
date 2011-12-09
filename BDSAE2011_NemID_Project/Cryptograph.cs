@@ -7,7 +7,7 @@
 // </summary>
 // -------------------------------------------------------------------------------------------------------------------
 
-namespace AuthenticationService
+namespace Test
 {
     using System;
     using System.IO;

@@ -6,7 +6,7 @@ namespace AuthenticatorComponent
     using System.Diagnostics.Contracts;
     using System.IO;
 
-    using AuthenticationService;
+    using Test;
 
     /// <summary>
     /// The component that mimics DANID in the current NemId-solution.
@@ -121,7 +121,7 @@ namespace AuthenticatorComponent
             Contract.Requires(this.IsUserInDatabase(username));
             String keycardPrint = this.database[this.DecryptThisMessage(username)].Keycard.ToString();
             File.WriteAllText(@"C:\" + username +
-                this.database[this.DecryptThisMessage(username)].Keycard.GetKeyCardNumber() + 
+                this.database[this.DecryptThisMessage(username)].Keycard.GetKeyCardNumber() +
                 ".txt", keycardPrint);
         }
 
@@ -130,7 +130,7 @@ namespace AuthenticatorComponent
             // Decrypt first layer using own private key
             encryptedMessage = cryptograph.Decrypt(authPrivKeyPath, encryptedMessage);
             // Decrypt second layer using senders public key
-            String decryptedMessage = cryptograph.Decrypt(, encryptedMessage); // TODO How to obtain public key? We don't know who is the sender here...
+            String decryptedMessage = "";//cryptograph.Decrypt(, encryptedMessage); // TODO How to obtain public key? We don't know who is the sender here...
             return decryptedMessage;
         }
 
