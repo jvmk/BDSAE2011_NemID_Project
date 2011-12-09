@@ -31,11 +31,11 @@ namespace ExamProject_COMMUNICATOR
         /// TODO: Start the server from here?
         /// </summary>
         /// <param name="args">TODO: any params? </param>
-        public static void Main(string[] args)
-        {
-            Communicator authServer = new Communicator("localhost");
-            authServer.StartListening();
-        }
+        //public static void Main(string[] args)
+        //{
+            //Communicator authServer = new Communicator("localhost");
+            //authServer.StartListening();
+        //}
 
         public Communicator(string hostAndDomain)
         {

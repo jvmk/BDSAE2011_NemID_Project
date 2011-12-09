@@ -4,76 +4,12 @@
 // </copyright>
 // ----------------------------------------------------------------------
 
-namespace AuthenticationService
+namespace ClientComponent
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
-
-    using Communication;
-
-    /// <summary>
-    /// Data structure representing the properties of the 
-    /// http response message from the authenticator.
-    /// </summary>
-    internal struct HttpResponse
-    {
-        /// <summary>
-        /// Indicated whether the request that this reponse it a
-        /// reponse to was accepted by the authenticator.
-        /// </summary>
-        private readonly bool accepted;
-
-        /// <summary>
-        /// The string representation of the return value of the 
-        /// requested operation
-        /// </summary>
-        private readonly string returnValue;
-
-        /// <summary>
-        /// Initializes a new instance of the HttpResponse struct.
-        /// </summary>
-        /// <param name="accepted">
-        /// Indicates whether the request, the response message is a 
-        /// response to, was accepted by the authenticator.
-        /// </param>
-        /// <param name="returnvalue">
-        /// String representation of the return value of the requested
-        /// authenticator operation.
-        /// </param>
-        public HttpResponse(bool accepted, string returnvalue)
-        {
-            this.accepted = accepted;
-            this.returnValue = returnvalue;
-        }
-
-        /// <summary>
-        /// Gets a value indicating whether the request was accepted by the
-        /// authenticator.
-        /// </summary>
-        public bool Accepted
-        {
-            get
-            {
-                return this.accepted;
-            }
-        }
-
-        /// <summary>
-        /// Gets a string representation of the return value returned
-        /// by the authenticator operation.
-        /// Will be null if the authenticator didn't accept the requested
-        /// operation.
-        /// </summary>
-        public string ReturnValue
-        {
-            get
-            {
-                return this.returnValue;
-            }
-        }
-    }
 
     /// <summary>
     /// TODO: Update summary.
@@ -96,7 +32,7 @@ namespace AuthenticationService
         /// string representation of the most recently received and
         /// processed server response.
         /// </summary>
-        private HttpResponse currentServerResponse = default(HttpResponse);
+        private Response currentServerResponse = default(Response);
 
         /// <summary>
         /// Initializes a new instance of the AuthenticatorProxy class.
@@ -110,10 +46,11 @@ namespace AuthenticationService
         /// <param name="serverName">
         /// The authenticator's name as it appears on it certificate.
         /// </param>
-        public AuthenticatorProxy(string serverDomain, int port, string serverName)
+        //TODO servername must be removed.
+        public AuthenticatorProxy(string serverDomain, string serverName)
         {
             this.serverDomain = serverDomain;
-            this.socket = new ClientSocket(serverDomain, port, serverName);
+            this.socket = new ClientSocket(serverDomain, serverName);
         }
 
         /// <summary>
@@ -135,15 +72,10 @@ namespace AuthenticationService
         /// </returns>
         public bool CreateUserAccount(string encUserName, string encPassword, string encCprNumber)
         {
-            string request = this.CompileHttpRequest(
+            this.socket.SendMessage(
                 "createAccount",
-                "userName=" + encUserName + "&" +
-                "password=" + encPassword + "&" +
-                "cprNumber=" + encCprNumber);
-
-            this.socket.SendMessage(request);
-            this.ReceiveResponse();
-
+                "username=" + encUserName + "&password=" + encPassword);
+            this.currentServerResponse = this.socket.ReadMessage();
             return this.currentServerResponse.Accepted;
         }
 
@@ -162,13 +94,10 @@ namespace AuthenticationService
         /// </returns>
         public bool LogIn(string encUserName, string encPassword)
         {
-            string request = this.CompileHttpRequest(
+            this.socket.SendMessage(
                 "login",
                 "userName=" + encUserName + ":" + "password=" + encPassword);
-
-            this.socket.SendMessage(request);
-            this.ReceiveResponse();
-
+            this.currentServerResponse = this.socket.ReadMessage();
             return this.currentServerResponse.Accepted;
         }
 
@@ -179,11 +108,11 @@ namespace AuthenticationService
         /// corresponding key the authentication server is expecting.
         /// </summary>
         /// <returns>
-        /// A string representation of the key index value.
+        /// A string representation of the key index value, encrypted.
         /// </returns>
         public string GetKeyIndex()
         {
-            return this.currentServerResponse.ReturnValue;
+            return this.ProcessMessageBodyOf(this.currentServerResponse);
         }
 
         /// <summary>
@@ -202,13 +131,10 @@ namespace AuthenticationService
         /// </returns>
         public bool SubmitKey(int encKeyValue, string encUserName)
         {
-            string request = this.CompileHttpRequest(
+            this.socket.SendMessage(
                 "submitKey",
                 "keyValue=" + encKeyValue + "&" + "userName=" + encUserName);
-
-            this.socket.SendMessage(request);
-            this.ReceiveResponse();
-
+            this.currentServerResponse = this.socket.ReadMessage();
             return this.currentServerResponse.Accepted;
         }
 
@@ -225,15 +151,12 @@ namespace AuthenticationService
         /// True if the revokation was succesful at the authenticator,
         /// false otherwise.
         /// </returns>
-        public bool RevokeUserAccount(string encUserName)
+        public bool RevokeUserAccount(string encUserName, string pkiIdentifier)
         {
-            string request = this.CompileHttpRequest(
+            this.socket.SendMessage(
                 "revokeAccount",
                 "userName=" + encUserName);
-
-            this.socket.SendMessage(request);
-            this.ReceiveResponse();
-
+            this.currentServerResponse = this.socket.ReadMessage();
             return this.currentServerResponse.Accepted;
         }
 
@@ -243,90 +166,36 @@ namespace AuthenticationService
             return true;
         }
 
-        /// <summary>
-        /// Helper method; when a response from the authentication 
-        /// server is received, the raw HttpMessage is processed
-        /// and assigned to the currentServerReponse-field.
-        /// </summary>
-        private void ReceiveResponse()
-        {
-            string rawServerResponse = this.socket.ReadMessage();
-            this.currentServerResponse = this.ProcessHttpResponse(rawServerResponse);
-        }
-
-        /// <summary>
-        /// Compile an HTTP-request method using the POST-method.
-        /// </summary>
-        /// <param name="operation">
-        /// The method to be invoked on the server.
-        /// </param>
-        /// <param name="messageBody">
-        /// The parameters of the method to be invoked.
-        /// </param>
-        /// <returns>
-        /// A string representation of the http request message.
-        /// </returns>
-        private string CompileHttpRequest(string operation, string messageBody)
-        {
-            var requestString = new StringBuilder();
-
-            requestString.Append("POST " + "/request=" + operation + " " + "HTTP/1.1" + "\n");
-            requestString.Append("Host: " + this.serverDomain + "\n");
-            requestString.Append("\n");
-            requestString.Append(messageBody);
-
-            return requestString.ToString();
-        }
 
         /// <summary>
         /// Processes the specified string representation of a 
         /// http message.
         /// </summary>
-        /// <param name="httpMessage">
+        /// <param name="messageBody">
         /// Raw string representation of the http response message.
         /// </param>
         /// <returns>
         /// A string constitution the return values of the authentication
         /// server.
         /// </returns>
-        private HttpResponse ProcessHttpResponse(string httpMessage)
+        private string ProcessMessageBodyOf(Response response)
         {
-            string[] responseLines = httpMessage.Split('\n');
-
-            string statusLine = responseLines[0];
-            string messageBody = responseLines[responseLines.Count() - 1];
-
-            // Extract HTTP reponse code
-            int start = statusLine.IndexOf(" ");
-            int end = statusLine.IndexOf(" ", start + 1);
-
-            int httpResponseCode = int.Parse(statusLine.Substring(start, end - start));
-
             // Extract return value
-            string encResponse = null;
+            string encResponse = string.Empty;
 
-            if (httpResponseCode == 200 && !messageBody.Equals(string.Empty))
+            if (response.Accepted)
             {
-                int s = messageBody.IndexOf('=');
-                int e = messageBody.Length;
+                int start = response.MessageBody.IndexOf('=') + 1;
+                int end = response.MessageBody.Length;
 
-                encResponse = messageBody.Substring(s, e - s);
+                return response.MessageBody.Substring(start, end - start);
             }
 
-            HttpResponse response = default(HttpResponse);
-
-            switch (httpResponseCode)
-            {
-                case 200:
-                    response = new HttpResponse(true, encResponse);
-                    break;
-                case 400:
-                    response = new HttpResponse(false, encResponse);
-                    break;
-            }
-
-            return response;
+            // The request wasn't accepted by the authenticator,
+            // so the will be no return value.
+            return string.Empty;
         }
+
 
 
         // Example request message:

@@ -14,8 +14,6 @@ namespace Miscellaneoues
     using System.Security.Cryptography;
     using System.Text;
 
-    using BDSAE2011_NemID_Project;
-
     /// <summary>
     /// The class for handling encryption and decryption of data
     /// </summary>

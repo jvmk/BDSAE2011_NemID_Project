@@ -7,7 +7,7 @@ namespace AuthenticatorComponent
     using System.IO;
     using System.Security.Cryptography;
 
-    using AuthenticationService;
+    using Miscellaneoues;
 
     using Miscellaneoues;
 
@@ -122,7 +122,7 @@ namespace AuthenticatorComponent
             Contract.Requires(this.IsUserInDatabase(username));
             String keycardPrint = this.database[this.DecryptThisMessage(username)].Keycard.ToString();
             File.WriteAllText(@"C:\" + username +
-                this.database[this.DecryptThisMessage(username)].Keycard.GetKeyCardNumber() + 
+                this.database[this.DecryptThisMessage(username)].Keycard.GetKeyCardNumber() +
                 ".txt", keycardPrint);
         }
 
