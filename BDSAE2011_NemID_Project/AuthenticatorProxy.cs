@@ -4,7 +4,7 @@
 // </copyright>
 // ----------------------------------------------------------------------
 
-namespace Test
+namespace ClientComponent
 {
     using System;
     using System.Collections.Generic;

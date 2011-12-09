@@ -4,7 +4,7 @@
 // </copyright>
 // ----------------------------------------------------------------------
 
-namespace Test
+namespace AuthenticatorComponent
 {
     using System;
     using System.Collections.Generic;

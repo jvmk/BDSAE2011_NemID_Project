@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace BDSAE2011_NemID_Project
+namespace Miscellaneoues
 {
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
@@ -18,7 +18,7 @@ namespace BDSAE2011_NemID_Project
         /// <summary>
         /// A collection to store a unique ID corresponding to a specific key.
         /// </summary>
-        private static readonly Dictionary<string, RSAParameters> keyCollection = new Dictionary<string, RSAParameters>(); 
+        private static readonly Dictionary<string, RSAParameters> keyCollection = new Dictionary<string, RSAParameters>();
 
         /// <summary>
         /// Stores the specified public key in the PKI

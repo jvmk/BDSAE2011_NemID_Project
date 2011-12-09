@@ -7,14 +7,12 @@
 // </summary>
 // -------------------------------------------------------------------------------------------------------------------
 
-namespace Test
+namespace Miscellaneoues
 {
     using System;
     using System.Diagnostics.Contracts;
     using System.Security.Cryptography;
     using System.Text;
-
-    using BDSAE2011_NemID_Project;
 
     /// <summary>
     /// The class for handling encryption and decryption of data
@@ -207,7 +205,7 @@ namespace Test
         public static RSAParameters GenerateKeys(string uniqueIdentifier)
         {
             RSAParameters privateKey;
-           using (var rsa = new RSACryptoServiceProvider(4096))
+            using (var rsa = new RSACryptoServiceProvider(4096))
             {
                 try
                 {
@@ -215,7 +213,7 @@ namespace Test
                     //// string publicKey = rsa.ToXmlString(false);
                     privateKey = rsa.ExportParameters(true);
                     RSAParameters publicKey = rsa.ExportParameters(false);
-                    
+
                     //// Save the private key
                     //// var xdocPrivate = new XmlDocument();
                     //// xdocPrivate.LoadXml(privateKey);
@@ -254,7 +252,7 @@ namespace Test
                 //// Write the message to a byte array using UTF8 as the encoding.
                 var encoder = new UTF8Encoding();
                 byte[] originalData = encoder.GetBytes(message);
-                
+
                 try
                 {
                     //// Import the private key used for signing the message
@@ -318,7 +316,7 @@ namespace Test
             }
             return success;
         }
-        
+
         /// <summary>
         /// Upload public key to public key repository.
         /// </summary>
@@ -336,14 +334,14 @@ namespace Test
             Contract.Requires(publicKey.P == null);
             return PublicKeyInfrastructure.StoreKey(publicKey, uniqueIdentifier);
         }
-        
+
         /// <summary>
         /// This method is used to facilitate splitting the messages up into chunks of data small enough to be decrypted and encrypted by the RSACryptoServiceProvider
         /// </summary>
         /// <param name="bytes"></param>
         /// <param name="encryptionMode"></param>
         /// <returns></returns>
-        private static  byte[] BlockCihper(byte[] bytes, bool encryptionMode, RSAParameters keyInfo)
+        private static byte[] BlockCihper(byte[] bytes, bool encryptionMode, RSAParameters keyInfo)
         {
             //// Create 2 arrays, aux to be the buffer array, toReturn to hold the complete data
             byte[] aux = new byte[0];
