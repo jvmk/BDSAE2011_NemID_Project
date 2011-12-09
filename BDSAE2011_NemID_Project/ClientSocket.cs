@@ -4,10 +4,11 @@
 // </copyright>
 // ----------------------------------------------------------------------
 
-namespace Communication
+namespace Test
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
     using System.Linq;
     using System.Net;
     using System.Net.Security;
@@ -17,6 +18,69 @@ namespace Communication
     using System.Text;
 
     /// <summary>
+    /// Data structure representing the properties of the 
+    /// http response message from the authenticator.
+    /// </summary>
+    public struct Response
+    {
+        /// <summary>
+        /// Indicated whether the request that this reponse it a
+        /// reponse to was accepted by the authenticator.
+        /// </summary>
+        private readonly bool accepted;
+
+        /// <summary>
+        /// The string representation of the return value of the 
+        /// requested operation
+        /// </summary>
+        private readonly string messageBody;
+
+        /// <summary>
+        /// Initializes a new instance of the Response struct.
+        /// </summary>
+        /// <param name="accepted">
+        /// Indicates whether the request, the response message is a 
+        /// response to, was accepted by the authenticator.
+        /// </param>
+        /// <param name="returnvalue">
+        /// String representation of the return value of the requested
+        /// authenticator operation.
+        /// </param>
+        public Response(bool accepted, string returnvalue)
+        {
+            this.accepted = accepted;
+            this.messageBody = returnvalue;
+        }
+
+        /// <summary>
+        /// Gets a value indicating whether the request was accepted by the
+        /// authenticator.
+        /// </summary>
+        public bool Accepted
+        {
+            get
+            {
+                return this.accepted;
+            }
+        }
+
+        /// <summary>
+        /// Gets a string representation of the message body returned
+        /// by the authenticator operation.
+        /// Will be null if the authenticator didn't accept the requested
+        /// operation.
+        /// </summary>
+        public string MessageBody
+        {
+            get
+            {
+                return this.messageBody;
+            }
+        }
+    }
+
+
+    /// <summary>
     /// TODO: Update summary.
     /// </summary>
     public class ClientSocket
@@ -24,15 +88,20 @@ namespace Communication
         /// <summary>
         /// Represents the non-validated connection to a server.
         /// </summary>
-        private readonly TcpClient client;
+        private HttpWebRequest clientRequest = default(HttpWebRequest);
+
+        private readonly string serverDomain;
 
         /// <summary>
-        /// Represents the validated connection to a server.
+        /// The domain of the client that uses this socket.
+        /// Used to set the "origin=" part of the messageBody
+        /// of the HTTP-message to the server.
         /// </summary>
-        private readonly SslStream sslStream;
+        private readonly string clientDomain;
 
         /// <summary>
         /// Initializes a new instance of the ClientSocket class.
+        /// http://stackoverflow.com/questions/749030/keep-a-http-connection-alive-in-c
         /// </summary>
         /// <param name="serverDomain">
         /// The domain of the server wished to connect to.
@@ -43,27 +112,40 @@ namespace Communication
         /// <param name="serverName">
         /// The name of the server as declared in its certificate.
         /// </param>
-        public ClientSocket(string serverDomain, int port, string serverName)
+        public ClientSocket(string serverDomain, string clientDomain)
         {
-            this.client = new TcpClient(serverDomain, port);
-            Console.WriteLine("Client connected");
-            this.sslStream = this.getValidatedStream(serverName);
-            Console.WriteLine("Validated connection established.");
+            this.serverDomain = serverDomain;
+            this.clientDomain = clientDomain;
         }
 
         /// <summary>
-        /// Sends the specificed message over the socket.
+        /// 
         /// </summary>
-        /// <param name="message">
-        /// Message to be sent.
-        /// </param>
-        public void SendMessage(string message)
+        /// <param name="operation"></param>
+        /// <param name="message"></param>
+        public void SendMessage(string operation, string message)
         {
-            // TODO Encyption code of the message.
-            Console.WriteLine("Client sending message.");
-            byte[] messageBytes = Encoding.UTF8.GetBytes(message + "<EOF>");
-            this.sslStream.Write(messageBytes);
-            this.sslStream.Flush();
+            // Console.WriteLine("Client sending message.");
+            // byte[] messageBytes = Encoding.UTF8.GetBytes(message + "<EOF>");
+            // this.sslStream.Write(messageBytes);
+            // this.sslStream.Flush();
+
+            this.clientRequest = (HttpWebRequest)WebRequest.Create(serverDomain + "/request=" + operation + "/");
+            // request.Credentials = CredentialCache.DefaultCredentials;
+            // ((HttpWebRequest)request).UserAgent = "AuthenticationSerivce";
+            this.clientRequest.Method = "POST";
+
+            string compiledMessageBody = this.CompileMessageBody(message);
+            byte[] messageBytes = Encoding.UTF8.GetBytes(compiledMessageBody);
+
+            this.clientRequest.ContentLength = messageBytes.Length;
+            // HTTP version 1.1 have the KeepAlive-property set to default.
+            this.clientRequest.ProtocolVersion = HttpVersion.Version11;
+
+            Stream dataStream = this.clientRequest.GetRequestStream();
+            dataStream.Write(messageBytes, 0, messageBytes.Length);
+
+            dataStream.Close();
         }
 
         /// <summary>
@@ -72,17 +154,71 @@ namespace Communication
         /// <returns>
         /// The message read from the stream.
         /// </returns>
-        public string ReadMessage()
+        public Response ReadMessage()
         {
-            // Read the  message sent by the server.
-            // The end of the message is signaled using the
-            // "<EOF>" marker.
+            HttpWebResponse response = (HttpWebResponse)clientRequest.GetResponse();
+
+            // The HTTP status code indicates whether the request was 
+            // accepted by the server.
+            bool acceptedRequest = response.StatusCode == HttpStatusCode.OK;
+
+            Stream responseStream = response.GetResponseStream();
+            string responseMessage = this.ReadFrom(responseStream);
+            string rawMessageBody = this.ReadFrom(responseStream);
+
+            string responderDomain = this.GetResponderDomain(rawMessageBody);
+
+            // If true we are certain the response came from the authenticator.
+            bool originMatch = this.serverDomain.Equals(responderDomain);
+
+            if (!(acceptedRequest && originMatch))
+            {
+                return new Response(false, string.Empty);
+            }
+
+            // If the request is accepted the message body will also
+            // contain a return value.
+            string returnValue = this.GetReturnValue(responseMessage);
+
+            return new Response(true, returnValue);
+        }
+
+        private string CompileMessageBody(String message)
+        {
+            StringBuilder messageBody = new StringBuilder();
+
+            // Domain signed in authenticator's public key.
+            string encDomain = ""; // Cryptograh.Encyrpt(this.clientDomain, Cryptograph.GetPublicKey(authenticator));
+
+            messageBody.Append("origin=" + encDomain + "&");
+
+            //Encrypt in authenticator's public key. /TODO
+            string encMessage = "";//Cryptograph.Encrypt()
+
+            messageBody.Append(encMessage + "&");
+
+            //Sign encMessage TODO
+            string signedEncMessage = ""; // Cryptograph.Encrypt()
+
+            messageBody.Append(signedEncMessage);
+
+            return messageBody.ToString();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+        private string ReadFrom(Stream stream)
+        {
             byte[] buffer = new byte[2048];
             StringBuilder messageData = new StringBuilder();
             int bytes = -1;
+
             do
             {
-                bytes = this.sslStream.Read(buffer, 0, buffer.Length);
+                bytes = stream.Read(buffer, 0, buffer.Length);
 
                 // Use Decoder class to convert from bytes to UTF8
                 // in case a character spans two buffers.
@@ -90,86 +226,84 @@ namespace Communication
                 char[] chars = new char[decoder.GetCharCount(buffer, 0, bytes)];
                 decoder.GetChars(buffer, 0, bytes, chars, 0);
                 messageData.Append(chars);
-
-                // Check for EOF.
-                if (messageData.ToString().IndexOf("<EOF>") != -1)
-                {
-                    break;
-                }
-            } while (bytes != 0);
-
-            // TODO decryption of the message.
-
-            Console.WriteLine("Client received message: " + messageData);
+            }
+            while (bytes != 0);
 
             return messageData.ToString();
         }
 
         /// <summary>
-        /// Creates a validated SSL connection from the TcpClient connection.
+        /// Gets the domain of the http-message received.
         /// </summary>
-        /// <param name="serverName">
-        /// The name of the server as declared in its certificate.
-        /// </param>
+        /// <param name="rawMessageBody"></param>
         /// <returns>
-        /// A validated connection to the server.
+        /// String representation of the domain specified
+        /// in the raw message body.
         /// </returns>
-        private SslStream getValidatedStream(string serverName)
+        private string GetResponderDomain(string rawMessageBody)
         {
-            SslStream sslStream = new SslStream(
-                this.client.GetStream(),
-                false,
-                ValidateServerCertificate, // Delegate
-                null); // TODO Last parameter might be superfluous.
+            int start = rawMessageBody.IndexOf("origin=") + "origin=".Length;
 
-            // The server name must match the name on the server certificate.
-            try
-            {
-                Console.WriteLine("Client is authenticating server.");
-                sslStream.AuthenticateAsClient(serverName);
-                Console.WriteLine("Client authenticated server.");
-                return sslStream;
-            }
-            catch (AuthenticationException e)
-            {
-                Console.WriteLine("Exception: {0}", e.Message);
-                if (e.InnerException != null)
-                {
-                    Console.WriteLine("Inner exception: {0}", e.InnerException.Message);
-                }
-                Console.WriteLine("Authentication failed - closing the connection.");
-                this.client.Close();
+            int end = -1;
 
-                // TODO better way to end.
-                return null;
+            // Determine the end-index of the responder domain
+            if (rawMessageBody.Contains('&'))
+            {
+                end = rawMessageBody.IndexOf('&') - 1;
             }
+            else
+            {
+                end = rawMessageBody.Length;
+            }
+
+            string encRequesterDomain = rawMessageBody.Substring(start, end - start);
+
+            //TODO decrypt using client's private key.
+            return ""; // Cryptograph.Decrypt(encRequesterDomain, /*Client's private key*/);
         }
 
         /// <summary>
-        /// Validates the server certificate.
-        /// This method is invoked by the RemoteCertificateValidationDelegate used as
-        /// a parameter for the SslStream-constructor.
+        /// 
         /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="certificate"></param>
-        /// <param name="chain"></param>
-        /// <param name="sslPolicyErrors"></param>
+        /// <param name="rawResponseMessage"></param>
         /// <returns></returns>
-        private static bool ValidateServerCertificate(
-              object sender,
-              X509Certificate certificate,
-              X509Chain chain,
-              SslPolicyErrors sslPolicyErrors)
+        private string GetReturnValue(string rawResponseMessage)
         {
-            if (sslPolicyErrors == SslPolicyErrors.None)
+            if (!rawResponseMessage.Contains('&'))
             {
-                return true;
+                return "";
             }
 
-            Console.WriteLine("Certificate error: {0}", sslPolicyErrors);
+            // The authenticator only sends back one return value.
+            string decryptedMessageBody = this.ProcessRawMessageBody(rawResponseMessage);
 
-            // Do not allow this client to communicate with unauthenticated servers.
-            return false;
+            int start = decryptedMessageBody.IndexOf('=') + 1;
+            int end = decryptedMessageBody.Length;
+
+            return decryptedMessageBody.Substring(start, end - start);
+        }
+
+        private string ProcessRawMessageBody(string rawMessageBody)
+        {
+            string[] parts = rawMessageBody.Split('&');
+
+            // encMessageBody is encrypted in the authenticator's public
+            // key. This text represents the text that is signed by the
+            // client.
+            string encMessageBody = parts[1];
+            string signedMessage = parts[2];
+
+            //TODO
+            bool verified = 1 == rawMessageBody.Length;// Cryptograph.Verify(encMasse, signedMessage, Cryptograph.GetPublicKey(this.serverDomain));
+
+            if (verified)
+            {
+                //TODO
+                return "";// Cryptograph.Decypt( /*authenticator's private key*/ );
+            }
+
+            // The message has been tangled with:
+            throw new Exception();
         }
     }
 }
