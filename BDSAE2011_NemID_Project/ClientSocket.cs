@@ -7,15 +7,12 @@
 namespace ClientComponent
 {
     using System;
-    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Net;
-    using System.Net.Security;
-    using System.Net.Sockets;
-    using System.Security.Authentication;
-    using System.Security.Cryptography.X509Certificates;
     using System.Text;
+
+    using Miscellaneoues;
 
     /// <summary>
     /// Data structure representing the properties of the 
@@ -99,6 +96,8 @@ namespace ClientComponent
         /// </summary>
         private readonly string clientDomain;
 
+        private byte[] clientPrivateKey;
+
         /// <summary>
         /// Initializes a new instance of the ClientSocket class.
         /// http://stackoverflow.com/questions/749030/keep-a-http-connection-alive-in-c
@@ -119,26 +118,37 @@ namespace ClientComponent
         }
 
         /// <summary>
-        /// 
+        /// Sends an HTTP request message to the server domian requesting
+        /// the specified operation and supplying the specified message.
         /// </summary>
-        /// <param name="operation"></param>
-        /// <param name="message"></param>
+        /// <param name="operation">
+        /// The requested operation on the server.
+        /// </param>
+        /// <param name="message">
+        /// The message of the request constituted of string
+        /// representations of the parameters sent to the 
+        /// specified operation.
+        /// </param>
         public void SendMessage(string operation, string message)
         {
-            // Console.WriteLine("Client sending message.");
-            // byte[] messageBytes = Encoding.UTF8.GetBytes(message + "<EOF>");
-            // this.sslStream.Write(messageBytes);
-            // this.sslStream.Flush();
+            // Contract.Requires(!string.IsNullOrEmpty(message));
+            // Contract.Requires(isMessageWellFormed(message));
+            // Contract.Requires(suppertedOperations.Contains(operation));
 
-            this.clientRequest = (HttpWebRequest)WebRequest.Create(serverDomain + "/request=" + operation + "/");
-            // request.Credentials = CredentialCache.DefaultCredentials;
+            Console.WriteLine("Client sending message.");
+
+            this.clientRequest = (HttpWebRequest)WebRequest.Create(this.serverDomain + "/request=" + operation + "/");
+
+            // request.Credentials = CredentialCache.DefaultCredentials; // TODO remove?
             // ((HttpWebRequest)request).UserAgent = "AuthenticationSerivce";
+
             this.clientRequest.Method = "POST";
 
             string compiledMessageBody = this.CompileMessageBody(message);
             byte[] messageBytes = Encoding.UTF8.GetBytes(compiledMessageBody);
 
             this.clientRequest.ContentLength = messageBytes.Length;
+
             // HTTP version 1.1 have the KeepAlive-property set to default.
             this.clientRequest.ProtocolVersion = HttpVersion.Version11;
 
@@ -156,19 +166,22 @@ namespace ClientComponent
         /// </returns>
         public Response ReadMessage()
         {
-            HttpWebResponse response = (HttpWebResponse)clientRequest.GetResponse();
+            // Contract.Requires(this.HasRequestBeenSent());
+
+            HttpWebResponse response = (HttpWebResponse)this.clientRequest.GetResponse();
 
             // The HTTP status code indicates whether the request was 
-            // accepted by the server.
+            // accepted by the server. If the codes is anything other than
+            // 200 OK, the request wasn't accepted by the server.
             bool acceptedRequest = response.StatusCode == HttpStatusCode.OK;
 
             Stream responseStream = response.GetResponseStream();
-            string responseMessage = this.ReadFrom(responseStream);
             string rawMessageBody = this.ReadFrom(responseStream);
 
+            // Get the responder domain.
             string responderDomain = this.GetResponderDomain(rawMessageBody);
 
-            // If true we are certain the response came from the authenticator.
+            // If true we are certain the response came from the authenticator. // TODO really?
             bool originMatch = this.serverDomain.Equals(responderDomain);
 
             if (!(acceptedRequest && originMatch))
@@ -178,7 +191,7 @@ namespace ClientComponent
 
             // If the request is accepted the message body will also
             // contain a return value.
-            string returnValue = this.GetReturnValue(responseMessage);
+            string returnValue = this.GetReturnValue(rawMessageBody);
 
             return new Response(true, returnValue);
         }
@@ -187,18 +200,20 @@ namespace ClientComponent
         {
             StringBuilder messageBody = new StringBuilder();
 
-            // Domain signed in authenticator's public key.
-            string encDomain = ""; // Cryptograh.Encyrpt(this.clientDomain, Cryptograph.GetPublicKey(authenticator));
+            // Domain encrypted in authenticator's public key.
+            string encDomain = Cryptograph.Encrypt(
+                this.clientDomain, Cryptograph.GetPublicKey(this.serverDomain));
 
             messageBody.Append("origin=" + encDomain + "&");
 
-            //Encrypt in authenticator's public key. /TODO
-            string encMessage = "";//Cryptograph.Encrypt()
+            // Encrypt message in authenticator's public key.
+            string encMessage = Cryptograph.Encrypt(
+                message, Cryptograph.GetPublicKey(this.serverDomain));
 
             messageBody.Append(encMessage + "&");
 
-            //Sign encMessage TODO
-            string signedEncMessage = ""; // Cryptograph.Encrypt()
+            // Sign encMessage in client's private key.
+            string signedEncMessage = Cryptograph.SignData(encMessage, clientPrivateKey); // TODO client private key
 
             messageBody.Append(signedEncMessage);
 
@@ -206,10 +221,16 @@ namespace ClientComponent
         }
 
         /// <summary>
-        /// 
+        /// Reads the bytes from the specified stream and
+        /// encodes them in UTF8.
         /// </summary>
-        /// <param name="stream"></param>
-        /// <returns></returns>
+        /// <param name="stream">
+        /// The stream to be read from.
+        /// </param>
+        /// <returns>
+        /// The string encoded in UTF8 from the bytes read
+        /// in the specified stream.
+        /// </returns>
         private string ReadFrom(Stream stream)
         {
             byte[] buffer = new byte[2048];
@@ -242,11 +263,13 @@ namespace ClientComponent
         /// </returns>
         private string GetResponderDomain(string rawMessageBody)
         {
+            // Contract.Requires(this.IsRawMessageBodyWellFormed(rawMessageBody));
+
+            // Determine start index of the encrypted reponder domain.
             int start = rawMessageBody.IndexOf("origin=") + "origin=".Length;
 
+            // Determine end index of the encrypted responder domain.
             int end = -1;
-
-            // Determine the end-index of the responder domain
             if (rawMessageBody.Contains('&'))
             {
                 end = rawMessageBody.IndexOf('&') - 1;
@@ -258,8 +281,8 @@ namespace ClientComponent
 
             string encRequesterDomain = rawMessageBody.Substring(start, end - start);
 
-            //TODO decrypt using client's private key.
-            return ""; // Cryptograph.Decrypt(encRequesterDomain, /*Client's private key*/);
+            // Decrypt using client's private key.
+            return Cryptograph.Decrypt(encRequesterDomain, this.clientPrivateKey); // TODO client private key.
         }
 
         /// <summary>
@@ -269,39 +292,46 @@ namespace ClientComponent
         /// <returns></returns>
         private string GetReturnValue(string rawResponseMessage)
         {
-            if (!rawResponseMessage.Contains('&'))
-            {
-                return "";
-            }
+            // Contract.Requires(this.ContainsReturnValue(rawResponseMessage));
 
             // The authenticator only sends back one return value.
             string decryptedMessageBody = this.ProcessRawMessageBody(rawResponseMessage);
 
+            // Start index of the return value.
             int start = decryptedMessageBody.IndexOf('=') + 1;
+
+            // End index of the return value.
             int end = decryptedMessageBody.Length;
 
             return decryptedMessageBody.Substring(start, end - start);
         }
 
+        /// <summary>
+        /// Gets the message body of the specified raw message body.
+        /// </summary>
+        /// <param name="rawMessageBody"></param>
+        /// <returns></returns>
         private string ProcessRawMessageBody(string rawMessageBody)
         {
+            // Contract.Requires(this.IsRawMessageBodyWellFormed(rawMessageBody));
+
             string[] parts = rawMessageBody.Split('&');
 
             // encMessageBody is encrypted in the authenticator's public
             // key. This text represents the text that is signed by the
             // client.
             string encMessageBody = parts[1];
-            string signedMessage = parts[2];
+            string signedEncMessageBody = parts[2];
 
-            //TODO
-            bool verified = 1 == rawMessageBody.Length;// Cryptograph.Verify(encMasse, signedMessage, Cryptograph.GetPublicKey(this.serverDomain));
+            bool verified = Cryptograph.VerifyData(
+                encMessageBody, signedEncMessageBody, Cryptograph.GetPublicKey(this.serverDomain));
 
             if (verified)
             {
-                //TODO
-                return "";// Cryptograph.Decypt( /*authenticator's private key*/ );
+                return Cryptograph.Decrypt(encMessageBody, Cryptograph.GetPublicKey(this.serverDomain));
             }
 
+            // TODO 
             // The message has been tangled with:
             throw new Exception();
         }
