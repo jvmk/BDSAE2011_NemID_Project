@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace BDSAE2011_NemID_Project
+namespace Miscellaneoues
 {
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
@@ -18,7 +18,7 @@ namespace BDSAE2011_NemID_Project
         /// <summary>
         /// A collection to store a unique ID corresponding to a specific key.
         /// </summary>
-        private static readonly Dictionary<string, RSAParameters> keyCollection = new Dictionary<string, RSAParameters>(); 
+        private static readonly Dictionary<string, byte[]> keyCollection = new Dictionary<string, byte[]>();
 
         /// <summary>
         /// Stores the specified public key in the PKI
@@ -32,7 +32,7 @@ namespace BDSAE2011_NemID_Project
         /// <returns>
         /// True if the key was succesfully stored, otherwise false
         /// </returns>
-        public static bool StoreKey(RSAParameters publicKeyParameters, string uniqueIdentifier)
+        public static bool StoreKey(byte[] publicKeyParameters, string uniqueIdentifier)
         {
             Contract.Requires(!publicKeyParameters.Equals(null));
             if (!keyCollection.ContainsKey(uniqueIdentifier))
@@ -51,7 +51,7 @@ namespace BDSAE2011_NemID_Project
         /// </summary>
         /// <param name="uniqueIdentifier">The unique identifier for the domain</param>
         /// <returns>the corresponding key for the domain</returns>
-        public static RSAParameters GetKey(string uniqueIdentifier)
+        public static byte[] GetKey(string uniqueIdentifier)
         {
             Contract.Requires(keyCollection.ContainsKey(uniqueIdentifier));
             return keyCollection[uniqueIdentifier];

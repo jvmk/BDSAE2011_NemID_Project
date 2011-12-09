@@ -9,6 +9,8 @@ namespace AuthenticatorComponent
 
     using AuthenticationService;
 
+    using Miscellaneoues;
+
     /// <summary>
     /// The component that mimics DANID in the current NemId-solution.
     /// </summary>
@@ -19,7 +21,7 @@ namespace AuthenticatorComponent
         /// </summary>
         private Dictionary<string, UserAccount> database = new Dictionary<string, UserAccount>(); // the string is the username for the associated useraccount
 
-        private RSAParameters authPrivKeyPath = new RSAParameters(); // TODO update this path // TODO find out what to do about the keytype
+        private byte[] authPrivKeyPath; // TODO update this path // TODO find out what to do about the keytype
 
         public Authenticator()
         {

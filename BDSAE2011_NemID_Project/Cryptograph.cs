@@ -7,7 +7,7 @@
 // </summary>
 // -------------------------------------------------------------------------------------------------------------------
 
-namespace AuthenticationService
+namespace Miscellaneoues
 {
     using System;
     using System.Diagnostics.Contracts;
@@ -44,7 +44,7 @@ namespace AuthenticationService
         /// <returns>
         /// The public key from the PKI belonging to the unique domain
         /// </returns>
-        public static RSAParameters GetPublicKey(string uniqueIdentifier)
+        public static byte[] GetPublicKey(string uniqueIdentifier)
         {
             return PublicKeyInfrastructure.GetKey(uniqueIdentifier);
         }
@@ -61,7 +61,7 @@ namespace AuthenticationService
         /// <returns>
         /// The encrypted message.
         /// </returns>
-        public static string Encrypt(string dataToEncrypt, RSAParameters publicKeyInfo)
+        public static string Encrypt(string dataToEncrypt, byte[] publicKeyInfo)
         {
             //// Our bytearray to hold all of our data after the encryption
             byte[] encryptedBytes = new byte[0];
@@ -74,7 +74,7 @@ namespace AuthenticationService
                     byte[] encryptThis = encoder.GetBytes(dataToEncrypt);
 
                     //// Importing the public key
-                    rsa.ImportParameters(publicKeyInfo);
+                    rsa.ImportCspBlob(publicKeyInfo);
 
                     int blockSize = (rsa.KeySize / 8) - 32;
 
@@ -134,7 +134,7 @@ namespace AuthenticationService
         /// <returns>
         /// The decrypted data.
         /// </returns>
-        public static string Decrypt(string dataToDecrypt, RSAParameters privateKeyInfo)
+        public static string Decrypt(string dataToDecrypt, byte[] privateKeyInfo)
         {
             //// The bytearray to hold all of our data after decryption
             byte[] decryptedBytes;
@@ -147,7 +147,7 @@ namespace AuthenticationService
                     byte[] bytesToDecrypt = Convert.FromBase64String(dataToDecrypt);
 
                     //// Import the private key info
-                    rsa.ImportParameters(privateKeyInfo);
+                    rsa.ImportCspBlob(privateKeyInfo);
 
                     //// No need to subtract padding size when decrypting
                     int blockSize = rsa.KeySize / 8;
@@ -204,18 +204,18 @@ namespace AuthenticationService
         /// <returns>
         /// The generated keys.
         /// </returns>
-        public static RSAParameters GenerateKeys(string uniqueIdentifier)
+        public static byte[] GenerateKeys(string uniqueIdentifier)
         {
-            RSAParameters privateKey;
-           using (var rsa = new RSACryptoServiceProvider(4096))
+            byte[] privateKeyBlob;
+
+            using (var rsa = new RSACryptoServiceProvider(4096))
             {
                 try
                 {
-                    //// string privateKey = rsa.ToXmlString(true);
-                    //// string publicKey = rsa.ToXmlString(false);
-                    privateKey = rsa.ExportParameters(true);
-                    RSAParameters publicKey = rsa.ExportParameters(false);
-                    
+                    byte[] publicKey = rsa.ExportCspBlob(false);
+
+                    privateKeyBlob = rsa.ExportCspBlob(true);
+
                     //// Save the private key
                     //// var xdocPrivate = new XmlDocument();
                     //// xdocPrivate.LoadXml(privateKey);
@@ -231,7 +231,7 @@ namespace AuthenticationService
                 }
             }
 
-            return privateKey;
+            return privateKeyBlob;
         }
 
         /// <summary>
@@ -245,7 +245,7 @@ namespace AuthenticationService
         /// <returns>
         /// The signed message string
         /// </returns>
-        public static string SignData(string message, RSAParameters privateKey)
+        public static string SignData(string message, byte[] privateKey)
         {
             //// The array to store the signed message in bytes
             byte[] signedBytes;
@@ -254,11 +254,11 @@ namespace AuthenticationService
                 //// Write the message to a byte array using UTF8 as the encoding.
                 var encoder = new UTF8Encoding();
                 byte[] originalData = encoder.GetBytes(message);
-                
+
                 try
                 {
                     //// Import the private key used for signing the message
-                    rsa.ImportParameters(privateKey);
+                    rsa.ImportCspBlob(privateKey);
 
                     //// Sign the data, using SHA512 as the hashing algorithm 
                     signedBytes = rsa.SignData(originalData, CryptoConfig.MapNameToOID("SHA512"));
@@ -293,7 +293,7 @@ namespace AuthenticationService
         /// <returns>
         /// Returns true if the message is authentic and sent by the holder of the specified public key.
         /// </returns>
-        public static bool VerifyData(string originalMessage, string signedMessage, RSAParameters publicKey)
+        public static bool VerifyData(string originalMessage, string signedMessage, byte[] publicKey)
         {
             bool success = false;
             using (var rsa = new RSACryptoServiceProvider())
@@ -303,7 +303,7 @@ namespace AuthenticationService
                 byte[] signedBytes = Convert.FromBase64String(signedMessage);
                 try
                 {
-                    rsa.ImportParameters(publicKey);
+                    rsa.ImportCspBlob(publicKey);
 
                     success = rsa.VerifyData(bytesToVerify, CryptoConfig.MapNameToOID("SHA512"), signedBytes);
                 }
@@ -318,7 +318,7 @@ namespace AuthenticationService
             }
             return success;
         }
-        
+
         /// <summary>
         /// Upload public key to public key repository.
         /// </summary>
@@ -331,19 +331,19 @@ namespace AuthenticationService
         /// <returns>
         /// True if the key was succesfully added to the PKI
         /// </returns>
-        public static bool PublishKey(RSAParameters publicKey, string uniqueIdentifier)
+        public static bool PublishKey(byte[] publicKey, string uniqueIdentifier)
         {
-            Contract.Requires(publicKey.P == null);
+            Contract.Requires(publicKey != null || uniqueIdentifier != null);
             return PublicKeyInfrastructure.StoreKey(publicKey, uniqueIdentifier);
         }
-        
+
         /// <summary>
         /// This method is used to facilitate splitting the messages up into chunks of data small enough to be decrypted and encrypted by the RSACryptoServiceProvider
         /// </summary>
         /// <param name="bytes"></param>
         /// <param name="encryptionMode"></param>
         /// <returns></returns>
-        private static  byte[] BlockCihper(byte[] bytes, bool encryptionMode, RSAParameters keyInfo)
+        private static byte[] BlockCihper(byte[] bytes, bool encryptionMode, byte[] keyInfo)
         {
             //// Create 2 arrays, aux to be the buffer array, toReturn to hold the complete data
             byte[] aux = new byte[0];
