@@ -6,7 +6,7 @@
 
 namespace ThirdPartyComponent
 {
-    using Communication;
+    using AuthenticatorComponent;
 
     /// <summary>
     /// The 3rd party the user wants a secure and authenticated connection to.
@@ -33,11 +33,11 @@ namespace ThirdPartyComponent
         /// This simulates the third party's server.
         /// </summary>
         /// <param name="port">The server port.</param>
-        public ThirdParty(int port)
+        public ThirdParty(string domain)
         {
-            this.server = new AuthenticatorSocket(port);
+            this.server = new AuthenticatorSocket(domain);
         }
-        
+
         /// <summary>
         /// Start listening for and process client requests.
         /// </summary>

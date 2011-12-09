@@ -7,27 +7,18 @@
 // </summary>
 // -------------------------------------------------------------------------------------------------------------------
 
-namespace AuthenticationService
+namespace Miscellaneoues
 {
     using System;
     using System.Diagnostics.Contracts;
-    using System.IO;
     using System.Security.Cryptography;
     using System.Text;
-    using System.Xml;
-
-    using BDSAE2011_NemID_Project;
 
     /// <summary>
     /// The class for handling encryption and decryption of data
     /// </summary>
-    public class Cryptograph
+    public static class Cryptograph
     {
-        /// <summary>
-        /// The public key infrastructure
-        /// </summary>
-        private readonly PublicKeyInfrastructure pki = new PublicKeyInfrastructure();
-
         /// <summary>
         /// Is this public key valid?
         /// </summary>
@@ -37,9 +28,9 @@ namespace AuthenticationService
         /// <returns>
         /// True if the public key is deemed valid, otherwise false
         /// </returns>
-        public bool IsValid(string uniqueIdentifier)
+        public static bool IsValid(string uniqueIdentifier)
         {
-            return this.pki.ContainsKey(uniqueIdentifier);
+            return PublicKeyInfrastructure.ContainsKey(uniqueIdentifier);
         }
 
         /// <summary>
@@ -51,9 +42,9 @@ namespace AuthenticationService
         /// <returns>
         /// The public key from the PKI belonging to the unique domain
         /// </returns>
-        public RSAParameters GetPublicKey(string uniqueIdentifier)
+        public static RSAParameters GetPublicKey(string uniqueIdentifier)
         {
-            return this.pki.GetKey(uniqueIdentifier);
+            return PublicKeyInfrastructure.GetKey(uniqueIdentifier);
         }
 
         /// <summary>
@@ -70,50 +61,62 @@ namespace AuthenticationService
         /// </returns>
         public static string Encrypt(string dataToEncrypt, RSAParameters publicKeyInfo)
         {
-
-            //Create a new instance of RSACryptoServiceProvider.
-            RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
-
-            UTF8Encoding encoder = new UTF8Encoding();
-
-            byte[] encryptThis = encoder.GetBytes(dataToEncrypt);
-
-            //// Importing the public key
-            RSA.ImportParameters(publicKeyInfo);
-
-            int blockSize = (RSA.KeySize / 8) - 32;
-
-            //// buffer to write byte sequence of the given block_size
-            byte[] buffer = new byte[blockSize];
-
-            byte[] encryptedBuffer = new byte[blockSize];
-
-            //// The bytearray to hold all of our data after encryption
-            byte[] encryptedBytes = new byte[encryptThis.Length + blockSize - (encryptThis.Length % blockSize) + 32];
-
-            for (int i = 0; i < encryptThis.Length; i += blockSize)
+            //// Our bytearray to hold all of our data after the encryption
+            byte[] encryptedBytes = new byte[0];
+            using (var rsa = new RSACryptoServiceProvider())
             {
-                //// If there is extra info to be parsed, but not enough to fill out a complete bytearray, fit array for last bit of data
-                if (2 * i > encryptThis.Length && ((encryptThis.Length - i) % blockSize != 0))
+                try
                 {
-                    buffer = new byte[encryptThis.Length - i];
-                    blockSize = encryptThis.Length - i;
-                }
+                    var encoder = new UTF8Encoding();
 
-                //// If the amount of bytes we need to decrypt isn't enough to fill out a block, only decrypt part of it
-                if (encryptThis.Length < blockSize)
+                    byte[] encryptThis = encoder.GetBytes(dataToEncrypt);
+
+                    //// Importing the public key
+                    rsa.ImportParameters(publicKeyInfo);
+
+                    int blockSize = (rsa.KeySize / 8) - 32;
+
+                    //// buffer to write byte sequence of the given block_size
+                    byte[] buffer = new byte[blockSize];
+
+                    byte[] encryptedBuffer = new byte[blockSize];
+
+                    //// Initializing our encryptedBytes array to a suitable size, depending on the size of data to be encrypted
+                    encryptedBytes = new byte[encryptThis.Length + blockSize - (encryptThis.Length % blockSize) + 32];
+
+                    for (int i = 0; i < encryptThis.Length; i += blockSize)
+                    {
+                        //// If there is extra info to be parsed, but not enough to fill out a complete bytearray, fit array for last bit of data
+                        if (2 * i > encryptThis.Length && ((encryptThis.Length - i) % blockSize != 0))
+                        {
+                            buffer = new byte[encryptThis.Length - i];
+                            blockSize = encryptThis.Length - i;
+                        }
+
+                        //// If the amount of bytes we need to decrypt isn't enough to fill out a block, only decrypt part of it
+                        if (encryptThis.Length < blockSize)
+                        {
+                            buffer = new byte[encryptThis.Length];
+                            blockSize = encryptThis.Length;
+                        }
+
+                        //// encrypt the specified size of data, then add to final array.
+                        Buffer.BlockCopy(encryptThis, i, buffer, 0, blockSize);
+                        encryptedBuffer = rsa.Encrypt(buffer, false);
+                        encryptedBuffer.CopyTo(encryptedBytes, i);
+                    }
+                }
+                catch (CryptographicException e)
                 {
-                    buffer = new byte[encryptThis.Length];
-                    blockSize = encryptThis.Length;
+                    Console.Write(e);
                 }
-
-                //// encrypt the specified size of data, then add to final array.
-                Buffer.BlockCopy(encryptThis, i, buffer, 0, blockSize);
-                encryptedBuffer = RSA.Encrypt(buffer, false);
-                encryptedBuffer.CopyTo(encryptedBytes, i);
-
+                finally
+                {
+                    //// Clear the RSA key container, deleting generated keys.
+                    rsa.PersistKeyInCsp = false;
+                }
             }
-            //// Convert the byteArray using Base64
+            //// Convert the byteArray using Base64 and returns as an encrypted string
             return Convert.ToBase64String(encryptedBytes);
         }
 
@@ -131,81 +134,62 @@ namespace AuthenticationService
         /// </returns>
         public static string Decrypt(string dataToDecrypt, RSAParameters privateKeyInfo)
         {
-            //Create a new instance of RSACryptoServiceProvider.
-            RSACryptoServiceProvider RSA = new RSACryptoServiceProvider();
-
-            byte[] bytesToDecrypt = Convert.FromBase64String(dataToDecrypt);
-
-            //// Import the private key info
-            RSA.ImportParameters(privateKeyInfo);
-
-            //// No need to subtract padding size when decrypting (OR do I?)
-            int blockSize = RSA.KeySize / 8;
-
-            //// buffer to write byte sequence of the given block_size
-            byte[] buffer = new byte[blockSize];
-
-            //// buffer containing decrypted information
-            byte[] decryptedBuffer = new byte[blockSize];
-
             //// The bytearray to hold all of our data after decryption
-            byte[] decryptedBytes = new byte[dataToDecrypt.Length];
+            byte[] decryptedBytes;
 
-            for (int i = 0; i < bytesToDecrypt.Length; i += blockSize)
+            //Create a new instance of RSACryptoServiceProvider.
+            using (var rsa = new RSACryptoServiceProvider())
             {
-                if (2 * i > bytesToDecrypt.Length && ((bytesToDecrypt.Length - i) % blockSize != 0))
+                try
                 {
-                    buffer = new byte[bytesToDecrypt.Length - i];
-                    blockSize = bytesToDecrypt.Length - i;
-                }
+                    byte[] bytesToDecrypt = Convert.FromBase64String(dataToDecrypt);
 
-                //// If the amount of bytes we need to decrypt isn't enough to fill out a block, only decrypt part of it
-                if (bytesToDecrypt.Length < blockSize)
+                    //// Import the private key info
+                    rsa.ImportParameters(privateKeyInfo);
+
+                    //// No need to subtract padding size when decrypting
+                    int blockSize = rsa.KeySize / 8;
+
+                    //// buffer to write byte sequence of the given block_size
+                    byte[] buffer = new byte[blockSize];
+
+                    //// buffer containing decrypted information
+                    byte[] decryptedBuffer = new byte[blockSize];
+
+                    //// Initializes our array to make sure it can hold at least the amount needed to decrypt.
+                    decryptedBytes = new byte[dataToDecrypt.Length];
+
+                    for (int i = 0; i < bytesToDecrypt.Length; i += blockSize)
+                    {
+                        if (2 * i > bytesToDecrypt.Length && ((bytesToDecrypt.Length - i) % blockSize != 0))
+                        {
+                            buffer = new byte[bytesToDecrypt.Length - i];
+                            blockSize = bytesToDecrypt.Length - i;
+                        }
+
+                        //// If the amount of bytes we need to decrypt isn't enough to fill out a block, only decrypt part of it
+                        if (bytesToDecrypt.Length < blockSize)
+                        {
+                            buffer = new byte[bytesToDecrypt.Length];
+                            blockSize = bytesToDecrypt.Length;
+                        }
+
+                        Buffer.BlockCopy(bytesToDecrypt, i, buffer, 0, blockSize);
+                        decryptedBuffer = rsa.Decrypt(buffer, false);
+                        decryptedBuffer.CopyTo(decryptedBytes, i);
+                    }
+                }
+                finally
                 {
-                    buffer = new byte[bytesToDecrypt.Length];
-                    blockSize = bytesToDecrypt.Length;
+                    //// Clear the RSA key container, deleting generated keys.
+                    rsa.PersistKeyInCsp = false;
                 }
-
-                Buffer.BlockCopy(bytesToDecrypt, i, buffer, 0, blockSize);
-                decryptedBuffer = RSA.Decrypt(buffer, false);
-                decryptedBuffer.CopyTo(decryptedBytes, i);
-
             }
 
+            //// We encode each byte with UTF8 and then write to a string while trimming off the extra empty data created by the overhead.
             var encoder = new UTF8Encoding();
             return encoder.GetString(decryptedBytes).TrimEnd(new[] { '\0' });
 
-        }
-
-        /// <summary>
-        /// This method is used to facilitate splitting the messages up into chunks of data small enough to be decrypted and encrypted by the RSACryptoServiceProvider
-        /// </summary>
-        /// <param name="bytes"></param>
-        /// <param name="encryptionMode"></param>
-        /// <returns></returns>
-        private byte[] blockCihper(byte[] bytes, bool encryptionMode)
-        {
-            //// Create 2 arrays, aux to be the buffer array, toReturn to hold the complete data
-            byte[] aux = new byte[0];
-
-            byte[] toReturn = new byte[0];
-
-            //// We encrypt with 456 bytes long blocks, and decrypt with 512 bytes
-            int length = (encryptionMode == true)? 456 : 512;
-
-            byte[] buffer = new byte[length];
-
-            for (int i = 0; i < bytes.Length; i++)
-            {
-                //// checks to see if the buffer is filled, then we can encrypt
-                if ((i > 0) && (i % length == 0))
-                {
-                    // Do encryption/decryption
-
-                }
-            }
-
-            return aux;
         }
 
         /// <summary>
@@ -215,10 +199,13 @@ namespace AuthenticationService
         /// For a client this could be his/her CPRNumber, for the server this could be its domain. Used to identify the public key.
         /// TODO: Returning privateKey, no?
         /// </param>
-        public RSAParameters GenerateKeys(string uniqueIdentifier)
+        /// <returns>
+        /// The generated keys.
+        /// </returns>
+        public static RSAParameters GenerateKeys(string uniqueIdentifier)
         {
             RSAParameters privateKey;
-           using (var rsa = new RSACryptoServiceProvider(4096))
+            using (var rsa = new RSACryptoServiceProvider(4096))
             {
                 try
                 {
@@ -226,14 +213,14 @@ namespace AuthenticationService
                     //// string publicKey = rsa.ToXmlString(false);
                     privateKey = rsa.ExportParameters(true);
                     RSAParameters publicKey = rsa.ExportParameters(false);
-                    
+
                     //// Save the private key
                     //// var xdocPrivate = new XmlDocument();
                     //// xdocPrivate.LoadXml(privateKey);
                     //// xdocPrivate.Save(@"C:\Test\PrivateKeyInfo.xml");
 
                     //// Store the key as an xml string along with the unique id in the PKI.
-                    this.pki.StoreKey(publicKey, uniqueIdentifier);
+                    PublicKeyInfrastructure.StoreKey(publicKey, uniqueIdentifier);
                 }
                 finally
                 {
@@ -243,6 +230,91 @@ namespace AuthenticationService
             }
 
             return privateKey;
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="message">
+        /// The message.
+        /// </param>
+        /// <param name="privateKey">
+        /// The private key of the verifier
+        /// </param>
+        /// <returns>
+        /// The signed message string
+        /// </returns>
+        public static string SignData(string message, RSAParameters privateKey)
+        {
+            //// The array to store the signed message in bytes
+            byte[] signedBytes;
+            using (var rsa = new RSACryptoServiceProvider())
+            {
+                //// Write the message to a byte array using UTF8 as the encoding.
+                var encoder = new UTF8Encoding();
+                byte[] originalData = encoder.GetBytes(message);
+
+                try
+                {
+                    //// Import the private key used for signing the message
+                    rsa.ImportParameters(privateKey);
+
+                    //// Sign the data, using SHA512 as the hashing algorithm 
+                    signedBytes = rsa.SignData(originalData, CryptoConfig.MapNameToOID("SHA512"));
+                }
+                catch (CryptographicException e)
+                {
+                    Console.WriteLine(e.Message);
+                    return null;
+                }
+                finally
+                {
+                    //// Set the keycontainer to be cleared when rsa is garbage collected.
+                    rsa.PersistKeyInCsp = false;
+                }
+            }
+            //// Convert the a base64 string before returning
+            return Convert.ToBase64String(signedBytes);
+        }
+
+        /// <summary>
+        /// This method is used to verify the authenticity of a message sent by an entity.
+        /// </summary>
+        /// <param name="originalMessage">
+        /// The original message.
+        /// </param>
+        /// <param name="signedMessage">
+        /// The signed message.
+        /// </param>
+        /// <param name="publicKey">
+        /// The public key of the sender of the original message
+        /// </param>
+        /// <returns>
+        /// Returns true if the message is authentic and sent by the holder of the specified public key.
+        /// </returns>
+        public static bool VerifyData(string originalMessage, string signedMessage, RSAParameters publicKey)
+        {
+            bool success = false;
+            using (var rsa = new RSACryptoServiceProvider())
+            {
+                var encoder = new UTF8Encoding();
+                byte[] bytesToVerify = encoder.GetBytes(originalMessage);
+                byte[] signedBytes = Convert.FromBase64String(signedMessage);
+                try
+                {
+                    rsa.ImportParameters(publicKey);
+
+                    success = rsa.VerifyData(bytesToVerify, CryptoConfig.MapNameToOID("SHA512"), signedBytes);
+                }
+                catch (CryptographicException e)
+                {
+                    Console.WriteLine(e.Message);
+                }
+                finally
+                {
+                    rsa.PersistKeyInCsp = false;
+                }
+            }
+            return success;
         }
 
         /// <summary>
@@ -257,10 +329,40 @@ namespace AuthenticationService
         /// <returns>
         /// True if the key was succesfully added to the PKI
         /// </returns>
-        public bool PublishKey(RSAParameters publicKey, string uniqueIdentifier)
+        public static bool PublishKey(RSAParameters publicKey, string uniqueIdentifier)
         {
             Contract.Requires(publicKey.P == null);
-            return this.pki.StoreKey(publicKey, uniqueIdentifier);
+            return PublicKeyInfrastructure.StoreKey(publicKey, uniqueIdentifier);
+        }
+
+        /// <summary>
+        /// This method is used to facilitate splitting the messages up into chunks of data small enough to be decrypted and encrypted by the RSACryptoServiceProvider
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <param name="encryptionMode"></param>
+        /// <returns></returns>
+        private static byte[] BlockCihper(byte[] bytes, bool encryptionMode, RSAParameters keyInfo)
+        {
+            //// Create 2 arrays, aux to be the buffer array, toReturn to hold the complete data
+            byte[] aux = new byte[0];
+
+            byte[] toReturn = new byte[0];
+
+            //// We encrypt with 456 bytes long blocks, and decrypt with 512 bytes
+            int length = (encryptionMode == true) ? 456 : 512;
+
+            byte[] buffer = new byte[length];
+
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                //// checks to see if the buffer is filled, then we can encrypt
+                if ((i > 0) && (i % length == 0))
+                {
+                    // Do encryption/decryption
+                }
+            }
+
+            return aux;
         }
     }
 }

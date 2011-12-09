@@ -4,92 +4,130 @@
 // </copyright>
 // ----------------------------------------------------------------------
 
-namespace AuthenticationService
+namespace AuthenticatorComponent
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
 
-    using AuthenticatorComponent;
-
-    using Communication;
-
-    /// <summary>
-    /// Data structure that represents the properties of a client
-    /// http message.
-    /// </summary>
-    internal struct HttpRequest
+    internal class Session
     {
         /// <summary>
-        /// Represents the requested operation of the parameters for
-        /// the operation.
+        /// The server waits for the client to request the 
+        /// login operation, where they submit user name and
+        /// password
         /// </summary>
-        private readonly string requestedOperation;
+        public const int AWAIT_SESSION_START = 0;
 
         /// <summary>
-        /// Holds string representations of the parameters that the
-        /// requested operations takes.
-        /// The parameters are ordered in the same way as they are
-        /// declared in the requested operation.
+        /// After the client has submitted user name and password
+        /// successfully (it has ben accepted by the authenticator)
+        /// the session is in this state.
         /// </summary>
-        private readonly string[] parameters;
+        public const int INITIAL_LOGIN_ACCEPTED = 1;
 
         /// <summary>
-        /// Initializes a new instance of the HttpRequest struct.
+        /// After the client has submitted an accepted key-value
+        /// from their key card the session is in this state.
         /// </summary>
-        /// <param name="requestedOperation">
-        /// String representation of the requested operation.
-        /// </param>
-        /// <param name="parameters">
-        /// string representation of the requested operation's
-        /// parameters.
-        /// </param>
-        public HttpRequest(string requestedOperation, string[] parameters)
+        public const int KEY_ACCEPTED = 2;
+
+        private int currentState;
+
+        private DateTime timeOfLastUpdate = default(DateTime);
+
+        public Session()
         {
-            this.requestedOperation = requestedOperation;
-            this.parameters = parameters;
+            this.currentState = AWAIT_SESSION_START;
         }
 
         /// <summary>
-        /// Gets the string representation of the requested
-        /// operation of the http request.
+        /// 
         /// </summary>
-        public string RequestedOperation
+        /// <param name="operation"></param>
+        /// <returns></returns>
+        public bool isOperationValid(string operation)
         {
-            get
+            if (this.TimedOut())
             {
-                return this.requestedOperation;
+                this.currentState = AWAIT_SESSION_START;
+                return false;
             }
+
+            // Is it legal to call the requested operation at the
+            // authenticator?
+            bool isValid = false;
+
+            // Determine if the operation is valid.
+            switch (operation)
+            {
+                case "login":
+                    isValid = this.currentState == AWAIT_SESSION_START;
+                    break;
+                case "submitKey":
+                    isValid = this.currentState == INITIAL_LOGIN_ACCEPTED;
+                    break;
+                case "createAccount":
+                    isValid = this.currentState == AWAIT_SESSION_START;
+                    break;
+                case "revokeAccount":
+                    isValid = this.currentState == KEY_ACCEPTED;
+                    break;
+            }
+
+            return isValid;
+        }
+
+        public void ChangeStateTo(int state)
+        {
+            this.currentState = state;
         }
 
         /// <summary>
-        /// Gets the string representing of the parameters
-        /// of the http request.
+        /// Helper method used to determine if the user has taken too long
+        /// to sign in.
+        /// If the user is in the middle of a signing in-process the user has
+        /// 1 minute to finish it before the session is timed out.
         /// </summary>
-        public string[] Parameters
+        /// <returns></returns>
+        private bool TimedOut()
         {
-            get
+            bool timedOut = this.timeOfLastUpdate.AddMinutes(1) <= DateTime.Now;
+            this.timeOfLastUpdate = DateTime.Now;
+
+            if (this.currentState == AWAIT_SESSION_START)
             {
-                return this.parameters;
+                return false;
             }
+
+            // Al other states
+            if (timedOut)
+            {
+                return true;
+            }
+
+            // No time out.
+            return false;
         }
     }
 
     /// <summary>
     /// TODO: Update summary.
     /// </summary>
-    public class AuthenticatorHttpProcessor
+    public class AuthenticatorService
     {
         /// <summary>
         /// The authenticator service provider.
         /// </summary>
-        private readonly Authenticator authenticator = new Authenticator();
+        //private readonly Authenticator authenticator;
 
         /// <summary>
         /// Represents the server socket of the authenticator.
         /// </summary>
         private readonly AuthenticatorSocket serverSocket;
+
+        private readonly Dictionary<string, Session> userSessions;
 
         /// <summary>
         /// Indicates whether the service must keep running.
@@ -102,76 +140,128 @@ namespace AuthenticationService
         /// <param name="authenticatorPort">
         /// The port the authenticator will be listening to.
         /// </param>
-        public AuthenticatorHttpProcessor(int authenticatorPort)
+        public AuthenticatorService(string authenticatorDomain)
         {
-            this.serverSocket = new AuthenticatorSocket(authenticatorPort);
+            //this.authenticator = new Authenticator();
+            this.userSessions = new Dictionary<string, Session>();
+            this.serverSocket = new AuthenticatorSocket(authenticatorDomain);
         }
-
-        // TODO ready design for concurrency?
 
         /// <summary>
         /// Starts the authenticator service.
         /// </summary>
         public void ServiceLoop()
         {
-            this.serverSocket.ListenForRequests();
+            this.serverSocket.Start();
 
             while (this.inService)
             {
-                string clientRequest = this.serverSocket.ReadMessage();
+                Request processedRequest = this.serverSocket.ReadMessage();
 
-                HttpRequest processedRequest = this.ProcessHttpRequest(clientRequest);
-
+                bool validRequest = false;
                 string httpResponseMessageBody = string.Empty;
                 switch (processedRequest.RequestedOperation)
                 {
                     case "login":
-                        string encUserName = processedRequest.Parameters[0];
-                        string encPassword = processedRequest.Parameters[1];
+                        string userName = processedRequest.Parameters[0];
+                        string password = processedRequest.Parameters[1];
 
-                        bool validLogIn = this.authenticator.IsLoginValid(
-                            encUserName, encPassword);
-                        string keyIndex = string.Empty;
+                        // Check if it is legal to call this operation
+                        Session userSession = this.userSessions[userName];
+                        bool validOperation = userSession.isOperationValid("login");
 
-                        if (validLogIn)
+                        if (validOperation)
                         {
-                            // keyIndex is decrypted.
-                            keyIndex = this.authenticator.GetKeyIndex(encUserName);
+                            // Is the submitted parameters valid?
+                            validRequest = true;//this.authenticator.IsLoginValid(
+                            //encUserName, encPassword);
+
+                            string keyIndex = string.Empty;
+
+                            if (validRequest)
+                            {
+                                keyIndex = 304 + ""; //this.authenticator.GetKeyIndex(encUserName);
+                                userSession.ChangeStateTo(Session.INITIAL_LOGIN_ACCEPTED);
+                            }
+
+                            httpResponseMessageBody = validRequest ? "keyIndex=" + keyIndex : string.Empty;
+                            goto default;
                         }
 
-                        string reponseMessageBody = "submissionValid=" + validLogIn.ToString()
-                                                    + (validLogIn ? "&" + "keyIndex=" + keyIndex : string.Empty);
-
-                        httpResponseMessageBody = this.CompileHttpResponse(
-                            validLogIn, reponseMessageBody);
+                        httpResponseMessageBody = string.Empty;
                         goto default;
                     case "submitKey":
-                        string encKey = processedRequest.Parameters[0];
-                        string encUserName1 = processedRequest.Parameters[1];
+                        string key = processedRequest.Parameters[0];
+                        string userName1 = processedRequest.Parameters[1];
 
-                        bool validHash = this.authenticator.IsHashValueValid(encKey, encUserName1);
+                        // Check if it is legal to call this operation
+                        Session userSession1 = this.userSessions[userName1];
+                        bool validOperation1 = userSession1.isOperationValid("submitKey");
 
-                        httpResponseMessageBody = this.CompileHttpResponse(validHash, string.Empty);
+                        if (validOperation1)
+                        {
+                            validRequest = true;//this.authenticator.IsHashValueValid(encKey, encUserName1);
+
+                            // If the request is valid, update the user session state.
+                            if (validRequest)
+                            {
+                                userSession1.ChangeStateTo(Session.KEY_ACCEPTED);
+                            }
+
+                            httpResponseMessageBody = validRequest
+                                                          ? "token=" // + this.authenticator.GenerateToken()
+                                                          : string.Empty;
+                            goto default;
+                        }
+
+                        httpResponseMessageBody = string.Empty;
                         goto default;
                     case "createAccount":
-                        string encUserName2 = processedRequest.Parameters[0];
-                        string encPassword2 = processedRequest.Parameters[1];
-                        string encCprNumber = processedRequest.Parameters[2];
+                        string userName2 = processedRequest.Parameters[0];
+                        string password2 = processedRequest.Parameters[1];
+                        string cprNumber = processedRequest.Parameters[2];
 
-                        bool validNewUser = this.authenticator.AddNewUser(
-                            encUserName2, encPassword2, encCprNumber);
+                        // Check if it is legal to call this operation
+                        Session userSession2 = this.userSessions[userName2];
+                        bool validOperation2 = userSession2.isOperationValid("createAccount");
 
-                        httpResponseMessageBody = this.CompileHttpResponse(validNewUser, string.Empty);
+                        if (validOperation2)
+                        {
+                            validRequest = true; // this.authenticator.AddNewUser(
+                            // encUserName2, encPassword2, encCprNumber);
+
+                            if (validRequest)
+                            {
+                                userSession2.ChangeStateTo(Session.AWAIT_SESSION_START);
+                            }
+
+                            httpResponseMessageBody = string.Empty;
+                            goto default;
+                        }
+
+                        httpResponseMessageBody = string.Empty;
                         goto default;
                     case "revokeAccount":
-                        // TODO How do we ensure, that the user has logged in before !!!!!!!!!!!!!!!!!!!!
-                        // TODO this request is made? !!!!!!!!!!!!!!!!!!!
+                        string userName3 = processedRequest.Parameters[0];
 
-                        string encUserName3 = processedRequest.Parameters[0];
+                        // Check if it is legal to call this operation
+                        Session userSession3 = this.userSessions[userName3];
+                        bool validOperation3 = userSession3.isOperationValid("submit");
 
-                        bool validRevoke = this.authenticator.DeleteUser(encUserName3);
+                        if (validOperation3)
+                        {
+                            validRequest = true;//this.authenticator.DeleteUser(encUserName3);
 
-                        httpResponseMessageBody = this.CompileHttpResponse(validRevoke, string.Empty);
+                            if (validRequest)
+                            {
+                                userSession3.ChangeStateTo(Session.AWAIT_SESSION_START);
+                            }
+
+                            httpResponseMessageBody = string.Empty;
+                            goto default;
+                        }
+
+                        httpResponseMessageBody = string.Empty;
                         goto default;
 
                     // TODO Is this needed? The user must contact danid to do this, as
@@ -179,7 +269,7 @@ namespace AuthenticationService
                     case "newKeyCard":
                         goto default;
                     default:
-                        this.serverSocket.SendMessage(httpResponseMessageBody);
+                        this.serverSocket.SendMessage(processedRequest, validRequest, httpResponseMessageBody);
                         break;
                 }
             }
@@ -193,95 +283,5 @@ namespace AuthenticationService
         {
             this.inService = false;
         }
-
-        /// <summary>
-        /// Processes the specified string representation of a 
-        /// http message.
-        /// </summary>
-        /// <param name="httpMessage">
-        /// The http message to be processed.
-        /// </param>
-        /// <returns>
-        /// A HttpRequest struct that represents the semantics of 
-        /// the specified http message.
-        /// </returns>
-        private HttpRequest ProcessHttpRequest(string httpMessage)
-        {
-            string[] requestParts = httpMessage.Split('\n');
-
-            string requestLine = requestParts[0];
-            string messageBody = requestParts[requestParts.Count() - 1];
-
-            // Get string representation of requested operation invocation:
-            int start = requestLine.IndexOf("request=") + "request=".Length;
-            int end = requestLine.IndexOf(" ", start);
-
-            string requestedOperation = requestLine.Substring(start, end);
-
-            // Get string representation of the parameters to the requested operation
-            // invocation sent in the message.
-            int numberOfParameters = messageBody.Count(c => c.Equals('&')) + 1;
-
-            string[] parameters = new string[numberOfParameters];
-
-            int currentIndex = 0;
-            for (int i = 0; i < numberOfParameters; i++)
-            {
-                int s = messageBody.IndexOf('=', currentIndex);
-                int e = messageBody.IndexOf('&', currentIndex) - 1;
-
-                parameters[i] = messageBody.Substring(s, e - s);
-
-                currentIndex = e;
-            }
-
-            return new HttpRequest(requestedOperation, parameters);
-        }
-
-        /// <summary>
-        /// Compiles a http response message with the specified
-        /// messagebody.
-        /// </summary>
-        /// <param name="acceptedRequest">
-        /// Indicates whether the request was accepted by the 
-        /// authenticator.
-        /// </param>
-        /// <param name="messageBody">
-        /// The message body containing the message to be sent
-        /// back to the client.
-        /// </param>
-        /// <returns>
-        /// A string representation of the http response message.
-        /// </returns>
-        private string CompileHttpResponse(bool acceptedRequest, string messageBody)
-        {
-            var httpResponse = new StringBuilder();
-
-            if (acceptedRequest)
-            {
-                httpResponse.Append("HTTP/1.1 200 OK" + "\n");
-                httpResponse.Append("\n");
-                httpResponse.Append(messageBody);
-            }
-            else
-            {
-                httpResponse.Append("HTTP/1.1 400 Bad Request" + "\n");
-            }
-
-            return httpResponse.ToString();
-        }
-
-        // Example request message:
-        //
-        // POST /request=login HTTP/1.1
-        // Host: www.danid.dk 
-        //
-        // userName=3jd904kfh;passwork=29daflr03ja
-
-        // Example response message:
-        //
-        // HTTP/1.1 200 OK
-        // 
-        // submissionValid=true;keyIndex=4063
     }
 }

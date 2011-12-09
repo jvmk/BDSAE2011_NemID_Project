@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace BDSAE2011_NemID_Project
+namespace Miscellaneoues
 {
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
@@ -13,12 +13,12 @@ namespace BDSAE2011_NemID_Project
     /// <summary>
     /// TODO: Update summary.
     /// </summary>
-    public class PublicKeyInfrastructure
+    public static class PublicKeyInfrastructure
     {
         /// <summary>
-        /// The collection to store the Xml strings and their ID
+        /// A collection to store a unique ID corresponding to a specific key.
         /// </summary>
-        private Dictionary<string, RSAParameters> keyCollection = new Dictionary<string, RSAParameters>(); 
+        private static readonly Dictionary<string, RSAParameters> keyCollection = new Dictionary<string, RSAParameters>();
 
         /// <summary>
         /// Stores the specified public key in the PKI
@@ -32,14 +32,14 @@ namespace BDSAE2011_NemID_Project
         /// <returns>
         /// True if the key was succesfully stored, otherwise false
         /// </returns>
-        public bool StoreKey(RSAParameters publicKeyParameters, string uniqueIdentifier)
+        public static bool StoreKey(RSAParameters publicKeyParameters, string uniqueIdentifier)
         {
             Contract.Requires(!publicKeyParameters.Equals(null));
-            if (!this.keyCollection.ContainsKey(uniqueIdentifier))
+            if (!keyCollection.ContainsKey(uniqueIdentifier))
             {
-                if (!this.keyCollection.ContainsValue(publicKeyParameters))
+                if (!keyCollection.ContainsValue(publicKeyParameters))
                 {
-                    this.keyCollection.Add(uniqueIdentifier, publicKeyParameters);
+                    keyCollection.Add(uniqueIdentifier, publicKeyParameters);
                 }
             }
 
@@ -51,10 +51,10 @@ namespace BDSAE2011_NemID_Project
         /// </summary>
         /// <param name="uniqueIdentifier">The unique identifier for the domain</param>
         /// <returns>the corresponding key for the domain</returns>
-        public RSAParameters GetKey(string uniqueIdentifier)
+        public static RSAParameters GetKey(string uniqueIdentifier)
         {
-            Contract.Requires(this.keyCollection.ContainsKey(uniqueIdentifier));
-            return this.keyCollection[uniqueIdentifier];
+            Contract.Requires(keyCollection.ContainsKey(uniqueIdentifier));
+            return keyCollection[uniqueIdentifier];
         }
 
         /// <summary>
@@ -62,12 +62,12 @@ namespace BDSAE2011_NemID_Project
         /// </summary>
         /// <param name="uniqueIdentifier">The unique identifier for the domain</param>
         /// <returns>True if the key is removed, otherwise false</returns>
-        public bool RevokeKey(string uniqueIdentifier)
+        public static bool RevokeKey(string uniqueIdentifier)
         {
-            Contract.Requires(this.keyCollection.ContainsKey(uniqueIdentifier));
+            Contract.Requires(keyCollection.ContainsKey(uniqueIdentifier));
             Contract.Ensures(
-                Contract.Result<bool>() == (this.keyCollection.Count == Contract.OldValue(this.keyCollection.Count) - 1));
-            return this.keyCollection.Remove(uniqueIdentifier);
+                Contract.Result<bool>() == (keyCollection.Count == Contract.OldValue(keyCollection.Count) - 1));
+            return keyCollection.Remove(uniqueIdentifier);
         }
 
         /// <summary>
@@ -75,10 +75,16 @@ namespace BDSAE2011_NemID_Project
         /// </summary>
         /// <param name="uniqueIdentifier">the unique ID for the domain</param>
         /// <returns>True if the key is present, otherwise false</returns>
-        public bool ContainsKey(string uniqueIdentifier)
+        public static bool ContainsKey(string uniqueIdentifier)
         {
-            return this.keyCollection.ContainsKey(uniqueIdentifier);
+            return keyCollection.ContainsKey(uniqueIdentifier);
         }
 
+        [ContractInvariantMethod]
+        private static void PKIClassInvariant()
+        {
+            //// Each key must be unique
+            //// each identifier must be unique
+        }
     }
 }

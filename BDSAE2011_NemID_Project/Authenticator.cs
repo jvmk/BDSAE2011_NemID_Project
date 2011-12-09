@@ -7,7 +7,7 @@ namespace AuthenticatorComponent
     using System.IO;
     using System.Security.Cryptography;
 
-    using AuthenticationService;
+    using Miscellaneoues;
 
     /// <summary>
     /// The component that mimics DANID in the current NemId-solution.
@@ -20,8 +20,6 @@ namespace AuthenticatorComponent
         private Dictionary<string, UserAccount> database = new Dictionary<string, UserAccount>(); // the string is the username for the associated useraccount
 
         private RSAParameters authPrivKeyPath = new RSAParameters(); // TODO update this path // TODO find out what to do about the keytype
-
-        private Cryptograph cryptograph = new Cryptograph();
 
         public Authenticator()
         {
@@ -122,7 +120,7 @@ namespace AuthenticatorComponent
             Contract.Requires(this.IsUserInDatabase(username));
             String keycardPrint = this.database[this.DecryptThisMessage(username)].Keycard.ToString();
             File.WriteAllText(@"C:\" + username +
-                this.database[this.DecryptThisMessage(username)].Keycard.GetKeyCardNumber() + 
+                this.database[this.DecryptThisMessage(username)].Keycard.GetKeyCardNumber() +
                 ".txt", keycardPrint);
         }
 
