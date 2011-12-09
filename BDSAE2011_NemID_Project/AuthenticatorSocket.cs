@@ -117,7 +117,7 @@ namespace AuthenticatorComponent
         /// <summary>
         /// The path to the server certificate.
         /// </summary>
-        private readonly string certificatePath = @"C:\Users\Kenneth88\Desktop\danIDCertificate.cer";
+        private readonly string certificatePath = @"C:\Users\Kenneth88\Desktop\danIDCertificate.cer"; // TODO delete this?
 
         /// <summary>
         /// 
