@@ -218,7 +218,7 @@ namespace AuthenticatorComponent
                 switch (processedRequest.RequestedOperation)
                 {
                     case "redirect":
-
+                    // is the third party trusted?
                     // this.userSessions.ContainsKey()
                     case "login":
                         // The parameters for the requested operation.
