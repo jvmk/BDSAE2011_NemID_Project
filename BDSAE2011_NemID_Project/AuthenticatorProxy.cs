@@ -8,6 +8,7 @@ namespace ClientComponent
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.Contracts;
     using System.Linq;
     using System.Text;
 
@@ -16,7 +17,6 @@ namespace ClientComponent
     /// </summary>
     public class AuthenticatorProxy
     {
-
         /// <summary>
         /// Socket representing a connection between the client
         /// and the authenticator.
@@ -36,21 +36,20 @@ namespace ClientComponent
 
 
         private byte[] clientPrivateKey;
+
         /// <summary>
         /// Initializes a new instance of the AuthenticatorProxy class.
         /// </summary>
         /// <param name="serverDomain">
         /// The domain of the authenticator.
         /// </param>
-        /// <param name="port">
-        /// The port the authenticator is listening to requests from.
-        /// </param>
         /// <param name="serverName">
-        /// The authenticator's name as it appears on it certificate.
+        /// The authenticator's name as it appears on it certificate. // TODO SSL doesn't require this anymore.
         /// </param>
-        //TODO servername must be removed.
-
-        public AuthenticatorProxy(string serverDomain, string serverName, byte[] clientPrivateKey)
+        /// <param name="clientPrivateKey">
+        /// The private key of the client.
+        /// </param>
+        public AuthenticatorProxy(string serverDomain, string serverName, byte[] clientPrivateKey) // TODO servername must be removed.
         {
             this.serverDomain = serverDomain;
             this.socket = new ClientSocket(serverDomain, serverName, clientPrivateKey);
@@ -60,24 +59,24 @@ namespace ClientComponent
         /// Requests creation of new user account at the authentication
         /// service with the specified properties.
         /// </summary>
-        /// <param name="encUserName">
-        /// The suggested user name, encrypted.
+        /// <param name="userName">
+        /// The suggested user name.
         /// </param>
-        /// <param name="encPassword">
-        /// The suggested password, encrypted.
+        /// <param name="password">
+        /// The suggested password.
         /// </param>
-        /// <param name="encCprNumber">
+        /// <param name="cprNumber">
         /// The CPR-number of the resident requesting a new account.
         /// </param>
         /// <returns>
         /// True if the creation was successful at the authenticator,
         /// false otherwise.
         /// </returns>
-        public bool CreateUserAccount(string encUserName, string encPassword, string encCprNumber)
+        public bool CreateUserAccount(string userName, string password, string cprNumber)
         {
             this.socket.SendMessage(
                 "createAccount",
-                "username=" + encUserName + "&password=" + encPassword);
+                "username=" + userName + "&password=" + password);
             this.currentServerResponse = this.socket.ReadMessage();
             return this.currentServerResponse.Accepted;
         }
@@ -85,21 +84,21 @@ namespace ClientComponent
         /// <summary>
         /// Submits log-in request to the authentication-server.
         /// </summary>
-        /// <param name="encUserName">
+        /// <param name="userName">
         /// Client-submitted and encrypted user name.
         /// </param>
-        /// <param name="encPassword">
+        /// <param name="password">
         /// Client-submitted and encrypted user password.
         /// </param>
         /// <returns>
         /// True if the submitted combination of user name and
         /// user password was accepted by the server, false otherwise.
         /// </returns>
-        public bool LogIn(string encUserName, string encPassword)
+        public bool LogIn(string userName, string password)
         {
             this.socket.SendMessage(
                 "login",
-                "userName=" + encUserName + ":" + "password=" + encPassword);
+                "userName=" + userName + ":" + "password=" + password);
             this.currentServerResponse = this.socket.ReadMessage();
             return this.currentServerResponse.Accepted;
         }
@@ -115,35 +114,85 @@ namespace ClientComponent
         /// </returns>
         public string GetKeyIndex()
         {
-            return this.ProcessMessageBodyOf(this.currentServerResponse); // TODO process response.
+            return this.ProcessReturnValueOf(this.currentServerResponse); // TODO process response.
         }
 
         /// <summary>
         /// Submits the specified keyValue from the client's
         /// key card to the authentication server.
         /// </summary>
-        /// <param name="encKeyValue">
+        /// <param name="keyValue">
         /// The encrypted key-value submitted by the user.
         /// </param>
-        /// <param name="encUserName">
+        /// <param name="userName">
         /// The encrypted user name of the user.
         /// </param> 
         /// <returns>
         /// Returns true if the value of the submitted key is
         /// what the authentication server expected, false otherwise.
         /// </returns>
-        public bool SubmitKey(int encKeyValue, string encUserName)
+        public bool SubmitKey(int keyValue, string userName)
         {
             this.socket.SendMessage(
                 "submitKey",
-                "keyValue=" + encKeyValue + "&" + "userName=" + encUserName);
+                "keyValue=" + keyValue + "&" + "userName=" + userName);
             this.currentServerResponse = this.socket.ReadMessage();
             return this.currentServerResponse.Accepted;
         }
 
+        /// <summary>
+        /// Submits to the server, that the user wishes to proceed
+        /// to the third party after having logged in and submitted
+        /// a key value.
+        /// </summary>
+        /// <param name="userName">
+        /// The client's user name that wants to proceed to third
+        /// party.
+        /// </param>
+        /// <returns>
+        /// True if the client can proceed, false otherwise.
+        /// </returns>
+        public bool Proceed(string userName) // TODO user name as parameter?
+        {
+            this.socket.SendMessage(
+                "proceed",
+                "userName=" + userName);
+            this.currentServerResponse = this.socket.ReadMessage();
+            return this.currentServerResponse.Accepted;
+        }
+
+        /// <summary>
+        /// Gets the the shared secret between the client and the third
+        /// party, for which the client is being authenticated.
+        /// When the user has proceeded via Proceed, this method can be
+        /// called.
+        /// </summary>
+        /// <returns>
+        /// A string representation of the shared secret.
+        /// </returns>
         public string GetToken()
         {
-            return this.currentServerResponse.ReturnValue; //TODO process response.
+            return this.ProcessReturnValueOf(this.currentServerResponse);
+        }
+
+        /// <summary>
+        /// Aborts the current authentication session at the authenticator.
+        /// </summary>
+        /// <param name="userName">
+        /// The user name of the client that wish to abort the session.
+        /// Only the user name of the the client using this proxy can
+        /// be passed.
+        /// </param>
+        /// <returns>
+        /// True if the abortion was accepted, false otherwise.
+        /// </returns>
+        public bool Abort(string userName) // TODO user name as parameter?
+        {
+            this.socket.SendMessage(
+                "abort",
+                "userName=" + userName);
+            this.currentServerResponse = this.socket.ReadMessage();
+            return this.currentServerResponse.Accepted;
         }
 
         /// <summary>
@@ -151,19 +200,18 @@ namespace ClientComponent
         /// by the user name. The client must have gone through the login
         /// procedure before this method can be invoked.
         /// </summary>
-        /// <param name="encUserName">
-        /// The user name of the account that is wished to be revoked,
-        /// encrypted.
+        /// <param name="userName">
+        /// The user name of the account that is wished to be revoked.
         /// </param>
         /// <returns>
         /// True if the revokation was succesful at the authenticator,
         /// false otherwise.
         /// </returns>
-        public bool RevokeUserAccount(string encUserName, string pkiIdentifier)
+        public bool RevokeUserAccount(string userName, string pkiIdentifier)
         {
             this.socket.SendMessage(
                 "revokeAccount",
-                "userName=" + encUserName);
+                "userName=" + userName);
             this.currentServerResponse = this.socket.ReadMessage();
             return this.currentServerResponse.Accepted;
         }
@@ -179,37 +227,15 @@ namespace ClientComponent
         /// A string constitution the return values of the authentication
         /// server.
         /// </returns>
-        private string ProcessMessageBodyOf(Response response)
+        private string ProcessReturnValueOf(Response response)
         {
+            Contract.Requires(response.Accepted);
+
             // Extract return value
-            string encResponse = string.Empty;
+            int start = response.ReturnValue.IndexOf('=') + 1;
+            int end = response.ReturnValue.Length;
 
-            if (response.Accepted)
-            {
-                int start = response.ReturnValue.IndexOf('=') + 1;
-                int end = response.ReturnValue.Length;
-
-                return response.ReturnValue.Substring(start, end - start);
-            }
-
-            // The request wasn't accepted by the authenticator,
-            // so the will be no return value.
-            return string.Empty;
+            return response.ReturnValue.Substring(start, end - start);
         }
-
-
-
-        // Example request message:
-        //
-        // POST /request=login HTTP/1.1
-        // Host: www.danid.dk
-        //
-        // userName=3jd904kfh&passwork=29daflr03ja
-
-        // Example response message:
-        //
-        // HTTP/1.1 200 OK
-        // 
-        // keyIndex=4063 //TODO &-sign instead.
     }
 }

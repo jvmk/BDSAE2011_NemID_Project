@@ -171,7 +171,7 @@ namespace AuthenticatorComponent
         /// <summary>
         /// Represents the server socket of the authenticator.
         /// </summary>
-        private readonly AuthenticatorSocket serverSocket;
+        private readonly AuthenticatorServer serverSocket;
 
         private readonly Dictionary<string, ClientSession> userSessions;
 
@@ -196,7 +196,6 @@ namespace AuthenticatorComponent
         {
             Contract.Requires(IsValidURL(authenticatorDomain));
 
-
             this.authenticator = new Authenticator();
             this.userSessions = new Dictionary<string, ClientSession>();
 
@@ -207,7 +206,7 @@ namespace AuthenticatorComponent
                 this.userSessions.Add(userName, new ClientSession());
             }
 
-            this.serverSocket = new AuthenticatorSocket(authenticatorDomain, authenticatorPrivateKey);
+            this.serverSocket = new AuthenticatorServer(authenticatorDomain, authenticatorPrivateKey);
             this.authenticatorPrivateKey = authenticatorPrivateKey;
         }
 
@@ -246,60 +245,31 @@ namespace AuthenticatorComponent
                 {
                     case "redirect":
                         this.processRedirect(processedRequest, ref validRequest);
-                        if (validRequest)
-                        {
-                            httpResponseMessageBody = "validRequest=true";
-                        }
-
+                        httpResponseMessageBody = validRequest ? "validRequest=true" : string.Empty;
                         goto default;
                     case "login":
                         string keyIndex = this.processLogin(processedRequest, ref validRequest);
-                        if (validRequest)
-                        {
-                            httpResponseMessageBody = "keyIndex=" + keyIndex;
-                        }
-
+                        httpResponseMessageBody = validRequest ? "keyIndex=" + keyIndex : string.Empty;
                         goto default;
                     case "submitKey":
                         this.processSubmitKey(processedRequest, ref validRequest);
-                        if (validRequest)
-                        {
-                            httpResponseMessageBody = "accepted=true";
-                        }
-
+                        httpResponseMessageBody = validRequest ? "accepted=true" : string.Empty;
                         goto default;
                     case "proceed":
                         string sessionToken = this.processProceed(processedRequest, ref validRequest);
-                        if (validRequest)
-                        {
-                            httpResponseMessageBody = "token=" + sessionToken;
-                        }
-
+                        httpResponseMessageBody = validRequest ? "token=" + sessionToken : string.Empty;
                         goto default;
                     case "abort":
                         this.processAbort(processedRequest, ref validRequest);
-
-                        if (validRequest)
-                        {
-                            httpResponseMessageBody = "abort=true";
-                        }
-
+                        httpResponseMessageBody = validRequest ? "abort=true" : string.Empty;
                         goto default;
                     case "createAccount":
                         this.processCreateAccount(processedRequest, ref validRequest);
-                        if (validRequest)
-                        {
-                            httpResponseMessageBody = "createAccount=true";
-                        }
-
+                        httpResponseMessageBody = validRequest ? "createAccount=true" : string.Empty;
                         goto default;
                     case "revokeAccount":
                         this.processRevokeAccount(processedRequest, ref validRequest);
-                        if (validRequest)
-                        {
-                            httpResponseMessageBody = "revokeAccount=true";
-                        }
-
+                        httpResponseMessageBody = validRequest ? "revokeAccount=true" : string.Empty;
                         goto default;
                     default:
                         Console.WriteLine("Server is responding");
