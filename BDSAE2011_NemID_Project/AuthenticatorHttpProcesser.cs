@@ -270,7 +270,7 @@ namespace AuthenticatorComponent
                         if (validOperation1)
                         {
                             // ...check if the submitted key is valid.
-                            validRequest = this.authenticator.IsHashValueValid(key, userName1);
+                            validRequest = this.authenticator.IsKeycardValueValid(key, userName1);
 
                             // If the key is valid, update the user session state.
                             if (validRequest)
@@ -303,7 +303,7 @@ namespace AuthenticatorComponent
                             userSession2.ChangeStateTo(ClientSession.SessionState.AwaitSessionStart);
 
                             // Generate session token for client and third party.
-                            string sessionToken = this.authenticator.GenerateToken();
+                            string sessionToken = this.GenerateToken();
                             httpResponseMessageBody = "token=" + sessionToken;
 
                             // Send session token to third party:
@@ -411,6 +411,12 @@ namespace AuthenticatorComponent
                         break;
                 }
             }
+        }
+
+        // TODO Implement method... should also be in AuthHttpProcessor
+        private string GenerateToken()
+        {
+            return new Random().Next(1000, 9999).ToString();
         }
 
         /// <summary>

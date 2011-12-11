@@ -1,16 +1,12 @@
 ﻿
 namespace AuthenticatorComponent
 {
-    using System;
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
     using System.IO;
-    using System.Security.Cryptography;
-
-    using Miscellaneoues;
 
     /// <summary>
-    /// The component that mimics DANID in the current NemId-solution.
+    /// The backend database of the authenticator. Stores user accounts.
     /// </summary>
     public class Authenticator
     {
@@ -19,8 +15,14 @@ namespace AuthenticatorComponent
         /// </summary>
         private Dictionary<string, UserAccount> database = new Dictionary<string, UserAccount>(); // the string is the username for the associated useraccount
 
-        private byte[] authPrivKeyPath; // TODO update this path // TODO find out what to do about the keytype
+        /// <summary>
+        /// A set of URIs that this authenticator trusts.
+        /// </summary>
+        private HashSet<string> trustedThirdPartyURIs = new HashSet<string>(); 
 
+        /// <summary>
+        /// Initializes a new instance of the Authenticator class.
+        /// </summary>
         public Authenticator()
         {
             // TODO load persisted data (database).
@@ -29,86 +31,95 @@ namespace AuthenticatorComponent
         /// <summary>
         /// Is there a user in the database with this username?
         /// </summary>
-        /// <param name="username">Username to look up in database (encrypted).</param>
+        /// <param name="username">Username to look up.</param>
         /// <returns>True if the username is registered in the database, false otherwise.</returns>
         [Pure]
         private bool IsUserInDatabase(string username)
         {
-            Contract.Requires(!string.IsNullOrWhiteSpace(username)); // TODO all contracts in this class compromised since data recieved is encrypted data
-            return this.database.ContainsKey(this.DecryptThisMessage(username));
+            Contract.Requires(!string.IsNullOrWhiteSpace(username));
+            return this.database.ContainsKey(username);
         }
 
         /// <summary>
-        /// Looks up in the database and compares if entetered username and password are valid.
+        /// Check with the database whether the submitted combination of username and password is valid.
         /// </summary>
-        /// <param name="username">Entered username.</param>
-        /// <param name="password">Entered password.</param>
+        /// <param name="username">Submitted username.</param>
+        /// <param name="password">Submitted password.</param>
         /// <returns>True if the parametres correspond to database values, false otherwise.</returns>
         [Pure]
         public bool IsLoginValid(string username, string password)
         {
             //// Contract.Requires(this.IsUserInDatabase(username));
             //// Contract.Requires(!string.IsNullOrWhiteSpace(password)); // !string.IsNullOrWhiteSpace(username) checked in contract for IsUserInDatabase
-            return this.database[this.DecryptThisMessage(username)].Password.Equals(this.DecryptThisMessage(password));
+            return this.database[username].Password.Equals(password);
         }
 
         /// <summary>
         /// What is the keyindex of the key the user has to enter?
         /// </summary>
-        /// <param name="username"></param>
-        /// <returns></returns>
+        /// <param name="username">The username used to identify the user in the database.</param>
+        /// <returns>The keyindex corresponding to the expected key value.</returns>
         public string GetKeyIndex(string username)
         {
             //// Contract.Requires(this.IsUserInDatabase(username));
-            return this.database[this.DecryptThisMessage(username)].Keycard.GetKeyIndex().ToString();
+            return this.database[username].Keycard.GetKeyIndex().ToString();
         }
 
         /// <summary>
-        /// Checks if the entered hash value corresponds to the excpected one.
+        /// Checks if the entered key value corresponds to the excpected one.
         /// </summary>
-        /// <param name="submittedHash">The value the user submitted.</param>
-        /// <param name="username">The user that the hash value corresponds to.</param>
-        /// <returns></returns>
-        public bool IsHashValueValid(string submittedHash, string username)
+        /// <param name="submittedKeycardValue">The key value the user submitted.</param>
+        /// <param name="username">The user that the submitted key value corresponds to.</param>
+        /// <returns>True if the key value equals the expected key value, false otherwise.</returns>
+        public bool IsKeycardValueValid(string submittedKeycardValue, string username)
         {
             //// Contract.Requires(this.IsUserInDatabase(username));
             Contract.Requires(!string.IsNullOrWhiteSpace(username));
-
-            uint parsedHash = uint.Parse(this.DecryptThisMessage(submittedHash));
-
-            return database[this.DecryptThisMessage(username)].VerifyKeyNumber(parsedHash);
+            uint parsedHash = uint.Parse(submittedKeycardValue);
+            return this.database[username].VerifyKeyNumber(parsedHash);
         }
 
+        /// <summary>
+        /// Add a new user to the database.
+        /// </summary>
+        /// <param name="username">The username to associate with the new user account.</param>
+        /// <param name="password">The password for the new user account.</param>
+        /// <param name="cprNumber">The CPR number of this user.</param>
+        /// <returns>True if the user is successfully added to the database. False if the username is already taken.</returns>
         public bool AddNewUser(string username, string password, string cprNumber)
         {
             Contract.Requires(!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password) && !string.IsNullOrWhiteSpace(cprNumber));
             Contract.Ensures(this.IsUserInDatabase(username));
-            if (this.IsUserInDatabase(username)) return false; // decprytion performed in IsUserInDatabase
-            username = this.DecryptThisMessage(username); // decrypt all 3 parametres before inserting into database...
-            password = this.DecryptThisMessage(password);
-            cprNumber = this.DecryptThisMessage(cprNumber);
+            if (this.IsUserInDatabase(username))
+            {
+                return false;
+            }
+
             this.database.Add(username, new UserAccount(username, password, cprNumber));
+            this.SendKeyCardToUser(username); // Simulate that the keycard is send by snail mail
             return true;
         }
 
+        /// <summary>
+        /// Delete the useraccount with the provided username.
+        /// </summary>
+        /// <param name="username">The username that determines the account to delete.</param>
+        /// <returns>True if the username exists in the database and the corresponding account is successfully removed.
+        /// False if the username is not found in the database.</returns>
         public bool DeleteUser(string username)
         {
-            ///// Contract.Requires(this.IsUserInDatabase(username));
             Contract.Ensures(!this.IsUserInDatabase(username));
-            database.Remove(this.DecryptThisMessage(username));
-            return true;
+            return this.database.Remove(username); // return false if username was not found
         }
 
-        // TODO Should this really be here? Should this be a method? Should be in AuthHttpProcessor
-        private void RecieveRedirectionFrom3rdParty()
+        /// <summary>
+        /// Is this third party URI an authenticator-trusted third party?
+        /// </summary>
+        /// <param name="thirdPartyUri">URI in question</param>
+        /// <returns>True if the thirdPartyUri is trusted, false otherwise.</returns>
+        public bool IsThisThirdPartyTrusted(string thirdPartyUri)
         {
-
-        }
-
-        // TODO Implement method... should also be in AuthHttpProcessor
-        public string GenerateToken()
-        {
-            return new Random().Next(1000, 9999).ToString();
+            return this.trustedThirdPartyURIs.Contains(thirdPartyUri);
         }
 
         /// <summary>
@@ -118,21 +129,14 @@ namespace AuthenticatorComponent
         private void SendKeyCardToUser(string username)
         {
             Contract.Requires(this.IsUserInDatabase(username));
-            String keycardPrint = this.database[this.DecryptThisMessage(username)].Keycard.ToString();
-            File.WriteAllText(@"C:\" + username +
-                this.database[this.DecryptThisMessage(username)].Keycard.GetKeyCardNumber() +
-                ".txt", keycardPrint);
+            string keycardPrint = this.database[username].Keycard.ToString();
+            File.WriteAllText(
+                @"C:\" + username +
+                this.database[username].Keycard.GetKeyCardNumber() +
+                ".txt",
+                keycardPrint);
         }
-
-        private String DecryptThisMessage(string encryptedMessage)
-        {
-            // Decrypt first layer using own private key
-            encryptedMessage = Cryptograph.Decrypt(encryptedMessage, authPrivKeyPath);
-            // Decrypt second layer using senders public key
-            String decryptedMessage = Cryptograph.Decrypt(encryptedMessage, authPrivKeyPath); // TODO How to obtain public key? We don't know who is the sender here... // TODO FIX THIS SIMON!
-            return decryptedMessage;
-        }
-
+        
         [ContractInvariantMethod]
         private void AuthenticatorInvariant()
         {
