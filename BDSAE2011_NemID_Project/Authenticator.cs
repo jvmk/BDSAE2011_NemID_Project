@@ -9,8 +9,6 @@ namespace AuthenticatorComponent
 
     using Miscellaneoues;
 
-    using Miscellaneoues;
-
     /// <summary>
     /// The component that mimics DANID in the current NemId-solution.
     /// </summary>
@@ -49,8 +47,8 @@ namespace AuthenticatorComponent
         [Pure]
         public bool IsLoginValid(string username, string password)
         {
-            Contract.Requires(this.IsUserInDatabase(username));
-            Contract.Requires(!string.IsNullOrWhiteSpace(password)); // !string.IsNullOrWhiteSpace(username) checked in contract for IsUserInDatabase
+           //// Contract.Requires(this.IsUserInDatabase(username));
+           //// Contract.Requires(!string.IsNullOrWhiteSpace(password)); // !string.IsNullOrWhiteSpace(username) checked in contract for IsUserInDatabase
             return this.database[this.DecryptThisMessage(username)].Password.Equals(this.DecryptThisMessage(password));
         }
 
@@ -61,7 +59,7 @@ namespace AuthenticatorComponent
         /// <returns></returns>
         public string GetKeyIndex(string username)
         {
-            Contract.Requires(this.IsUserInDatabase(username));
+            //// Contract.Requires(this.IsUserInDatabase(username));
             return this.database[this.DecryptThisMessage(username)].Keycard.GetKeyIndex().ToString();
         }
 
@@ -73,7 +71,7 @@ namespace AuthenticatorComponent
         /// <returns></returns>
         public bool IsHashValueValid(string submittedHash, string username)
         {
-            Contract.Requires(this.IsUserInDatabase(username));
+            //// Contract.Requires(this.IsUserInDatabase(username));
             Contract.Requires(!string.IsNullOrWhiteSpace(username));
 
             uint parsedHash = uint.Parse(this.DecryptThisMessage(submittedHash));
@@ -95,7 +93,7 @@ namespace AuthenticatorComponent
 
         public bool DeleteUser(string username)
         {
-            Contract.Requires(this.IsUserInDatabase(username));
+            ///// Contract.Requires(this.IsUserInDatabase(username));
             Contract.Ensures(!this.IsUserInDatabase(username));
             database.Remove(this.DecryptThisMessage(username));
             return true;

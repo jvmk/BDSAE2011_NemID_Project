@@ -39,24 +39,8 @@ namespace AuthenticatorComponent
         /// </summary>
         public KeyCard()
         {
-            this.GenerateCard();
+            this.GenerateKeyCard();
             this.SetNextKeyIndex();
-        }
-
-        /// <summary>
-        /// Pseudo-randomly determines the next index to be stored as the next reference value for the key.
-        /// </summary>
-        private void SetNextKeyIndex()
-        {
-            //// Generate a number between 0 and the amount of keys.
-            uint nextIndex = GenerateRandomNumber((byte)this.keyCollection.Count);
-
-            //// Copy the keys to an array
-            var aux = new uint[this.keyCollection.Count];
-            this.keyCollection.Keys.CopyTo(aux, 0);
-
-            //// return the key value associated with the keyIndex at the location specified by the random number
-            this.currentIndex = aux[nextIndex];
         }
 
         /// <summary>
@@ -65,6 +49,7 @@ namespace AuthenticatorComponent
         /// <returns>
         /// The key card number.
         /// </returns>
+        [Pure]
         public uint GetKeyCardNumber()
         {
             return this.cardNumber;
@@ -74,9 +59,9 @@ namespace AuthenticatorComponent
         /// How many keys are left?
         /// </summary>
         /// <returns>The amount of keys left on the card</returns>
+        [Pure]
         public int KeysLeft()
         {
-            ////Contract.Requires(this.keyCollection != null);
             return this.keyCollection.Count;
         }
 
@@ -104,17 +89,22 @@ namespace AuthenticatorComponent
         /// <returns>Returns the index of the key the user has to enter to login</returns>
         public uint GetKeyIndex()
         {
-            uint currentKey = this.keyCollection[this.currentIndex];
+            Contract.Requires(this.KeysLeft() > 0);
+            Contract.Ensures(this.KeysLeft() == Contract.OldValue(this.KeysLeft()));
+            uint currentIndex = this.currentIndex;
             //// TODO: Set a new key if timeout or?
-            return currentKey;
+            return currentIndex;
         }
 
         /// <summary>
         /// TODO: Evauluate: maybe have a string return that auto formats to 4 digits?
         /// </summary>
-        /// <returns>Returns the index of the key the user has to login as a string </returns>
+        /// <returns>Returns the index of the key the user has to login as a formatted string </returns>
+        [Pure]
         public string GetKeyIndexAsString()
         {
+            Contract.Requires(this.KeysLeft() > 0);
+            Contract.Ensures(this.KeysLeft() == Contract.OldValue(this.KeysLeft()));
             return this.keyCollection[this.currentIndex].ToString("D4");
         }
 
@@ -129,6 +119,7 @@ namespace AuthenticatorComponent
         /// </returns>
         public bool VerifyEnteredKey(uint enteredKey)
         {
+            Contract.Ensures(Contract.Result<bool>() == (this.KeysLeft() == Contract.OldValue(this.KeysLeft() - 1)));
             //// Sets the key to be entered as the key corresponding to the current index value
             uint keyToBeEntered = this.keyCollection[this.currentIndex];
 
@@ -144,12 +135,65 @@ namespace AuthenticatorComponent
 
             return success;
         }
+        
+        /// <summary>
+        /// This is a private helper method used to decide if a value generated is valid
+        /// A value is valid if it is within the range of 0-highest value.
+        /// </summary>
+        /// <param name="value">
+        /// The value.
+        /// </param>
+        /// <param name="highestValue">
+        /// The highest value to be allowed
+        /// </param>
+        /// <returns>
+        /// True if the value is valid
+        /// </returns>
+        [Pure]
+        private static bool IsValidNumber(byte value, uint highestValue)
+        {
+            //// In order to not skew the results of the random number generation, 
+            //// We need to specify the set of valid values, which is the maximum of values divded by the amount of accepted values (0-9)
+            //// This is then the amount of valid sets.
+            uint fullSetOfValues = byte.MaxValue / highestValue;
+
+            return value < highestValue * fullSetOfValues;
+        }
+
+        /// <summary>
+        /// This method generates a pseudo-random number between 0 and the userdefined numberOfUniques - 1
+        /// Thus, wanting to create a random value between 0-9, the number of unique numbers will be 10.
+        /// </summary>
+        /// <param name="numberOfUniques">
+        /// The amount of unique numbers
+        /// </param>
+        /// <returns>
+        /// A value between 0 and maximum
+        /// </returns>
+        [Pure]
+        private static uint GenerateRandomNumber(byte numberOfUniques)
+        {
+            Contract.Requires(numberOfUniques > 0);
+            Contract.Ensures(Contract.Result<uint>() <= numberOfUniques);
+            var generator = new RNGCryptoServiceProvider();
+
+            var randomNumber = new byte[1];
+            do
+            {
+                generator.GetNonZeroBytes(randomNumber);
+            }
+            while (!IsValidNumber(randomNumber[0], numberOfUniques));
+
+            return (uint)(randomNumber[0] % numberOfUniques);
+        }
 
         /// <summary>
         /// Generate key card.
         /// </summary>
-        private void GenerateCard()
+        private void GenerateKeyCard()
         {
+            Contract.Ensures(this.KeysLeft() > 0);
+
             //// Clears the collection, removing all the entries.
             this.keyCollection.Clear();
 
@@ -191,6 +235,27 @@ namespace AuthenticatorComponent
         }
 
         /// <summary>
+        /// Pseudo-randomly determines the next index to be stored as the next reference value for the key.
+        /// </summary>
+        private void SetNextKeyIndex()
+        {
+
+            Contract.Requires(this.KeysLeft() > 0);
+            Contract.Ensures(Contract.OldValue(this.KeysLeft()) == this.KeysLeft());
+            //// Contract.Ensures(this.GetKeyIndex() != Contract.OldValue(this.GetKeyIndex()));
+
+            //// Generate a number between 0 and the amount of keys.
+            uint nextIndex = GenerateRandomNumber((byte)this.keyCollection.Count);
+
+            //// Copy the keys to an array
+            var aux = new uint[this.keyCollection.Count];
+            this.keyCollection.Keys.CopyTo(aux, 0);
+
+            //// return the key value associated with the keyIndex at the location specified by the random number
+            this.currentIndex = aux[nextIndex];
+        }
+
+        /// <summary>
         /// Remove keypair.
         /// </summary>
         /// <param name="keyIndex">
@@ -201,57 +266,10 @@ namespace AuthenticatorComponent
         /// </returns>
         private bool RemoveKeyPair(uint keyIndex)
         {
-            Contract.Requires(this.keyCollection.Count > 0);
-            Contract.Ensures(
-                Contract.Result<bool>() == (this.keyCollection.Count == Contract.OldValue(this.keyCollection.Count) - 1));
+            Contract.Requires(this.KeysLeft() > 0);
+            Contract.Ensures(Contract.Result<bool>() == (this.keyCollection.Count == Contract.OldValue(this.keyCollection.Count - 1)));
+            Contract.Ensures(!this.keyCollection.ContainsKey(keyIndex));
             return this.keyCollection.Remove(keyIndex);
-        }
-
-        /// <summary>
-        /// This is a private helper method used to decide if a value generated is valid
-        /// A value is valid if it is within the range of 0-highest value.
-        /// </summary>
-        /// <param name="value">
-        /// The value.
-        /// </param>
-        /// <param name="highestValue">
-        /// The highest value to be allowed
-        /// </param>
-        /// <returns>
-        /// True if the value is valid
-        /// </returns>
-        private static bool IsValidNumber(byte value, uint highestValue)
-        {
-            //// In order to not skew the results of the random number generation, 
-            //// We need to specify the set of valid values, which is the maximum of values divded by the amount of accepted values (0-9)
-            //// This is then the amount of valid sets.
-            uint fullSetOfValues = byte.MaxValue / highestValue;
-
-            return value < highestValue * fullSetOfValues;
-        }
-
-        /// <summary>
-        /// This method generates a pseudo-random number between 0 and the userdefined numberOfUniques - 1
-        /// Thus, wanting to create a random value between 0-9, the number of unique numbers will be 10.
-        /// </summary>
-        /// <param name="numberOfUniques">
-        /// The amount of unique numbers
-        /// </param>
-        /// <returns>
-        /// A value between 0 and maximum
-        /// </returns>
-        private static uint GenerateRandomNumber(byte numberOfUniques)
-        {
-            var generator = new RNGCryptoServiceProvider();
-
-            var randomNumber = new byte[1];
-            do
-            {
-                generator.GetNonZeroBytes(randomNumber);
-            }
-            while (!IsValidNumber(randomNumber[0], numberOfUniques));
-
-            return (uint)(randomNumber[0] % numberOfUniques);
         }
 
         /// <summary>
@@ -261,6 +279,8 @@ namespace AuthenticatorComponent
         private void KeyCardInvariantMethod()
         {
             Contract.Invariant(this.keyCollection.Count > 0 && this.keyCollection.Count < 255);
+            //Contract.Invariant(Contract.ForAll(keyCollection); // for all keys in keycollection, no two keys must be equal to eachother
+            //Contract.Invariant(Contract.ForAll(keyCollection)); // for all keyIndexes in keycollection, no two must be equal to eachother
             //// For all values in keyCollection, none must be null, and must be unique.
         }
     }

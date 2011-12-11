@@ -29,6 +29,10 @@
 
             byte[] publicKey = Cryptograph.GetPublicKey("simlanghoff@gmail.com");
 
+            Console.Write(PublicKeyInfrastructure.ValidKeyBlob(publicKey));
+
+            Console.Write(PublicKeyInfrastructure.ValidKeyBlob(privateKey));
+
             string encryptedText = Cryptograph.Encrypt(PlainText, publicKey);
 
             Console.WriteLine("This is the encrypted Text:" + "\n " + encryptedText);
@@ -46,6 +50,15 @@
 
             Console.WriteLine("Is this message really, really, REALLY sent by me? " + success);
 
+            UserAccount user1 = new UserAccount("user", "passy", "0101012949");
+
+            uint keyIndex = user1.Keycard.GetKeyIndex();
+
+            uint keyToEnter = 0;
+
+            bool correctkey = user1.Keycard.VerifyEnteredKey(keyToEnter);
+
+            Console.Write(correctkey);
         }
     }
 }
