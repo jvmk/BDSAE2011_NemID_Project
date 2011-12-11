@@ -47,8 +47,8 @@ namespace AuthenticatorComponent
         [Pure]
         public bool IsLoginValid(string username, string password)
         {
-           //// Contract.Requires(this.IsUserInDatabase(username));
-           //// Contract.Requires(!string.IsNullOrWhiteSpace(password)); // !string.IsNullOrWhiteSpace(username) checked in contract for IsUserInDatabase
+            //// Contract.Requires(this.IsUserInDatabase(username));
+            //// Contract.Requires(!string.IsNullOrWhiteSpace(password)); // !string.IsNullOrWhiteSpace(username) checked in contract for IsUserInDatabase
             return this.database[this.DecryptThisMessage(username)].Password.Equals(this.DecryptThisMessage(password));
         }
 
@@ -106,9 +106,9 @@ namespace AuthenticatorComponent
         }
 
         // TODO Implement method... should also be in AuthHttpProcessor
-        private void SendTokenTo3rdPartyAndUser()
+        public string GenerateToken()
         {
-
+            return new Random().Next(1000, 9999).ToString();
         }
 
         /// <summary>
