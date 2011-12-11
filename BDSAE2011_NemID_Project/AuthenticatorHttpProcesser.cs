@@ -171,7 +171,7 @@ namespace AuthenticatorComponent
         /// <summary>
         /// Represents the server socket of the authenticator.
         /// </summary>
-        private readonly AuthenticatorSocket serverSocket;
+        private readonly AuthenticatorServer serverSocket;
 
         private readonly Dictionary<string, ClientSession> userSessions;
 
@@ -196,7 +196,6 @@ namespace AuthenticatorComponent
         {
             Contract.Requires(IsValidURL(authenticatorDomain));
 
-
             this.authenticator = new Authenticator();
             this.userSessions = new Dictionary<string, ClientSession>();
 
@@ -207,7 +206,7 @@ namespace AuthenticatorComponent
                 this.userSessions.Add(userName, new ClientSession());
             }
 
-            this.serverSocket = new AuthenticatorSocket(authenticatorDomain, authenticatorPrivateKey);
+            this.serverSocket = new AuthenticatorServer(authenticatorDomain, authenticatorPrivateKey);
             this.authenticatorPrivateKey = authenticatorPrivateKey;
         }
 

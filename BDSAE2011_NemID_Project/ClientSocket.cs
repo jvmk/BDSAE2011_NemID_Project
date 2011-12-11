@@ -112,8 +112,8 @@ namespace ClientComponent
         /// <param name="port">
         /// The port that is wished to connect to.
         /// </param>
-        /// <param name="serverName">
-        /// The name of the server as declared in its certificate.
+        /// <param name="clientPrivateKey">
+        /// The private key of the client that uses the ClientSocket.
         /// </param>
         public ClientSocket(string serverDomain, string clientIdentifier, byte[] clientPrivateKey)
         {

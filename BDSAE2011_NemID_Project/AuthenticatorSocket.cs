@@ -7,12 +7,9 @@
 namespace AuthenticatorComponent
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics.Contracts;
     using System.IO;
-    using System.Linq;
     using System.Net;
-    using System.Security.Cryptography.X509Certificates;
     using System.Text;
 
     using Miscellaneoues;
@@ -105,9 +102,8 @@ namespace AuthenticatorComponent
 
     /// <summary>
     /// TODO: Update summary.
-    /// THE CLASS IS CALLED 'HTTPINTERPRETER' IN THE BON-SPECIFICATION.
     /// </summary>
-    public class AuthenticatorSocket
+    public class AuthenticatorServer
     {
         /// <summary>
         /// Represents the server instance.
@@ -115,17 +111,8 @@ namespace AuthenticatorComponent
         private readonly HttpListener server;
 
         /// <summary>
-        /// The certificate of the server
-        /// </summary>
-        private readonly X509Certificate serverCertificate;
-
-        /// <summary>
-        /// The path to the server certificate.
-        /// </summary>
-        private readonly string certificatePath = @"C:\Users\Kenneth88\Desktop\danIDCertificate.cer"; // TODO delete this?
-
-        /// <summary>
-        /// 
+        /// The current HttpListenerContext. If a ReadMessage has been performed, the 
+        /// SendMessage will repond using the same HttpListenerObject.
         /// </summary>
         private HttpListenerContext currentListenerContext = default(HttpListenerContext);
 
@@ -152,7 +139,7 @@ namespace AuthenticatorComponent
         /// <param name="port">
         /// The port with the socket listens to request from.
         /// </param>
-        public AuthenticatorSocket(string authenticatorDomain, byte[] authenticatorPrivateKey)
+        public AuthenticatorServer(string authenticatorDomain, byte[] authenticatorPrivateKey)
         {
             Contract.Requires(IsValidURL(authenticatorDomain));
 
