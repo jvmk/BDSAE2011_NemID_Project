@@ -226,14 +226,16 @@ namespace AuthenticatorComponent
             string rawMessageBody = MessageProcessingUtility.ReadFrom(requestDataStream);
 
             // Get requester's domain.
-            string requesterDomain = MessageProcessingUtility.GetRequesterDomain(rawMessageBody);
+            string requesterDomain = MessageProcessingUtility.GetRequesterDomain(
+                rawMessageBody, this.authenticatorPrivateKey);
 
             // Get the requested operation.
             string url = request.Url.OriginalString;
             string requestedOperation = MessageProcessingUtility.GetRequesterOperation(url);
 
             // Get requester's parameters.
-            string[] parameters = MessageProcessingUtility.GetRequesterParameters(rawMessageBody, requesterDomain);
+            string[] parameters = MessageProcessingUtility.GetRequesterParameters(
+                rawMessageBody, requesterDomain, this.authenticatorPrivateKey);
 
             // Update the state of the socket.
             this.hasReadHappened = true;
