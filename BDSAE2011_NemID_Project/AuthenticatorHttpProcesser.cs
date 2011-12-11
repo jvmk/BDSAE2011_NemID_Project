@@ -196,8 +196,17 @@ namespace AuthenticatorComponent
         {
             Contract.Requires(IsValidURL(authenticatorDomain));
 
+
             this.authenticator = new Authenticator();
-            this.userSessions = new Dictionary<string, ClientSession>(); // TODO initialize with all usernames.
+            this.userSessions = new Dictionary<string, ClientSession>();
+
+            // Initialize the clientSessions with all the clients current
+            // registered in the authenticator database.
+            foreach (string userName in this.authenticator.GetAllUsers())
+            {
+                this.userSessions.Add(userName, new ClientSession());
+            }
+
             this.serverSocket = new AuthenticatorSocket(authenticatorDomain, authenticatorPrivateKey);
             this.authenticatorPrivateKey = authenticatorPrivateKey;
         }

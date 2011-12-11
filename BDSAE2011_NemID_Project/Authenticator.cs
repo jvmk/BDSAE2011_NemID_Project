@@ -18,7 +18,7 @@ namespace AuthenticatorComponent
         /// <summary>
         /// A set of URIs that this authenticator trusts.
         /// </summary>
-        private HashSet<string> trustedThirdPartyURIs = new HashSet<string>(); 
+        private HashSet<string> trustedThirdPartyURIs = new HashSet<string>();
 
         /// <summary>
         /// Initializes a new instance of the Authenticator class.
@@ -38,6 +38,18 @@ namespace AuthenticatorComponent
         {
             Contract.Requires(!string.IsNullOrWhiteSpace(username));
             return this.database.ContainsKey(username);
+        }
+
+        /// <summary>
+        /// Get all the user names of the users current
+        /// registered in the authenticator's database.
+        /// </summary>
+        /// <returns></returns>
+        public string[] GetAllUsers()
+        {
+            string[] keysArray = new string[this.database.Count];
+            this.database.Keys.CopyTo(keysArray, 0);
+            return keysArray;
         }
 
         /// <summary>
@@ -136,7 +148,7 @@ namespace AuthenticatorComponent
                 ".txt",
                 keycardPrint);
         }
-        
+
         [ContractInvariantMethod]
         private void AuthenticatorInvariant()
         {
