@@ -28,9 +28,10 @@ namespace ThirdPartyComponent
         /// </summary>
         /// <param name="serverUri">The URI of the third party server.</param>
         /// <param name="clientPkiId">The PKI identifier of the client sending the messages.</param>
-        public ThirdPartyHttpGenerator(string serverUri, string clientPkiId)
+        /// <param name="clientPrivKey">The private key of the client sending the messages.</param>
+        public ThirdPartyHttpGenerator(string serverUri, string clientPkiId, byte[] clientPrivKey)
         {
-            this.clientSocket = new ClientSocket(serverUri, clientPkiId);
+            this.clientSocket = new ClientSocket(serverUri, clientPkiId, clientPrivKey);
         }
 
         public bool SubmitUsername(string username)
