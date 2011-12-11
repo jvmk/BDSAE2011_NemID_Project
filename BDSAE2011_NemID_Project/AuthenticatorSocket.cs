@@ -12,12 +12,8 @@ namespace AuthenticatorComponent
     using System.IO;
     using System.Linq;
     using System.Net;
-    using System.Net.Security;
-    using System.Net.Sockets;
-    using System.Security.Authentication;
     using System.Security.Cryptography.X509Certificates;
     using System.Text;
-    using System.Threading;
 
     using Miscellaneoues;
 
@@ -27,6 +23,7 @@ namespace AuthenticatorComponent
     /// </summary>
     public struct Request
     {
+        private string rawUrl;
 
         /// <summary>
         /// PKI-identifier of the client.
@@ -57,13 +54,21 @@ namespace AuthenticatorComponent
         /// string representation of the requested operation's
         /// parameters.
         /// </param>
-        public Request(string requesterDomain, string requestedOperation, string[] parameters)
+        public Request(string rawUrl, string requesterDomain, string requestedOperation, string[] parameters)
         {
+            this.rawUrl = rawUrl;
             this.requesterDomain = requesterDomain;
             this.requestedOperation = requestedOperation;
             this.parameters = parameters;
         }
 
+        public string RawUrl
+        {
+            get
+            {
+                return this.rawUrl;
+            }
+        }
 
         public string RequesterDomain
         {
@@ -129,7 +134,16 @@ namespace AuthenticatorComponent
         /// </summary>
         private string authenticatorDomain;
 
+        /// <summary>
+        /// Used for contracts; determines if a read has occured. Is necessary
+        /// to determine, because a send can't happen before a read has been
+        /// executed.
+        /// </summary>
+        private bool hasReadHappened = false;
 
+        /// <summary>
+        /// The private key of the authenticator.
+        /// </summary>
         private byte[] authenticatorPrivateKey;
 
         /// <summary>
@@ -140,12 +154,14 @@ namespace AuthenticatorComponent
         /// </param>
         public AuthenticatorSocket(string authenticatorDomain)
         {
+            Contract.Requires(IsValidURL(authenticatorDomain));
+
             this.authenticatorDomain = authenticatorDomain;
             this.server = new HttpListener();
             this.server.Prefixes.Add(authenticatorDomain + "/");
 
             // Generate a public/private key pair
-            this.authenticatorPrivateKey = Cryptograph.GenerateKeys(this.authenticatorDomain);
+            // this.authenticatorPrivateKey = Cryptograph.GenerateKeys(this.authenticatorDomain);
         }
 
         /// <summary>
@@ -160,6 +176,34 @@ namespace AuthenticatorComponent
         }
 
         /// <summary>
+        /// Source: http://stackoverflow.com/questions/7578857/how-to-check-whether-a-string-is-a-valid-http-url
+        /// </summary>
+        /// <param name="URL">
+        /// Stirng representation of the URL.
+        /// </param>
+        /// <returns>
+        /// True if it is a valid URL, false otherwise.
+        /// </returns>
+        [Pure]
+        public static bool IsValidURL(string URL)
+        {
+            Uri uri = new Uri(URL);
+            return Uri.TryCreate(URL, UriKind.Absolute, out uri) && uri.Scheme == Uri.UriSchemeHttp;
+        }
+
+        /// <summary>
+        /// Determines if a read has been executed.
+        /// </summary>
+        /// <returns>
+        /// True if a read has happened, false otherwise.
+        /// </returns>
+        [Pure]
+        public bool HasReadHappened()
+        {
+            return this.hasReadHappened;
+        }
+
+        /// <summary>
         /// Read a message from the speciefied SSL stream.
         /// </summary>
         /// <returns>
@@ -167,27 +211,36 @@ namespace AuthenticatorComponent
         /// </returns>
         public Request ReadMessage()
         {
+            Contract.Requires(!this.HasReadHappened());
+            Contract.Ensures(this.HasReadHappened());
+
             this.currentListenerContext = this.server.GetContext();
             Console.WriteLine("Server received client request.");
             HttpListenerRequest request = this.currentListenerContext.Request;
 
+            // Get the raw url of the requst:
+            string rawUrl = request.RawUrl;
+
             // Get the raw messageBody of the HTTP request message.
             Stream requestDataStream = request.InputStream;
-            string rawMessageBody = this.ReadFrom(requestDataStream);
+            string rawMessageBody = MessageProcessingUtility.ReadFrom(requestDataStream);
 
             // Get requester's domain.
-            string requesterDomain = this.GetRequesterDomain(rawMessageBody);
+            string requesterDomain = MessageProcessingUtility.GetRequesterDomain(rawMessageBody);
 
             // Get the requested operation.
             string url = request.Url.OriginalString;
-            string requestedOperation = this.GetRequestedOperation(url);
+            string requestedOperation = MessageProcessingUtility.GetRequesterOperation(url);
 
             // Get requester's parameters.
-            string[] parameters = this.GetParameters(rawMessageBody, requesterDomain);
+            string[] parameters = MessageProcessingUtility.GetRequesterParameters(rawMessageBody, requesterDomain);
+
+            // Update the state of the socket.
+            this.hasReadHappened = true;
 
             // Return a Request struct containing the properties just
             // achieved.
-            return new Request(requesterDomain, requestedOperation, parameters);
+            return new Request(rawUrl, requesterDomain, requestedOperation, parameters);
         }
 
         /// <summary>
@@ -201,12 +254,12 @@ namespace AuthenticatorComponent
         /// <param name="message"></param>
         public void SendMessage(Request request, bool accepted, string message)
         {
+            Contract.Requires(this.HasReadHappened());
             Contract.Requires(string.IsNullOrEmpty(message));
-            // Contract.Requires(this.IsMessageWellFormed(message));
-            // Contract.Ensures(this.IsSentRawMessageBodyWellFormed()));
+            Contract.Ensures(!this.HasReadHappened());
 
             // Obtain a response object.
-            HttpListenerResponse responseMessage = this.currentListenerContext.Response;
+            HttpListenerResponse responseMessage = this.currentListenerContext.Response; // TODO use response in request objekt instead.
 
             // Stream used to write the response HTTP-message.
             Stream output = null;
@@ -255,173 +308,12 @@ namespace AuthenticatorComponent
             output.Write(compiledMessageBytes, 0, compiledMessageBytes.Length);
 
             output.Close();
+
+            // Update the state of the socket.
+            this.hasReadHappened = false;
         }
 
-        /// <summary>
-        /// Gets the requested operation specified in the given URL.
-        /// </summary>
-        /// <param name="url">
-        /// The url containing the string representation of an operation.
-        /// </param>
-        /// <returns>
-        /// String representation of the requested operation.
-        /// </returns>
-        private string GetRequestedOperation(string url)
-        {
-            Contract.Requires(string.IsNullOrEmpty(url));
-            // Contract.Requires(this.DoesUrlContainRequest(url));
-
-            int start = url.IndexOf("request=") + "request=".Length;
-            int end = url.IndexOf('/', start);
-
-            return url.Substring(start, end - start);
-        }
-
-        /// <summary>
-        /// Reads the bytes from the specified stream and
-        /// encodes them in UTF8.
-        /// </summary>
-        /// <param name="stream">
-        /// The stream to be read from.
-        /// </param>
-        /// <returns>
-        /// The string encoded in UTF8 from the bytes read
-        /// in the specified stream.
-        /// </returns>
-        private string ReadFrom(Stream stream)
-        {
-            // Read the message sent by the client.
-            byte[] buffer = new byte[2048];
-            StringBuilder messageData = new StringBuilder();
-            int bytes = -1;
-
-            do
-            {
-                // Read the client's test message.
-                bytes = stream.Read(buffer, 0, buffer.Length);
-
-                // Use Decoder class to convert from bytes to UTF8
-                // in case a character spans two buffers.
-                Decoder decoder = Encoding.UTF8.GetDecoder();
-                char[] chars = new char[decoder.GetCharCount(buffer, 0, bytes)];
-                decoder.GetChars(buffer, 0, bytes, chars, 0);
-                messageData.Append(chars);
-            }
-            while (bytes != 0);
-
-            return messageData.ToString();
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="rawMessageBody"></param>
-        /// <returns>
-        /// Is encrypted
-        /// </returns>
-        private string GetRequesterDomain(string rawMessageBody)
-        {
-            int start = rawMessageBody.IndexOf("origin=") + "origin=".Length;
-
-            // Get the index of the last character i in the encrypted domain
-            // string:
-            int end = rawMessageBody.IndexOf('&') - 1;
-
-            // This string is encrypted in the authenticator's public key.
-            string encRequesterDomain = rawMessageBody.Substring(start, end - start);
-            return Cryptograph.Decrypt(encRequesterDomain, this.authenticatorPrivateKey);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="rawMessageBody"></param>
-        /// <param name="clientDomain">
-        /// The domain of the requester, who sent the original HTTP message.
-        /// Used for verification of the signed message body part.
-        /// </param>
-        /// <returns>
-        /// String representations of the parameters in the specified raw
-        /// message body.
-        /// </returns>
-        private string[] GetParameters(string rawMessageBody, string clientDomain)
-        {
-            // Get string representation of the parameters to the requested operation
-            // invocation sent in the message.
-
-            Console.WriteLine("MessageBody: " + rawMessageBody);
-            string decryptedMessage = this.ProcessRawMessageBody(rawMessageBody, clientDomain);
-
-            // Process the decrypted messagebody to obtain parameters sent from
-            // the client.
-            int numberOfParameters = decryptedMessage.Count(c => c.Equals('&')) + 1;
-            string[] parameters = new string[numberOfParameters];
-
-            int currentIndex = 0;
-
-            for (int i = 1; i < numberOfParameters; i++)
-            {
-                int s = decryptedMessage.IndexOf('=', currentIndex) + 1;
-                Console.WriteLine(s);
-
-                int e = -1;
-
-                // If true, no more '&'-signs are present and the
-                // last parameter of the requester message has been
-                // reached.
-                if (i + 1 == numberOfParameters)
-                {
-                    e = decryptedMessage.Length;
-                }
-                else
-                {
-                    e = decryptedMessage.IndexOf('&', currentIndex);
-                }
-
-                parameters[i] = decryptedMessage.Substring(s, e - s);
-
-                currentIndex = e;
-            }
-
-            return parameters;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="rawMessageBody"></param>
-        /// <param name="clientDomain"></param>
-        /// <returns>
-        /// The decrypted messagebody.
-        /// </returns>
-        private string ProcessRawMessageBody(string rawMessageBody, string clientDomain)
-        {
-            string[] parts = rawMessageBody.Split('&');
-
-            // encMessageBody is encrypted in the authenticator's public
-            // key. This text represents the text that is signed by the
-            // client.
-            string encMessageBody = parts[1];
-
-            // signedEncMessageBody is the signed text of the encMessageBody.
-            // It has been signed by the client's private key.
-            string signedEncMessageBody = parts[2];
-
-            bool verified = Cryptograph.VerifyData(
-                encMessageBody, signedEncMessageBody, Cryptograph.GetPublicKey(clientDomain));
-
-            if (verified)
-            {
-                return Cryptograph.Decrypt(
-                    encMessageBody, Cryptograph.GetPublicKey(clientDomain));
-            }
-
-            // TODO way to end?
-            // The message has been tangled with:
-            throw new Exception();
-        }
 
         // TODO closing of stream and sockets.
-        // TODO Is message well-formed?
     }
 }

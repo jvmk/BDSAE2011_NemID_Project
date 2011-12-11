@@ -112,7 +112,7 @@ namespace ClientComponent
         /// </returns>
         public string GetKeyIndex()
         {
-            return this.ProcessMessageBodyOf(this.currentServerResponse);
+            return this.ProcessMessageBodyOf(this.currentServerResponse); // TODO process response.
         }
 
         /// <summary>
@@ -138,6 +138,11 @@ namespace ClientComponent
             return this.currentServerResponse.Accepted;
         }
 
+        public string GetToken()
+        {
+            return this.currentServerResponse.ReturnValue; //TODO process response.
+        }
+
         /// <summary>
         /// Requests revocation of the user account specified
         /// by the user name. The client must have gone through the login
@@ -160,13 +165,6 @@ namespace ClientComponent
             return this.currentServerResponse.Accepted;
         }
 
-        // TODO Should not be a part of the program
-        public bool RequestNewKeyCard()
-        {
-            return true;
-        }
-
-
         /// <summary>
         /// Processes the specified string representation of a 
         /// http message.
@@ -185,10 +183,10 @@ namespace ClientComponent
 
             if (response.Accepted)
             {
-                int start = response.MessageBody.IndexOf('=') + 1;
-                int end = response.MessageBody.Length;
+                int start = response.ReturnValue.IndexOf('=') + 1;
+                int end = response.ReturnValue.Length;
 
-                return response.MessageBody.Substring(start, end - start);
+                return response.ReturnValue.Substring(start, end - start);
             }
 
             // The request wasn't accepted by the authenticator,
