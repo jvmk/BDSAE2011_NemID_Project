@@ -85,7 +85,6 @@ namespace Miscellaneoues
             return url.Substring(start, end - start);
         }
 
-
         /// <summary>
         /// 
         /// </summary>
@@ -163,7 +162,6 @@ namespace Miscellaneoues
 
             return parameters;
         }
-
 
         /// <summary>
         /// Helper method for GetParameters.

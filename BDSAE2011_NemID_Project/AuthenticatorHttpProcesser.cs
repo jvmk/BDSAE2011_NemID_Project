@@ -167,11 +167,6 @@ namespace AuthenticatorComponent
         private readonly Dictionary<string, ClientSession> userSessions;
 
         /// <summary>
-        /// Indicates whether the service must keep running.
-        /// </summary>
-        private bool inService = true;
-
-        /// <summary>
         /// List containing string representations of the operations
         /// that is supported by the authentication service.
         /// </summary>
@@ -186,13 +181,13 @@ namespace AuthenticatorComponent
         /// <param name="authenticatorDomain">
         /// The port the authenticator will be listening to.
         /// </param>
-        public AuthenticatorService(string authenticatorDomain)
+        public AuthenticatorService(string authenticatorDomain, byte[] authenticatorPrivateKey)
         {
             Contract.Requires(IsValidURL(authenticatorDomain));
 
             this.authenticator = new Authenticator();
             this.userSessions = new Dictionary<string, ClientSession>(); // TODO initialize with all usernames.
-            this.serverSocket = new AuthenticatorSocket(authenticatorDomain);
+            this.serverSocket = new AuthenticatorSocket(authenticatorDomain, authenticatorPrivateKey);
         }
 
         /// <summary>
@@ -203,7 +198,7 @@ namespace AuthenticatorComponent
         {
             this.serverSocket.Start();
 
-            while (this.inService)
+            while (true)
             {
                 Request processedRequest = this.serverSocket.ReadMessage();
 
@@ -432,16 +427,6 @@ namespace AuthenticatorComponent
         {
             Uri uri = new Uri(URL);
             return Uri.TryCreate(URL, UriKind.Absolute, out uri) && uri.Scheme == Uri.UriSchemeHttp;
-        }
-
-
-        /// <summary>
-        /// Closes down the authentication service
-        /// properly.
-        /// </summary>
-        public void CloseDown() // TODO delete, serviceLoop blocks anyway.
-        {
-            this.inService = false;
         }
     }
 }
