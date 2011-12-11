@@ -152,11 +152,12 @@ namespace AuthenticatorComponent
         /// <param name="port">
         /// The port with the socket listens to request from.
         /// </param>
-        public AuthenticatorSocket(string authenticatorDomain)
+        public AuthenticatorSocket(string authenticatorDomain, byte[] authenticatorPrivateKey)
         {
             Contract.Requires(IsValidURL(authenticatorDomain));
 
             this.authenticatorDomain = authenticatorDomain;
+            this.authenticatorPrivateKey = authenticatorPrivateKey;
             this.server = new HttpListener();
             this.server.Prefixes.Add(authenticatorDomain + "/");
 
