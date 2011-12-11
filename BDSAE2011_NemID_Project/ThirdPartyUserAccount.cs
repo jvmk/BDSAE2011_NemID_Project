@@ -18,7 +18,7 @@ namespace ThirdPartyComponent
     {
         private string username;
 
-        private int authToken;
+        private string authToken;
 
         private DateTime authTokenUpdate = DateTime.Now;
         
@@ -36,7 +36,7 @@ namespace ThirdPartyComponent
         /// Sets the authenticator token and sets the instant in time when this updates was carried out.
         /// </summary>
         /// <param name="token"></param>
-        internal void SetAuthToken(int token)
+        internal void SetAuthToken(string token)
         {
             authToken = token;
             authTokenUpdate = DateTime.Now;
@@ -48,16 +48,18 @@ namespace ThirdPartyComponent
         /// <param name="clientToken">The token supplied by the client.</param>
         /// <returns>True if the client token is equal to the registered authenticator token.</returns>
         /// </summary>
-        internal bool CompareTokens(int clientToken)
+        internal bool CompareTokens(string clientToken)
         {
-            if (authTokenUpdate.AddMinutes(1) < DateTime.Now)
+            if (this.authTokenUpdate.AddMinutes(1) < DateTime.Now)
             {
                 return false;
             }
-            if (clientToken == authToken)
+
+            if (clientToken.Equals(this.authToken))
             {
                 return true;
             }
+
             return false;
         }
     }

@@ -32,13 +32,18 @@ namespace ThirdPartyComponent
             users.Add(username, new ThirdPartyUserAccount(username));
         }
 
+        internal bool ContainsUsername(string username)
+        {
+            return this.users.ContainsKey(username);
+        }
+
         /// <summary>
         /// Submit a client token to the database.
         /// </summary>
         /// <param name="clientToken">The client token (nonce).</param>
         /// <param name="username">The username to look up in the database.</param>
         /// <returns>True if the username is in the database, the supplied token equals the expected token and the token has not timed out. False otherwise.</returns>
-        internal bool CompareTokens(int clientToken, string username)
+        internal bool CompareTokens(string clientToken, string username)
         {
             if (!this.users.ContainsKey(username))
             {
@@ -52,7 +57,7 @@ namespace ThirdPartyComponent
         /// </summary>
         /// <param name="username">username to identify the target account.</param>
         /// <param name="authToken">The value to update the authenticator token with.</param>
-        internal void SetAuthTokenForAccount(string username, int authToken)
+        internal void SetAuthTokenForAccount(string username, string authToken)
         {
             if (!this.users.ContainsKey(username))
             {

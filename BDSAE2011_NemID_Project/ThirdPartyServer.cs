@@ -26,13 +26,6 @@ using System.Text;
         /// </summary>
         public class ThirdPartyServer
         {
-            public static void Main(string[] args)
-            {
-                // setup a server
-                var tpserver = new ThirdPartyServer("localhost", 8082);
-                tpserver.RunServer();
-            }
-
             /// <summary>
             /// The server that listens for requests.
             /// </summary>
@@ -53,15 +46,18 @@ using System.Text;
             /// </summary>
             private ThirdParty database = new ThirdParty();
 
+            private byte[] serversPrivateKey;
+
             /// <summary>
             /// Initializes a new instance of the ThirdParty Server class.
             /// Protocol cannot be specified since a server of this type should always use https.
             /// </summary>
             /// <param name="serverDomain">The domain the server should run on, fx "localhost"</param>
             /// <param name="serverPort">The port the server should listen to.</param>
-            public ThirdPartyServer(string serverDomain, uint serverPort)
+            public ThirdPartyServer(string serverDomain, uint serverPort, byte[] serversPrivateKey)
             {
                 this.server = new HttpListener();
+                this.serversPrivateKey = serversPrivateKey;
                 string serverAddress = @"http://" + serverDomain + ":" + serverPort + @"/"; // TODO update to https after testing!!!
                 this.server.Prefixes.Add(serverAddress);
                 subpagesForPost.AddRange(new string[] { @"/request=loginpage", @"/request=usertoken", @"/request=authtoken" });
@@ -101,7 +97,7 @@ using System.Text;
                                 this.ProcessIncomingPost(hlc);
                                 // Process the post and redirect user to nem id
                                 // TODO ...read the posted data here...
-                                string senderPkiId = this.GetSenderPkiIdFromHttpMessage(postData);
+                                string senderPkiId = MessageProcessingUtility.GetRequesterDomain(postData, serversPrivateKey);
                                 // Finally redirect the user to NemID
                                 //response.Redirect("https://localhost:8081"); // TODO need to agree on this URI (NemID's)
                                 break;
@@ -188,24 +184,26 @@ using System.Text;
             /// </summary>
             /// <param name="httpMessageBody">The decrypted content of a http message.</param>
             /// <returns>Gets the decrypted PKI identifier of the sender.</returns>
-            private String GetSenderPkiIdFromHttpMessage(string httpMessageBody)
-            {
-                Contract.Requires(!string.IsNullOrWhiteSpace(httpMessageBody));
-                Contract.Requires(httpMessageBody.Contains("origin="));
-                Contract.Requires(httpMessageBody.Contains('&'));
-                Contract.Requires(httpMessageBody.IndexOf("origin=") < httpMessageBody.IndexOf('&'));
-                Contract.Ensures(Contract.Result<string>() != null);
-                int pkiIdStart = httpMessageBody.IndexOf("origin=") + "origin=".Length;
-                int pkiIdEnd = httpMessageBody.IndexOf('&', pkiIdStart); // pkiId ends at next &
-                String encPkiId = httpMessageBody.Substring(pkiIdStart, pkiIdEnd - pkiIdStart); // Get the pkiId substring
-                String decPkiId = Cryptograph.Decrypt(encPkiId,  /* Third Party Private Key */); // TODO update this according to keys + what if it fails
-                return decPkiId;
-            }
+            //private String GetSenderPkiIdFromHttpMessage(string httpMessageBody)
+            //{
+                //Contract.Requires(!string.IsNullOrWhiteSpace(httpMessageBody));
+                //Contract.Requires(httpMessageBody.Contains("origin="));
+                //Contract.Requires(httpMessageBody.Contains('&'));
+                //Contract.Requires(httpMessageBody.IndexOf("origin=") < httpMessageBody.IndexOf('&'));
+                //Contract.Ensures(Contract.Result<string>() != null);
+                //int pkiIdStart = httpMessageBody.IndexOf("origin=") + "origin=".Length;
+                //int pkiIdEnd = httpMessageBody.IndexOf('&', pkiIdStart); // pkiId ends at next &
+                //String encPkiId = httpMessageBody.Substring(pkiIdStart, pkiIdEnd - pkiIdStart); // Get the pkiId substring
+                //String decPkiId = Cryptograph.Decrypt(encPkiId,  /* Third Party Private Key */); // TODO update this according to keys + what if it fails
+                //return decPkiId;
+            //}
 
             private void ProcessIncomingPost(HttpListenerContext hlc)
             {
                 HttpListenerResponse response = hlc.Response; // obtain response object
-                if (!this.ValidatePostOrigin(this.GetPostString(hlc), this.GetSenderPkiIdFromHttpMessage(this.GetPostString(hlc))))
+                string rawMessageBody = this.GetPostString(hlc);
+                string clientPki = MessageProcessingUtility.GetRequesterDomain(rawMessageBody, this.serversPrivateKey);
+                if (!this.ValidatePostOrigin(rawMessageBody, clientPki))
                 {
                     // message was not valid - message has been tampered with, end request here
                     response = this.SetupForbiddenResponse(response,
@@ -213,23 +211,34 @@ using System.Text;
                     response.Close();
                     return;
                 }
-                String urlForPost = hlc.Request.RawUrl; // Find out what subpage the data was posted to
+                
+                string[] inputValues = MessageProcessingUtility.GetRequesterParameters(
+                    rawMessageBody, clientPki, this.serversPrivateKey);
+                string username = inputValues[0]; // value of username is at position 0 in the input array
+                string tokenValue = inputValues[1]; // value of token is at position 1 in the input array
+                string urlForPost = hlc.Request.RawUrl; // Find out what subpage the data was posted to
                 switch (urlForPost)
                 {
                     case (@"/request=loginpage"):
                         // check username is valid in own database
                         
-                        // read and store username
-                        // redirect to NemID
-                        //response.StatusCode = 200;
-                        response.Redirect(AUTH_URI + "request=redirect&userName=" + username + "&3rd=" + this.server.Prefixes.First());
-                        response.Close();
+                        if (this.database.ContainsUsername(username))
+                        {
+                            // redirect to NemID
+                            response.Redirect(AUTH_URI + "request=redirect&userName=" + username + "&3rd=" + this.server.Prefixes.First());
+                            response.Close();
+                        }
+                        else
+                        {
+                            response = this.SetupForbiddenResponse(response, "Username not found.");
+                            response.Close();
+                        }
                         break;
                     case (@"/request=authtoken"):
                         // check that the post came from the authenticator
-                        if (this.ValidatePostOrigin(this.GetPostString(hlc), AUTH_URI))
+                        if (this.ValidatePostOrigin(rawMessageBody, AUTH_URI))
                         {
-                            database.SetAuthTokenForAccount(/* TODO extract username here */, /* TODO extract token here*/ );
+                            database.SetAuthTokenForAccount(username, tokenValue);
                         }
                         else
                         {
@@ -240,8 +249,8 @@ using System.Text;
                         }
                         break;
                     case (@"/request=usertoken"):
-                    // check that the post came from the user (already done above)
-                        if(database.CompareTokens(/* TODO extract client token here */, /* TODO extract username here */))
+                        // check that the post came from the user (already done above)
+                        if (this.database.CompareTokens(tokenValue, username))
                         {
                             response.StatusCode = 200; // HTTP OK status
                             response.StatusDescription = "Authentication successful.";
@@ -253,6 +262,7 @@ using System.Text;
                             response = this.SetupForbiddenResponse(response, "Access denied, possible timeout.");
                             response.Close();
                         }
+
                         break;
                     default:
                     // TODO handle error
@@ -281,7 +291,7 @@ using System.Text;
             /// <returns>True if the token was sent by expected source, false otherwise.</returns>
             private bool ValidatePostOrigin(string httpMessageBody, string expectedPkiId)
             {
-                String senderPkiId = this.GetSenderPkiIdFromHttpMessage(httpMessageBody);
+                String senderPkiId = MessageProcessingUtility.GetRequesterDomain(httpMessageBody, serversPrivateKey);
                 if (ReferenceEquals(senderPkiId, null) || !senderPkiId.Equals(expectedPkiId))
                 {
                     // Origin is not determable or not equal to expected origin
