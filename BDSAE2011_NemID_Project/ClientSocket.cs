@@ -154,7 +154,7 @@ namespace ClientComponent
 
             Stream dataStream = this.clientRequest.GetRequestStream();
             dataStream.Write(messageBytes, 0, messageBytes.Length);
-
+            
             dataStream.Close();
         }
 

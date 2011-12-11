@@ -46,7 +46,7 @@ using System.Text;
             /// <summary>
             /// The URI of the trusted authenticator.
             /// </summary>
-            private static readonly string AUTH_URI = "https://localhost:8081"; // TODO agree on this address
+            private static readonly string AUTH_URI = "https://localhost:8081/"; // TODO agree on this address
 
             /// <summary>
             /// Represents the ThirdParty backend database
@@ -64,7 +64,7 @@ using System.Text;
                 this.server = new HttpListener();
                 string serverAddress = @"http://" + serverDomain + ":" + serverPort + @"/"; // TODO update to https after testing!!!
                 this.server.Prefixes.Add(serverAddress);
-                subpagesForPost.AddRange(new string[] { @"/loginpage", @"/usertoken", @"/authtoken" });
+                subpagesForPost.AddRange(new string[] { @"/request=loginpage", @"/request=usertoken", @"/request=authtoken" });
             }
 
 
@@ -138,7 +138,7 @@ using System.Text;
                 string responseStr = "";
                 switch (requestedUrl)
                 {
-                    case (@"/loginpage"):
+                    case (@"/request=loginpage"):
                         // respond with loginpage
                         responseStr =
                             "<html><head><title>Login</title></head>" +
@@ -213,15 +213,19 @@ using System.Text;
                     response.Close();
                     return;
                 }
-                HttpListenerRequest request = hlc.Request;
-                String urlForPost = request.RawUrl; // Find out what subpage the data was posted to
+                String urlForPost = hlc.Request.RawUrl; // Find out what subpage the data was posted to
                 switch (urlForPost)
                 {
-                    case (@"/loginpage"):
+                    case (@"/request=loginpage"):
+                        // check username is valid in own database
+                        
                         // read and store username
                         // redirect to NemID
+                        //response.StatusCode = 200;
+                        response.Redirect(AUTH_URI + "request=redirect&userName=" + username + "&3rd=" + this.server.Prefixes.First());
+                        response.Close();
                         break;
-                    case (@"/authtoken"):
+                    case (@"/request=authtoken"):
                         // check that the post came from the authenticator
                         if (this.ValidatePostOrigin(this.GetPostString(hlc), AUTH_URI))
                         {
@@ -235,7 +239,7 @@ using System.Text;
                             response.Close();
                         }
                         break;
-                    case (@"/usertoken"):
+                    case (@"/request=usertoken"):
                     // check that the post came from the user (already done above)
                         if(database.CompareTokens(/* TODO extract client token here */, /* TODO extract username here */))
                         {
