@@ -22,7 +22,7 @@ namespace ThirdPartyComponent
         /// ClientSocket used to communicate with the the ThirdPartyServer.
         /// </summary>
         private ClientSocket clientSocket;
-        
+
         /// <summary>
         /// Initializes a new instance of the ThirdPartyHttpGenerator class.
         /// </summary>
@@ -35,7 +35,7 @@ namespace ThirdPartyComponent
 
         public bool SubmitUsername(string username)
         {
-            this.clientSocket.SendMessage("loginpage", 
+            this.clientSocket.SendMessage("loginpage",
                 "username=" + username);
             Response r = this.clientSocket.ReadMessage();
             return r.Accepted;
