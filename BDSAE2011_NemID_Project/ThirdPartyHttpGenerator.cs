@@ -21,7 +21,7 @@ namespace ThirdPartyComponent
         /// <summary>
         /// ClientSocket used to communicate with the the ThirdPartyServer.
         /// </summary>
-        private ClientSocket clientSocket;
+        private readonly ClientSocket clientSocket;
         
         /// <summary>
         /// Initializes a new instance of the ThirdPartyHttpGenerator class.
@@ -34,18 +34,29 @@ namespace ThirdPartyComponent
             this.clientSocket = new ClientSocket(serverUri, clientPkiId, clientPrivKey);
         }
 
+        /// <summary>
+        /// Submits a username to the ThirdParty loginpage.
+        /// </summary>
+        /// <param name="username">Username to submit.</param>
+        /// <returns>True if the username is recognized by the third party, false otherwise.</returns>
         public bool SubmitUsername(string username)
         {
-            this.clientSocket.SendMessage("loginpage", 
-                "username=" + username);
+            this.clientSocket.SendMessage("loginpage", "username=" + username);
             Response r = this.clientSocket.ReadMessage();
             return r.Accepted;
         }
 
+        /// <summary>
+        /// Submits a user supplied token (nonce) to the ThirdParty in order to complete authentication.
+        /// </summary>
+        /// <param name="username">Username the token (nonce) is associated to.</param>
+        /// <param name="userToken">The user's token (nonce) to submit</param>
+        /// <returns>True if the token is accepted and authention is successful. False if the token is not valid.</returns>
         public bool SubmitUserToken(string username, int userToken)
         {
-            this.clientSocket.SendMessage("usertoken", "username=" + username + "&"
-               + "usertoken=" + userToken);
+            this.clientSocket.SendMessage(
+                "usertoken",
+                "username=" + username + "&" + "usertoken=" + userToken);
             Response r = this.clientSocket.ReadMessage();
             return r.Accepted;
         }

@@ -15,23 +15,34 @@ namespace ThirdPartyComponent
     internal class ThirdParty
     {
 
-        private Dictionary<string, ThirdPartyUserAccount> users = new Dictionary<string, ThirdPartyUserAccount>(); 
+        /// <summary>
+        /// The users in this third party's database.
+        /// </summary>
+        private readonly Dictionary<string, ThirdPartyUserAccount> users = new Dictionary<string, ThirdPartyUserAccount>(); 
         
         /// <summary>
         /// Initializes a new instance of the ThirdParty class.
         /// </summary>
         internal ThirdParty()
         {
-            
         }
 
+        /// <summary>
+        /// Add a new user to the database.
+        /// </summary>
+        /// <param name="username">The new users username.</param>
         internal void AddUserAccount(string username)
         {
-            Contract.Requires(!users.ContainsKey(username));
-            Contract.Ensures(users.ContainsKey(username));
-            users.Add(username, new ThirdPartyUserAccount(username));
+            Contract.Requires(!this.users.ContainsKey(username));
+            Contract.Ensures(this.users.ContainsKey(username));
+            this.users.Add(username, new ThirdPartyUserAccount(username));
         }
 
+        /// <summary>
+        /// Is this username registered in the database?
+        /// </summary>
+        /// <param name="username">Username to look for in the database.</param>
+        /// <returns>True if the username is already in the database, false otherwise.</returns>
         internal bool ContainsUsername(string username)
         {
             return this.users.ContainsKey(username);
@@ -49,6 +60,7 @@ namespace ThirdPartyComponent
             {
                 return false;
             }
+
             return this.users[username].CompareTokens(clientToken);
         }
 
@@ -63,6 +75,7 @@ namespace ThirdPartyComponent
             {
                 return;
             }
+
             this.users[username].SetAuthToken(authToken);
         }
     }
