@@ -241,6 +241,8 @@ namespace AuthenticatorComponent
             // Update the state of the socket.
             this.hasReadHappened = true;
 
+            requestDataStream.Close(); // TODO ADDED.
+
             // Return a Request struct containing the properties just
             // achieved.
             return new Request(rawUrl, requesterDomain, requestedOperation, parameters);
@@ -311,6 +313,7 @@ namespace AuthenticatorComponent
             output.Write(compiledMessageBytes, 0, compiledMessageBytes.Length);
 
             output.Close();
+            responseMessage.Close(); // TODO ADDED
 
             // Update the state of the socket.
             this.hasReadHappened = false;

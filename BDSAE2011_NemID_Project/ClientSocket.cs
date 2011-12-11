@@ -115,12 +115,12 @@ namespace ClientComponent
         /// <param name="serverName">
         /// The name of the server as declared in its certificate.
         /// </param>
-        public ClientSocket(string serverDomain, string clientIdentifier)
+        public ClientSocket(string serverDomain, string clientIdentifier, byte[] clientPrivateKey)
         {
             Contract.Requires(IsValidURL(serverDomain));
-
             this.serverDomain = serverDomain;
             this.clientIdentifier = clientIdentifier;
+            this.clientPrivateKey = clientPrivateKey;
         }
 
         /// <summary>
@@ -162,7 +162,7 @@ namespace ClientComponent
 
             Stream dataStream = this.clientRequest.GetRequestStream();
             dataStream.Write(messageBytes, 0, messageBytes.Length);
-            
+
             dataStream.Close();
 
             // Update the state of the socket.
@@ -207,6 +207,8 @@ namespace ClientComponent
 
             // Update the state of the socket
             this.haveSentMessage = false;
+
+            responseStream.Close();
 
             return new Response(true, returnValue);
         }

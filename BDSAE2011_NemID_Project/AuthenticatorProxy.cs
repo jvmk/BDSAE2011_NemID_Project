@@ -34,6 +34,8 @@ namespace ClientComponent
         /// </summary>
         private Response currentServerResponse = default(Response);
 
+
+        private byte[] clientPrivateKey;
         /// <summary>
         /// Initializes a new instance of the AuthenticatorProxy class.
         /// </summary>
@@ -47,10 +49,11 @@ namespace ClientComponent
         /// The authenticator's name as it appears on it certificate.
         /// </param>
         //TODO servername must be removed.
-        public AuthenticatorProxy(string serverDomain, string serverName)
+
+        public AuthenticatorProxy(string serverDomain, string serverName, byte[] clientPrivateKey)
         {
             this.serverDomain = serverDomain;
-            this.socket = new ClientSocket(serverDomain, serverName);
+            this.socket = new ClientSocket(serverDomain, serverName, clientPrivateKey);
         }
 
         /// <summary>
