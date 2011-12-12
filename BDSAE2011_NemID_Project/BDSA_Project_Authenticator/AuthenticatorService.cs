@@ -35,11 +35,16 @@ namespace BDSA_Project_Authenticator
         private DateTime timeOfLastValidRequest;
 
         /// <summary>
+        /// Counts how many attempts has
+        /// </summary>
+        private int numberOfAttempts = 0;
+
+        /// <summary>
         /// Initializes a new instance of the ClientSession class.
         /// </summary>
         public ClientSession()
         {
-            this.currentState = SessionState.AwaitSessionStart;
+            this.currentState = SessionState.AwaitLogin;
             this.timeOfLastValidRequest = DateTime.Now;
         }
 
@@ -59,12 +64,13 @@ namespace BDSA_Project_Authenticator
             /// login operation, where they submit user name and
             /// password
             /// </summary>
-            AwaitSessionStart,
+            AwaitLogin,
 
             /// <summary>
             /// After the client has submitted user name and password
             /// successfully (it has ben accepted by the authenticator)
-            /// the session is in this state.
+            /// the session is awaiting the submission of a key from the 
+            /// user's keycard.
             /// </summary>
             InitialLoginAccepted,
 
@@ -82,9 +88,22 @@ namespace BDSA_Project_Authenticator
         /// <returns></returns>
         public bool IsOperationValid(string operation)
         {
+            // If the session is awaiting either login and key submission...
+            if (this.currentState == SessionState.AwaitLogin ||
+                this.currentState == SessionState.InitialLoginAccepted)
+            {
+                // ... and the user unsuccesfully has submitted 3 requests
+                // when in either of these states...
+                if (++this.numberOfAttempts == 3)
+                {
+                    // ...the operation is not valid.
+                    return false;
+                }
+            }
+
             if (this.TimedOut())
             {
-                this.currentState = SessionState.AwaitSessionStart;
+                this.currentState = SessionState.AwaitRedirection;
                 return false;
             }
 
@@ -95,15 +114,15 @@ namespace BDSA_Project_Authenticator
                 case "redirect":
                     return this.currentState == SessionState.AwaitRedirection;
                 case "login":
-                    return this.currentState == SessionState.AwaitSessionStart;
+                    return this.currentState == SessionState.AwaitLogin;
                 case "submitKey":
                     return this.currentState == SessionState.InitialLoginAccepted;
                 case "proceed":
                     return this.currentState == SessionState.KeyAccepted;
                 case "abort":
-                    return this.currentState != SessionState.AwaitSessionStart;
+                    return this.currentState != SessionState.AwaitLogin;
                 case "createAccount":
-                    return this.currentState == SessionState.AwaitSessionStart;
+                    return this.currentState == SessionState.AwaitLogin;
                 case "revokeAccount":
                     return this.currentState == SessionState.KeyAccepted;
                 default:
@@ -111,17 +130,32 @@ namespace BDSA_Project_Authenticator
             }
         }
 
+        /// <summary>
+        /// Change te current state of the session to the 
+        /// specified state.
+        /// </summary>
+        /// <param name="state">
+        /// The state that the session is to change to.
+        /// </param>
         public void ChangeStateTo(SessionState state)
         {
+            // Reset number of attempts when the user session is changed.
+            this.numberOfAttempts = 0;
+
             this.currentState = state;
         }
 
+        /// <summary>
+        /// Gets or sets the third party domain that the user is currently
+        /// trying to get authenticated for.
+        /// </summary>
         public string ThirdPartyDomain
         {
             get
             {
                 return this.thirdPartyDomain;
             }
+
             set
             {
                 this.thirdPartyDomain = value;
@@ -142,7 +176,7 @@ namespace BDSA_Project_Authenticator
             bool timedOut = this.timeOfLastValidRequest.AddMinutes(1) <= DateTime.Now;
             this.timeOfLastValidRequest = DateTime.Now;
 
-            if (this.currentState == SessionState.AwaitSessionStart)
+            if (this.currentState == SessionState.AwaitRedirection)
             {
                 return false;
             }
@@ -173,6 +207,9 @@ namespace BDSA_Project_Authenticator
         /// </summary>
         private readonly AuthenticatorServer serverSocket;
 
+        /// <summary>
+        /// All registered authenticator users and their sessions.
+        /// </summary>
         private readonly Dictionary<string, ClientSession> userSessions;
 
         /// <summary>
@@ -184,17 +221,23 @@ namespace BDSA_Project_Authenticator
                 "redirect", "login", "submitKey", "proceed", "abort", "createAccount",  "revokeAccount"
             };
 
-        private byte[] authenticatorPrivateKey;
+        /// <summary>
+        /// The private key of the authenticator.
+        /// </summary>
+        private readonly byte[] authenticatorPrivateKey;
 
         /// <summary>
-        /// Initializes a new instance of the AuthenticatorHttpProcessor class.
+        /// Initializes a new instance of the AuthenticatorService class.
         /// </summary>
         /// <param name="authenticatorDomain">
-        /// The port the authenticator will be listening to.
+        /// The url of the new service instance.
+        /// </param>
+        /// <param name="authenticatorPrivateKey">
+        /// The private key of the authenticator.
         /// </param>
         public AuthenticatorService(string authenticatorDomain, byte[] authenticatorPrivateKey)
         {
-            Contract.Requires(IsValidURL(authenticatorDomain));
+            Contract.Requires(IsValidUrl(authenticatorDomain));
 
             this.authenticator = new Authenticator();
             this.userSessions = new Dictionary<string, ClientSession>();
@@ -211,6 +254,23 @@ namespace BDSA_Project_Authenticator
         }
 
         /// <summary>
+        /// Is this URL valid?
+        /// Source: http://stackoverflow.com/questions/7578857/how-to-check-whether-a-string-is-a-valid-http-url
+        /// </summary>
+        /// <param name="url">
+        /// Stirng representation of the URL.
+        /// </param>
+        /// <returns>
+        /// True if it is a valid URL, false otherwise.
+        /// </returns>
+        [Pure]
+        public static bool IsValidUrl(string url)
+        {
+            Uri uri = new Uri(url);
+            return Uri.TryCreate(url, UriKind.Absolute, out uri) && uri.Scheme == Uri.UriSchemeHttp;
+        }
+
+        /// <summary>
         /// Starts the authenticator service.
         /// Will not terminate. // TODO good enough?
         /// </summary>
@@ -218,6 +278,7 @@ namespace BDSA_Project_Authenticator
         {
             this.serverSocket.Start();
 
+            // The server never has to terminate.
             while (true)
             {
                 Request processedRequest = this.serverSocket.ReadMessage();
@@ -244,31 +305,31 @@ namespace BDSA_Project_Authenticator
                 switch (processedRequest.RequestedOperation)
                 {
                     case "redirect":
-                        this.processRedirect(processedRequest, ref validRequest);
+                        this.ProcessRedirect(processedRequest, ref validRequest);
                         httpResponseMessageBody = validRequest ? "validRequest=true" : string.Empty;
                         goto default;
                     case "login":
-                        string keyIndex = this.processLogin(processedRequest, ref validRequest);
+                        string keyIndex = this.ProcessLogin(processedRequest, ref validRequest);
                         httpResponseMessageBody = validRequest ? "keyIndex=" + keyIndex : string.Empty;
                         goto default;
                     case "submitKey":
-                        this.processSubmitKey(processedRequest, ref validRequest);
+                        this.ProcessSubmitKey(processedRequest, ref validRequest);
                         httpResponseMessageBody = validRequest ? "accepted=true" : string.Empty;
                         goto default;
                     case "proceed":
-                        string sessionToken = this.processProceed(processedRequest, ref validRequest);
+                        string sessionToken = this.ProcessProceed(processedRequest, ref validRequest);
                         httpResponseMessageBody = validRequest ? "token=" + sessionToken : string.Empty;
                         goto default;
                     case "abort":
-                        this.processAbort(processedRequest, ref validRequest);
+                        this.ProcessAbort(processedRequest, ref validRequest);
                         httpResponseMessageBody = validRequest ? "abort=true" : string.Empty;
                         goto default;
                     case "createAccount":
-                        this.processCreateAccount(processedRequest, ref validRequest);
+                        this.ProcessCreateAccount(processedRequest, ref validRequest);
                         httpResponseMessageBody = validRequest ? "createAccount=true" : string.Empty;
                         goto default;
                     case "revokeAccount":
-                        this.processRevokeAccount(processedRequest, ref validRequest);
+                        this.ProcessRevokeAccount(processedRequest, ref validRequest);
                         httpResponseMessageBody = validRequest ? "revokeAccount=true" : string.Empty;
                         goto default;
                     default:
@@ -289,7 +350,7 @@ namespace BDSA_Project_Authenticator
         /// <param name="validRequest">
         /// A bool reference indicating success of the client's request.
         /// </param>
-        private void processRedirect(Request processedRequest, ref bool validRequest)
+        private void ProcessRedirect(Request processedRequest, ref bool validRequest)
         {
             // Get the raw url of the request.
             string rawUrl = processedRequest.RawUrl;
@@ -346,7 +407,7 @@ namespace BDSA_Project_Authenticator
             validRequest = true;
 
             // Update the client session state.
-            userSession.ChangeStateTo(ClientSession.SessionState.AwaitSessionStart);
+            userSession.ChangeStateTo(ClientSession.SessionState.AwaitLogin);
         }
 
         /// <summary>
@@ -357,12 +418,12 @@ namespace BDSA_Project_Authenticator
         /// request.
         /// </param>
         /// <param name="validRequest">
-        /// A bool reference indicating success of the client's success.
+        /// A bool reference indicating success of the client's request.
         /// </param>
         /// <returns>
         /// Returns null if the request was not accepted by the authenticator.
         /// </returns>
-        private string processLogin(Request processedRequest, ref bool validRequest)
+        private string ProcessLogin(Request processedRequest, ref bool validRequest)
         {
             // The parameters for the requested operation.
             string userName = processedRequest.Parameters[0];
@@ -400,9 +461,9 @@ namespace BDSA_Project_Authenticator
         /// request.
         /// </param>
         /// <param name="validRequest">
-        /// 
+        /// A bool reference indicating succss of the client's request.
         /// </param>
-        private void processSubmitKey(Request processedRequest, ref bool validRequest)
+        private void ProcessSubmitKey(Request processedRequest, ref bool validRequest)
         {
             // The parameters for the requested operation.
             string key = processedRequest.Parameters[0];
@@ -430,7 +491,20 @@ namespace BDSA_Project_Authenticator
             validRequest = false;
         }
 
-        private string processProceed(Request processedRequest, ref bool validRequest)
+        /// <summary>
+        /// Processes a client's requested proceed-operation.
+        /// </summary>
+        /// <param name="processedRequest">
+        /// The Request-struct representing properties of the client's
+        /// request.
+        /// </param>
+        /// <param name="validRequest">
+        /// A bool reference indicating succss of the client's request.
+        /// </param>
+        /// <returns>
+        /// The shared secret between the client and the third party.
+        /// </returns>
+        private string ProcessProceed(Request processedRequest, ref bool validRequest)
         {
             // The parameters for the requested operation.
             string userName = processedRequest.Parameters[1];
@@ -466,7 +540,17 @@ namespace BDSA_Project_Authenticator
             return null;
         }
 
-        private void processAbort(Request processedRequest, ref bool validRequest)
+        /// <summary>
+        /// Processes a client's requested abort-operation.
+        /// </summary>
+        /// <param name="processedRequest">
+        /// The Request-struct representing properties of the client's
+        /// request.
+        /// </param>
+        /// <param name="validRequest">
+        /// A bool reference indicating succss of the client's request.
+        /// </param>
+        private void ProcessAbort(Request processedRequest, ref bool validRequest)
         {
             // The parameters for the requested operation.
             string userName = processedRequest.Parameters[1];
@@ -489,7 +573,17 @@ namespace BDSA_Project_Authenticator
             validRequest = false;
         }
 
-        private void processCreateAccount(Request processedRequest, ref bool validRequest)
+        /// <summary>
+        /// Processes a client's requested submitKey-operation.
+        /// </summary>
+        /// <param name="processedRequest">
+        /// The Request-struct representing properties of the client's
+        /// request.
+        /// </param>
+        /// <param name="validRequest">
+        /// A bool reference indicating succss of the client's request.
+        /// </param>
+        private void ProcessCreateAccount(Request processedRequest, ref bool validRequest)
         {
             // The parameters for the requested operation.
             string userName = processedRequest.Parameters[0];
@@ -521,7 +615,17 @@ namespace BDSA_Project_Authenticator
             validRequest = false;
         }
 
-        private void processRevokeAccount(Request processedRequest, ref bool validRequest)
+        /// <summary>
+        /// Processes a client's requested recokeAccount-operation.
+        /// </summary>
+        /// <param name="processedRequest">
+        /// The Request-struct representing properties of the client's
+        /// request.
+        /// </param>
+        /// <param name="validRequest">
+        /// A bool reference indicating succss of the client's request.
+        /// </param>
+        private void ProcessRevokeAccount(Request processedRequest, ref bool validRequest)
         {
             // The parameters for the requested operation.
             string userName = processedRequest.Parameters[0];
@@ -561,22 +665,6 @@ namespace BDSA_Project_Authenticator
         }
 
         /// <summary>
-        /// Source: http://stackoverflow.com/questions/7578857/how-to-check-whether-a-string-is-a-valid-http-url
-        /// </summary>
-        /// <param name="URL">
-        /// Stirng representation of the URL.
-        /// </param>
-        /// <returns>
-        /// True if it is a valid URL, false otherwise.
-        /// </returns>
-        [Pure]
-        public static bool IsValidURL(string URL)
-        {
-            Uri uri = new Uri(URL);
-            return Uri.TryCreate(URL, UriKind.Absolute, out uri) && uri.Scheme == Uri.UriSchemeHttp;
-        }
-
-        /// <summary>
         /// Determines if the given url is a well formed
         /// redirection url.
         /// </summary>
@@ -587,6 +675,7 @@ namespace BDSA_Project_Authenticator
         /// True if the redirection url is well formed, false
         /// otherwise.
         /// </returns>
+        [Pure]
         private bool IsRedirectUrlWellFormed(string url)
         {
             bool isValid = false;
