@@ -8,18 +8,23 @@ namespace BDSA_Project_Cryptography
 {
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
+    using System.IO;
     using System.Linq;
-    using System.Security.Cryptography;
-
+    
     /// <summary>
     /// TODO: Update summary.
     /// </summary>
     public static class PublicKeyInfrastructure
     {
         /// <summary>
+        /// The path at which to store the collection of keys.
+        /// </summary>
+        private const string DatabasePath = @"C:\Test\PKIFile.bin";
+
+        /// <summary>
         /// A collection to store a unique ID corresponding to a specific key.
         /// </summary>
-        private static readonly Dictionary<string, byte[]> KeyCollection = new Dictionary<string, byte[]>();
+        private static Dictionary<string, byte[]> keyCollection = new Dictionary<string, byte[]>();
 
         /// <summary>
         /// Stores the specified public key in the PKI
@@ -40,14 +45,17 @@ namespace BDSA_Project_Cryptography
             Contract.Requires(uniqueIdentifier != null);
             Contract.Requires(uniqueIdentifier != string.Empty);
             bool success = false;
-            if (!KeyCollection.ContainsKey(uniqueIdentifier))
+            if (!keyCollection.ContainsKey(uniqueIdentifier))
             {
-                if (!KeyCollection.ContainsValue(publicKey))
+                if (!keyCollection.ContainsValue(publicKey))
                 {
-                    KeyCollection.Add(uniqueIdentifier, publicKey);
+                    keyCollection.Add(uniqueIdentifier, publicKey);
                     success = true;
+
+                    WriteToFile(keyCollection, DatabasePath);
                 }
             }
+
             return success;
         }
 
@@ -62,7 +70,8 @@ namespace BDSA_Project_Cryptography
             Contract.Requires(uniqueIdentifier != null);
             Contract.Requires(uniqueIdentifier != string.Empty);
             Contract.Requires(ContainsKey(uniqueIdentifier));
-            return KeyCollection[uniqueIdentifier];
+            keyCollection = ReadFromFile(DatabasePath);
+            return keyCollection[uniqueIdentifier];
         }
 
         /// <summary>
@@ -75,8 +84,15 @@ namespace BDSA_Project_Cryptography
             Contract.Requires(uniqueIdentifier != null);
             Contract.Requires(uniqueIdentifier != string.Empty);
             Contract.Requires(ContainsKey(uniqueIdentifier));
-            Contract.Ensures(Contract.Result<bool>() == (KeyCollection.Count == Contract.OldValue(KeyCollection.Count) - 1));
-            return KeyCollection.Remove(uniqueIdentifier);
+            Contract.Ensures(
+                Contract.Result<bool>() == (keyCollection.Count == Contract.OldValue(keyCollection.Count) - 1));
+            if (keyCollection.Remove(uniqueIdentifier))
+            {
+                WriteToFile(keyCollection, DatabasePath);
+                return true;
+            }
+            
+            return false;
         }
 
         /// <summary>
@@ -89,13 +105,20 @@ namespace BDSA_Project_Cryptography
         {
             Contract.Requires(uniqueIdentifier != null);
             Contract.Requires(uniqueIdentifier != string.Empty);
-            return KeyCollection.ContainsKey(uniqueIdentifier);
+            keyCollection = ReadFromFile(DatabasePath);
+            return keyCollection.ContainsKey(uniqueIdentifier);
         }
 
+        /// <summary>
+        /// Does the PKI contain this key?
+        /// </summary>
+        /// <param name="publicKey">The key to check for</param>
+        /// <returns>returns true if the value exists in the PKI</returns>
         public static bool ContainsValue(byte[] publicKey)
         {
             Contract.Requires(publicKey != null);
-            return KeyCollection.ContainsValue(publicKey);
+            keyCollection = ReadFromFile(DatabasePath);
+            return keyCollection.ContainsValue(publicKey);
         }
 
         /// <summary>
@@ -111,6 +134,58 @@ namespace BDSA_Project_Cryptography
             return publicKeyTemplate.Take(20).SequenceEqual(keyBlob.Take(20));
         }
 
+        /// <summary>
+        /// This method takes the dictionary and reads it to a path, this is used to ensure persistency 
+        /// http://www.dotnetperls.com/dictionary-binary
+        /// </summary>
+        /// <param name="dictionary">The dictionary to write to path</param>
+        /// <param name="path">The path to write the path to</param>
+        private static void WriteToFile(Dictionary<string, byte[]> dictionary, string path)
+        {
+            using (FileStream fs = File.OpenWrite(path))
+            using (var writer = new BinaryWriter(fs))
+            {
+                // Put count.
+                writer.Write(dictionary.Count);
+
+                // Write pairs.
+                foreach (var pair in dictionary)
+                {
+                    writer.Write(pair.Key);
+                    writer.Write(pair.Value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// This is used to read a dictionary from a file
+        /// http://www.dotnetperls.com/dictionary-binary
+        /// </summary>
+        /// <param name="path">The path to the file</param>
+        /// <returns>The dictionary read from the file</returns>
+        private static Dictionary<string, byte[]> ReadFromFile(string path)
+        {
+            var result = new Dictionary<string, byte[]>();
+            using (FileStream fs = File.OpenRead(path))
+            using (var reader = new BinaryReader(fs))
+            {
+                // Determine the amount of key value pairs to read.
+                int count = reader.ReadInt32();
+
+                // Read in all the pairs.
+                for (int i = 0; i < count; i++)
+                {
+                    string key = reader.ReadString();
+                    byte[] value = reader.ReadBytes(513);
+                    result[key] = value;
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// The class invariant for the PublicKeyInfrastructure class
+        /// </summary>
         [ContractInvariantMethod]
         private static void PKIClassInvariant()
         {

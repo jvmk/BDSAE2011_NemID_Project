@@ -257,7 +257,7 @@ namespace BDSA_Project_Cryptography
             {
                 //// Write the message to a byte array using UTF8 as the encoding.
                 var encoder = new UTF8Encoding();
-                byte[] originalData = encoder.GetBytes(message);
+                var originalData = encoder.GetBytes(message);
 
                 try
                 {
@@ -323,6 +323,39 @@ namespace BDSA_Project_Cryptography
                     rsa.PersistKeyInCsp = false;
                 }
             }
+        }
+
+        /// <summary>
+        /// Ask the PKI if the given uniqueID corresponds to a valid public key
+        /// </summary>
+        /// <param name="uniqueIdentifier">The unique ID of the public key</param>
+        /// <returns>returns true if the PKI contains the key</returns>
+        public static bool KeyExists(string uniqueIdentifier)
+        {
+            return PublicKeyInfrastructure.ContainsKey(uniqueIdentifier); //// TODO: Update bon
+        }
+
+        /// <summary>
+        /// This method tests if the private key info and the public key connected to the unique ID
+        /// can be used to encrypt and decrypt text message and thus if the keys are part of the same keypair.
+        /// </summary>
+        /// <param name="privateKey">
+        /// The privateKey
+        /// </param>
+        /// <param name="publicKeyIdentifier">
+        /// The public Key Identifier.
+        /// </param>
+        /// <returns>
+        /// Returns true if the keyValuePair matches, otherwise false
+        /// </returns>
+        public static bool CheckConsistency(byte[] privateKey, string publicKeyIdentifier)
+        {
+            const string TestMessage = "encrypt and decrypt this";
+
+            //// Encrypt and decrypt info, fetching the public key information from the PKI
+            string result = Decrypt(Encrypt(TestMessage, PublicKeyInfrastructure.GetKey(publicKeyIdentifier)), privateKey);
+
+            return result.Equals(TestMessage);
         }
 
         /// <summary>
