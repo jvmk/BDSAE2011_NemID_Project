@@ -21,6 +21,11 @@ namespace BDSA_Project_Authenticator
         private HashSet<string> trustedThirdPartyURIs = new HashSet<string>();
 
         /// <summary>
+        /// 
+        /// </summary>
+        private string fileLocation = @"C:\Authenticator\";
+
+        /// <summary>
         /// Initializes a new instance of the Authenticator class.
         /// </summary>
         public Authenticator()
@@ -142,8 +147,12 @@ namespace BDSA_Project_Authenticator
         {
             Contract.Requires(this.IsUserInDatabase(username));
             string keycardPrint = this.database[username].Keycard.ToString();
+            if (!Directory.Exists(this.fileLocation))
+            {
+                Directory.CreateDirectory(this.fileLocation);
+            }
             File.WriteAllText(
-                @"C:\" + username +
+                fileLocation + username +
                 this.database[username].Keycard.GetKeyCardNumber() +
                 ".txt",
                 keycardPrint);
