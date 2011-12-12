@@ -102,3 +102,11 @@ C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Pr
 C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_GUI\obj\x86\Debug\BDSA_Project_GUI.pdb
 C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_GUI\bin\Debug\BDSA_Project_GUI.exe
 C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_GUI\bin\Debug\BDSA_Project_GUI.pdb
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_GUI\bin\Debug\BDSAE2011_NemID_Project.dll
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_GUI\bin\Debug\BDSA_Project_Communication.dll
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_GUI\bin\Debug\BDSA_Project_Cryptography.dll
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_GUI\bin\Debug\BDSAE2011_NemID_Project.pdb
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_GUI\bin\Debug\BDSA_Project_Communication.pdb
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_GUI\bin\Debug\BDSA_Project_Cryptography.pdb
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_GUI\obj\x86\Debug\BDSA_Project_GUI.NemIdCreateAuthProxy.resources
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_GUI\obj\x86\Debug\BDSA_Project_GUI.AuthedWithTp.resources

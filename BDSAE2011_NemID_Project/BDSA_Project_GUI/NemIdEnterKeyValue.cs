@@ -1,14 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace BDSA_Project_GUI
 {
+    using System.Drawing;
+
+    using BDSA_Project_Communication;
+
+    using BDSA_Project_ThirdParty;
+
     public partial class NemIdEnterKeyValue : UserControl
     {
         /// <summary>
@@ -16,10 +16,16 @@ namespace BDSA_Project_GUI
         /// </summary>
         private readonly string username;
 
-        public NemIdEnterKeyValue(string keyIndexLabelText, string username)
+        private ThirdPartyHttpGenerator tp;
+
+        private AuthenticatorProxy auth;
+
+        public NemIdEnterKeyValue(AuthenticatorProxy auth, ThirdPartyHttpGenerator tp, string keyIndexLabelText, string username)
         {
             InitializeComponent();
-            this.KeyIndexLabel.Text = keyIndexLabelText;
+            this.auth = auth;
+            this.tp = tp;
+            this.KeyIndex.Text = keyIndexLabelText;
             this.username = username;
         }
 
@@ -32,27 +38,22 @@ namespace BDSA_Project_GUI
         {
             if (string.IsNullOrEmpty(KeyValueTextBox.Text))
             {
-                MessageBox.Show(
-                    "Key value empty, please provide the key value corresponding to the specified keycard index.");
+                errorLabel.Text = "Please enter a key value.";
+                errorLabel.ForeColor = Color.Red;
                 return;
             }
-            
-            //// Check to see if the key is valid
-            //// if (Auth.Username.keyCard.verifyEnteredKey(KeyValueTextBox.Text)) Then you do the whole final auth/token stuffyluffyduffy... thingie.
 
+            bool validKey = this.auth.SubmitKey(this.KeyValueTextBox.Text, this.username);
 
-            UsersBrowser browser = (UsersBrowser)this.ParentForm; // control is held in the UsersBrowser class that inherits from Form.
-            //bool keyValueValid = browser.AuthProxy.SubmitKey(Convert.ToInt32(KeyValueTextBox.Text), this.username); // Convert is safe since we are using a MaskedTextBox with a 6digit numeric mask
-            /*if (keyValueValid)
+            if (validKey)
             {
-                // TODO Grant entry, redirect directly to ThirdParty or have in-the-middle screen with continue option (provide option to delete user here)?
                 this.ParentForm.Controls.Clear();
-                this.ParentForm.Controls.Add(new NemIdLoggedIn(this.username));
+                this.ParentForm.Controls.Add(new NemIdLoggedIn(auth, tp, username));
             }
             else
             {
-                MessageBox.Show("Incorrect key value, please try again.");
-            }*/
+                errorLabel.Text = "Incorrect key value.";
+            }
         }
 
         /// <summary>
@@ -62,8 +63,8 @@ namespace BDSA_Project_GUI
         /// <param name="e">Event arguments</param>
         private void CancelButton_Click(object sender, EventArgs e)
         {
-            UsersBrowser browser = (UsersBrowser)this.ParentForm; // control is held in the UsersBrowser class that inherits from Form.
-            // browser.AuthProxy TODO: Use cancel login method in AuthenticatorProxy (when it is implemented in AuthenticatorProxy)
+            this.auth.Abort(this.username);
+            Application.Exit();
         }
     }
 }

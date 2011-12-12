@@ -6,11 +6,6 @@
 
 namespace BDSA_Project_ThirdParty
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Text;
-
     using BDSA_Project_Communication;
 
     /// <summary>
@@ -52,7 +47,7 @@ namespace BDSA_Project_ThirdParty
         /// <param name="username">Username the token (nonce) is associated to.</param>
         /// <param name="userToken">The user's token (nonce) to submit</param>
         /// <returns>True if the token is accepted and authention is successful. False if the token is not valid.</returns>
-        public bool SubmitUserToken(string username, int userToken)
+        public bool SubmitUserToken(string username, string userToken)
         {
             this.clientSocket.SendMessage(
                 "usertoken",

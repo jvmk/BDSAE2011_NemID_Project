@@ -56,6 +56,12 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AuthedWithTp.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="AuthedWithTp.Designer.cs">
+      <DependentUpon>AuthedWithTp.cs</DependentUpon>
+    </Compile>
     <Compile Include="NemIdAccountCreationSuccess.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -68,11 +74,11 @@
     <Compile Include="NemIdBase.Designer.cs">
       <DependentUpon>NemIdBase.cs</DependentUpon>
     </Compile>
-    <Compile Include="NemIdDeleteUser.cs">
+    <Compile Include="NemIdCreateAuthProxy.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="NemIdDeleteUser.Designer.cs">
-      <DependentUpon>NemIdDeleteUser.cs</DependentUpon>
+    <Compile Include="NemIdCreateAuthProxy.Designer.cs">
+      <DependentUpon>NemIdCreateAuthProxy.cs</DependentUpon>
     </Compile>
     <Compile Include="NemIdEnterKeyValue.cs">
       <SubType>UserControl</SubType>
@@ -106,14 +112,17 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="AuthedWithTp.resx">
+      <DependentUpon>AuthedWithTp.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="NemIdAccountCreationSuccess.resx">
       <DependentUpon>NemIdAccountCreationSuccess.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="NemIdBase.resx">
       <DependentUpon>NemIdBase.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="NemIdDeleteUser.resx">
-      <DependentUpon>NemIdDeleteUser.cs</DependentUpon>
+    <EmbeddedResource Include="NemIdCreateAuthProxy.resx">
+      <DependentUpon>NemIdCreateAuthProxy.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="NemIdEnterKeyValue.resx">
       <DependentUpon>NemIdEnterKeyValue.cs</DependentUpon>
@@ -159,6 +168,20 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BDSAE2011_NemID_Project.csproj">
+      <Project>{B8509EC2-898C-4F2E-BC78-673578DFC529}</Project>
+      <Name>BDSAE2011_NemID_Project</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BDSA_Project_Communication\BDSA_Project_Communication.csproj">
+      <Project>{EFA1FD0A-896D-4ABC-8735-093F19C4A85B}</Project>
+      <Name>BDSA_Project_Communication</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\BDSA_Project_Cryptography\BDSA_Project_Cryptography.csproj">
+      <Project>{726F27B1-1930-4826-B74C-AAF63044CD5B}</Project>
+      <Name>BDSA_Project_Cryptography</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

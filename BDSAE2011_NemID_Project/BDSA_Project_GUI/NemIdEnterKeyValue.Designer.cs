@@ -35,6 +35,7 @@
             this.KeyIndexLabel = new System.Windows.Forms.Label();
             this.SubmitKeyButton = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.errorLabel = new System.Windows.Forms.Label();
             this.KeyRequestBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -116,10 +117,19 @@
             // 
             // splitContainer1.Panel2
             // 
+            this.splitContainer1.Panel2.Controls.Add(this.errorLabel);
             this.splitContainer1.Panel2.Controls.Add(this.KeyRequestBox);
             this.splitContainer1.Size = new System.Drawing.Size(500, 500);
             this.splitContainer1.SplitterDistance = 125;
             this.splitContainer1.TabIndex = 1;
+            // 
+            // errorLabel
+            // 
+            this.errorLabel.AutoSize = true;
+            this.errorLabel.Location = new System.Drawing.Point(116, 203);
+            this.errorLabel.Name = "errorLabel";
+            this.errorLabel.Size = new System.Drawing.Size(0, 13);
+            this.errorLabel.TabIndex = 1;
             // 
             // NemIdEnterKeyValue
             // 
@@ -131,6 +141,7 @@
             this.KeyRequestBox.ResumeLayout(false);
             this.KeyRequestBox.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);
+            this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -146,5 +157,6 @@
         private System.Windows.Forms.MaskedTextBox KeyValueTextBox;
         private System.Windows.Forms.Label KeyIndexLabel;
         private System.Windows.Forms.Label KeyIndex;
+        private System.Windows.Forms.Label errorLabel;
     }
 }

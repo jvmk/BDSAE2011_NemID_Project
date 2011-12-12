@@ -128,7 +128,7 @@ namespace BDSA_Project_Communication
         /// Returns true if the value of the submitted key is
         /// what the authentication server expected, false otherwise.
         /// </returns>
-        public bool SubmitKey(int keyValue, string userName)
+        public bool SubmitKey(string keyValue, string userName)
         {
             this.socket.SendMessage(
                 "submitKey",
@@ -204,7 +204,7 @@ namespace BDSA_Project_Communication
         /// True if the revokation was succesful at the authenticator,
         /// false otherwise.
         /// </returns>
-        public bool RevokeUserAccount(string userName, string pkiIdentifier)
+        public bool RevokeUserAccount(string userName)
         {
             this.socket.SendMessage(
                 "revokeAccount",

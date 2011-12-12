@@ -1,35 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-
-namespace BDSA_Project_GUI
+﻿namespace BDSA_Project_GUI
 {
-    using System.IO;
+    using System;
+    using System.Drawing;
+    using System.Windows.Forms;
+
+    using BDSA_Project_Communication;
+
+    using BDSA_Project_ThirdParty;
 
     public partial class NemIdLogin : UserControl
     {
-        public NemIdLogin()
+        private AuthenticatorProxy auth;
+
+        private ThirdPartyHttpGenerator tp;
+
+        private string thirdPartyUsername;
+        
+        public NemIdLogin(AuthenticatorProxy auth, ThirdPartyHttpGenerator tp, string thirdPartyUsername)
         {
             InitializeComponent();
-        }
-
-        private void menuLoginButton_Click(object sender, EventArgs e)
-        {
-            // go to the nemid login screen - TODO simulate https here maybe not nessescary?
-            this.ParentForm.Controls.Clear();
-            this.ParentForm.Controls.Add(new NemIdLogin());
-        }
-
-        private void menuNewUserButton_Click(object sender, EventArgs e)
-        {
-            // go to new user page - TODO simulate https here maybe not nessescary?
-            this.ParentForm.Controls.Clear();
-            this.ParentForm.Controls.Add(new NemIdNewUserCreation());
+            this.auth = auth;
+            this.tp = tp;
+            this.thirdPartyUsername = thirdPartyUsername;
         }
 
         private void authButton_Click_1(object sender, EventArgs e)
@@ -49,35 +41,31 @@ namespace BDSA_Project_GUI
             string username = this.usernameTextBox.Text;
             string password = this.passwordTextBox.Text;
 
+            if (!thirdPartyUsername.Equals(username))
+            {
+                KeyPathLabel.Text = "The submitted username does not match the one entered at third party.";
+                KeyPathLabel.ForeColor = Color.Red;
+                return;
+            }
+
+            bool loginAccept = this.auth.LogIn(username, password);
+            if (loginAccept)
+            {
+                string keyIndexLabelText = auth.GetKeyIndex();
+                this.ParentForm.Controls.Clear();
+                this.ParentForm.Controls.Add(new NemIdEnterKeyValue(auth, tp, keyIndexLabelText, username));
+            }
+            else
+            {
+                KeyPathLabel.Text = "Username/password combination mismatch.";
+                KeyPathLabel.ForeColor = Color.Red;
+            }
+
             //// what is the purpose of this? Getting access to the proxy? need to use something else than auth anyways
             // UsersBrowser browser = (UsersBrowser)this.ParentForm; // Only form in the program is a UsersBrowser, can safely cast.
             // bool loginSuccess = browser.AuthProxy.LogIn(username, password); // send login request
             // TODO: If correct create screen for entering key for specified keyindex value
-
-            DialogResult result = openFileDialog1.ShowDialog();
-            {
-                if (result == DialogResult.OK)
-                {
-                    //// Will the keypath + filename be right?
-                    if (openFileDialog1.CheckFileExists && openFileDialog1.CheckPathExists)
-                    {
-                        string privateKeyPath = openFileDialog1.InitialDirectory + openFileDialog1.FileName;
-
-                        byte[] privateKey = File.ReadAllBytes(privateKeyPath);
-
-                        KeyPathLabel.Text = privateKeyPath;
-
-                        //// TODO: Do additional stuff here, use the keys and such.
-                        //// Maybe check if valid private key signature? create new isValidPrivateKey in crypto? Then save as field? 
-                    }
-                    else
-                    {
-                        KeyPathLabel.Text = "No private key selected";
-                        KeyPathLabel.ForeColor = Color.Red;
-                    }
-                }
-            }
-
+          
             /* 
             if (loginSuccess)
             {
@@ -90,6 +78,12 @@ namespace BDSA_Project_GUI
                 MessageBox.Show("Incorrect username and password combination.");
             }
              */
+        }
+
+        private void CancelButton_Click(object sender, EventArgs e)
+        {
+            this.auth.Abort(this.thirdPartyUsername);
+            Application.Exit();
         }
     }
 }

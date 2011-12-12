@@ -30,9 +30,9 @@
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.successGroupBox = new System.Windows.Forms.GroupBox();
-            this.toLoginScreenButton = new System.Windows.Forms.Button();
             this.keycardInfoLabel = new System.Windows.Forms.Label();
             this.accountCreatedLabel = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -60,7 +60,7 @@
             // 
             // successGroupBox
             // 
-            this.successGroupBox.Controls.Add(this.toLoginScreenButton);
+            this.successGroupBox.Controls.Add(this.button1);
             this.successGroupBox.Controls.Add(this.keycardInfoLabel);
             this.successGroupBox.Controls.Add(this.accountCreatedLabel);
             this.successGroupBox.Location = new System.Drawing.Point(14, 23);
@@ -69,16 +69,6 @@
             this.successGroupBox.TabIndex = 3;
             this.successGroupBox.TabStop = false;
             this.successGroupBox.Text = "Success!";
-            // 
-            // toLoginScreenButton
-            // 
-            this.toLoginScreenButton.Location = new System.Drawing.Point(164, 96);
-            this.toLoginScreenButton.Name = "toLoginScreenButton";
-            this.toLoginScreenButton.Size = new System.Drawing.Size(133, 23);
-            this.toLoginScreenButton.TabIndex = 5;
-            this.toLoginScreenButton.Text = "Go to NemID login";
-            this.toLoginScreenButton.UseVisualStyleBackColor = true;
-            this.toLoginScreenButton.Click += new System.EventHandler(this.toLoginScreenButton_Click);
             // 
             // keycardInfoLabel
             // 
@@ -98,6 +88,16 @@
             this.accountCreatedLabel.Size = new System.Drawing.Size(311, 17);
             this.accountCreatedLabel.TabIndex = 3;
             this.accountCreatedLabel.Text = "NemID user account successfully created!";
+            // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(180, 120);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(91, 23);
+            this.button1.TabIndex = 5;
+            this.button1.Text = "Close browser";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // NemIdAccountCreationSuccess
             // 
@@ -119,8 +119,8 @@
 
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.GroupBox successGroupBox;
-        private System.Windows.Forms.Button toLoginScreenButton;
         private System.Windows.Forms.Label keycardInfoLabel;
         private System.Windows.Forms.Label accountCreatedLabel;
+        private System.Windows.Forms.Button button1;
     }
 }

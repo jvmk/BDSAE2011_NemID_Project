@@ -1,10 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
 namespace BDSA_Project_GUI
@@ -22,15 +16,9 @@ namespace BDSA_Project_GUI
             InitializeComponent();
         }
 
-        /// <summary>
-        /// Go to NemID login screen after successfully creating an account.
-        /// </summary>
-        /// <param name="sender">Event sender</param>
-        /// <param name="e">Event arguments</param>
-        private void toLoginScreenButton_Click(object sender, EventArgs e)
+        private void button1_Click(object sender, EventArgs e)
         {
-            this.ParentForm.Controls.Clear();
-            this.ParentForm.Controls.Add(new NemIdLogin());
+            Application.Exit();
         }
     }
 }

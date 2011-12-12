@@ -1,53 +1,50 @@
 <Configuration>
   <RecentFiles>
     <RecentFiles>
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:Cryptograph.cs" caret="0" fromTop="0" />
       <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:Communicator.cs" caret="1038" fromTop="31" />
       <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/d:Properties/f:AssemblyInfo.cs" caret="0" fromTop="0" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:AuthenticatorSocket.cs" caret="11374" fromTop="0" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:AuthenticatorProxy.cs" caret="2526" fromTop="11" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:MessageProcessingUtility.cs" caret="5980" fromTop="16" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:Authenticator.cs" caret="6388" fromTop="52" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:UserAccount.cs" caret="0" fromTop="0" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:KeyCard.cs" caret="4272" fromTop="14" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ClientSocket.cs" caret="0" fromTop="0" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyHttpGenerator.cs" caret="2376" fromTop="47" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdParty.cs" caret="2988" fromTop="77" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyUserAccount.cs" caret="314" fromTop="8" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyServer.cs" caret="282" fromTop="6" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:AuthenticatorHttpProcesser.cs" caret="0" fromTop="0" />
+      <File id="CAD9579D-402A-4712-A0F0-6EFCACAA517D/f:KeyCard.cs" caret="0" fromTop="0" />
+      <File id="CAD9579D-402A-4712-A0F0-6EFCACAA517D/f:UserAccount.cs" caret="0" fromTop="0" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:UsersBrowser.cs" caret="1187" fromTop="9" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:NemIdDeleteUser.cs" caret="1344" fromTop="16" />
+      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyHttpGenerator.cs" caret="409" fromTop="12" />
+      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:AuthenticatorProxy.cs" caret="1109" fromTop="8" />
+      <File id="CAD9579D-402A-4712-A0F0-6EFCACAA517D/f:MainAuthenticator.cs" caret="458" fromTop="14" />
+      <File id="CAD9579D-402A-4712-A0F0-6EFCACAA517D/f:Authenticator.cs" caret="0" fromTop="0" />
+      <File id="CAD9579D-402A-4712-A0F0-6EFCACAA517D/f:AuthenticatorSocket.cs" caret="7287" fromTop="8" />
+      <File id="CAD9579D-402A-4712-A0F0-6EFCACAA517D/f:AuthenticatorService.cs" caret="18676" fromTop="27" />
+      <File id="EFA1FD0A-896D-4ABC-8735-093F19C4A85B/f:ClientSocket.cs" caret="9088" fromTop="10" />
+      <File id="EFA1FD0A-896D-4ABC-8735-093F19C4A85B/f:MessageProcessingUtility.cs" caret="4260" fromTop="11" />
+      <File id="726F27B1-1930-4826-B74C-AAF63044CD5B/f:Cryptograph.cs" caret="447" fromTop="10" />
+      <File id="726F27B1-1930-4826-B74C-AAF63044CD5B/f:PublicKeyInfrastructure.cs" caret="469" fromTop="13" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:NemIdEnterKeyValue.cs" caret="2161" fromTop="24" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:NemIdNewUserCreation.cs" caret="2490" fromTop="27" />
     </RecentFiles>
     <RecentEdits>
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyUserAccount.cs" caret="2674" fromTop="44" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyUserAccount.cs" caret="1273" fromTop="23" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyUserAccount.cs" caret="2100" fromTop="34" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdParty.cs" caret="1070" fromTop="24" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdParty.cs" caret="1640" fromTop="33" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdParty.cs" caret="1182" fromTop="27" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdParty.cs" caret="2410" fromTop="30" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdParty.cs" caret="915" fromTop="27" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdParty.cs" caret="642" fromTop="20" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyUserAccount.cs" caret="2830" fromTop="39" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyHttpGenerator.cs" caret="2587" fromTop="48" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyHttpGenerator.cs" caret="1798" fromTop="38" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyHttpGenerator.cs" caret="756" fromTop="23" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyHttpGenerator.cs" caret="1680" fromTop="40" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyHttpGenerator.cs" caret="2052" fromTop="43" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyHttpGenerator.cs" caret="2376" fromTop="47" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdParty.cs" caret="2988" fromTop="32" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyUserAccount.cs" caret="314" fromTop="8" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyServer.cs" caret="2023" fromTop="26" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyServer.cs" caret="1610" fromTop="21" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyServer.cs" caret="2855" fromTop="44" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyServer.cs" caret="5549" fromTop="49" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyServer.cs" caret="5905" fromTop="40" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyServer.cs" caret="6202" fromTop="46" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyServer.cs" caret="7202" fromTop="48" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyServer.cs" caret="6581" fromTop="31" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyServer.cs" caret="1010" fromTop="36" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyServer.cs" caret="351" fromTop="12" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyServer.cs" caret="507" fromTop="17" />
-      <File id="B8509EC2-898C-4F2E-BC78-673578DFC529/f:ThirdPartyServer.cs" caret="0" fromTop="0" />
+      <File id="CAD9579D-402A-4712-A0F0-6EFCACAA517D/f:AuthenticatorService.cs" caret="302" fromTop="6" />
+      <File id="EFA1FD0A-896D-4ABC-8735-093F19C4A85B/f:ClientSocket.cs" caret="276" fromTop="6" />
+      <File id="EFA1FD0A-896D-4ABC-8735-093F19C4A85B/f:MessageProcessingUtility.cs" caret="300" fromTop="6" />
+      <File id="726F27B1-1930-4826-B74C-AAF63044CD5B/f:Cryptograph.cs" caret="444" fromTop="9" />
+      <File id="726F27B1-1930-4826-B74C-AAF63044CD5B/f:PublicKeyInfrastructure.cs" caret="300" fromTop="6" />
+      <File id="EFA1FD0A-896D-4ABC-8735-093F19C4A85B/f:MessageProcessingUtility.cs" caret="4004" fromTop="3" />
+      <File id="EFA1FD0A-896D-4ABC-8735-093F19C4A85B/f:ClientSocket.cs" caret="9088" fromTop="10" />
+      <File id="CAD9579D-402A-4712-A0F0-6EFCACAA517D/f:AuthenticatorService.cs" caret="429" fromTop="8" />
+      <File id="CAD9579D-402A-4712-A0F0-6EFCACAA517D/f:AuthenticatorSocket.cs" caret="428" fromTop="8" />
+      <File id="CAD9579D-402A-4712-A0F0-6EFCACAA517D/f:AuthenticatorSocket.cs" caret="9524" fromTop="7" />
+      <File id="CAD9579D-402A-4712-A0F0-6EFCACAA517D/f:AuthenticatorSocket.cs" caret="7287" fromTop="8" />
+      <File id="CAD9579D-402A-4712-A0F0-6EFCACAA517D/f:AuthenticatorService.cs" caret="17905" fromTop="8" />
+      <File id="CAD9579D-402A-4712-A0F0-6EFCACAA517D/f:MainAuthenticator.cs" caret="298" fromTop="7" />
+      <File id="CAD9579D-402A-4712-A0F0-6EFCACAA517D/f:MainAuthenticator.cs" caret="436" fromTop="14" />
+      <File id="CAD9579D-402A-4712-A0F0-6EFCACAA517D/f:MainAuthenticator.cs" caret="748" fromTop="20" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:UsersBrowser.cs" caret="486" fromTop="3" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:UsersBrowser.cs" caret="642" fromTop="8" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:UsersBrowser.cs" caret="1279" fromTop="8" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:UsersBrowser.cs" caret="1187" fromTop="9" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:NemIdDeleteUser.cs" caret="1344" fromTop="16" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:NemIdEnterKeyValue.cs" caret="1790" fromTop="11" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:NemIdEnterKeyValue.cs" caret="2254" fromTop="14" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:NemIdNewUserCreation.cs" caret="2452" fromTop="10" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:NemIdNewUserCreation.cs" caret="2844" fromTop="17" />
     </RecentEdits>
   </RecentFiles>
   <NAntValidationSettings>
@@ -79,14 +76,14 @@
     <ItemStatistics item="CSharpCodeCompletionContext">
       <Item value="Contract`0" priority="127" />
       <Item value="IsUserInDatabase`0" priority="63" />
-      <Item value="private" priority="959" />
+      <Item value="private" priority="1215" />
       <Item value="String`0" priority="159" />
-      <Item value="new" priority="671" />
+      <Item value="new" priority="735" />
       <Item value="Cryptograph" priority="28" />
       <Item value="username" priority="543" />
       <Item value="cryptograph" priority="127" />
       <Item value="authPrivKeyPath" priority="63" />
-      <Item value="string" priority="1308" />
+      <Item value="string" priority="1500" />
       <Item value="encryptedMessage" priority="63" />
       <Item value="return" priority="639" />
       <Item value="decryptedMessage" priority="31" />
@@ -97,16 +94,16 @@
       <Item value="FileWriter" priority="28" />
       <Item value="FileStyleUriParser`0" priority="63" />
       <Item value="keycardPrint" priority="31" />
-      <Item value="server" priority="223" />
+      <Item value="server" priority="287" />
       <Item value="sslStream" priority="31" />
       <Item value="client" priority="31" />
-      <Item value="public" priority="542" />
+      <Item value="public" priority="606" />
       <Item value="int" priority="605" />
       <Item value="clientToken" priority="95" />
       <Item value="authenticatorToken" priority="31" />
       <Item value="ThirdParty`0" priority="63" />
       <Item value="AuthenticatorSocket" priority="28" />
-      <Item value="void" priority="479" />
+      <Item value="void" priority="511" />
       <Item value="switch" priority="63" />
       <Item value="clientRequest" priority="63" />
       <Item value="case" priority="191" />
@@ -123,7 +120,7 @@
       <Item value="authProxy" priority="63" />
       <Item value="AuthenticatorProxy" priority="28" />
       <Item value="e" priority="26" />
-      <Item value="static" priority="63" />
+      <Item value="static" priority="319" />
       <Item value="BDSA_Project_GUI" priority="55" />
       <Item value="Properties" priority="26" />
       <Item value="Resources`0" priority="26" />
@@ -155,7 +152,7 @@
       <Item value="StartServer`0" priority="31" />
       <Item value="authenticator" priority="31" />
       <Item value="ThirdPartyComponent" priority="95" />
-      <Item value="ThirdPartyServer`0" priority="63" />
+      <Item value="ThirdPartyServer`0" priority="159" />
       <Item value="uint" priority="63" />
       <Item value="HttpListener" priority="28" />
       <Item value="serverPort" priority="31" />
@@ -180,16 +177,16 @@
       <Item value="token" priority="63" />
       <Item value="&lt;param name=&quot;&quot;&gt;&lt;/param&gt;" priority="77" />
       <Item value="&lt;returns&gt;&lt;/returns&gt;" priority="25" />
-      <Item value="Cryptograph`0" priority="31" />
+      <Item value="Cryptograph`0" priority="85" />
       <Item value="AuthenticationManager`0" priority="31" />
-      <Item value="database" priority="63" />
+      <Item value="database" priority="159" />
       <Item value="internal" priority="95" />
       <Item value="description" priority="31" />
       <Item value="SetupForbiddenResponse`0" priority="63" />
       <Item value="ThirdPartyHttpGenerator`0" priority="31" />
       <Item value="clientSocket" priority="96" />
       <Item value="ClientSocket" priority="28" />
-      <Item value="serverUri" priority="31" />
+      <Item value="serverUri" priority="223" />
       <Item value="clientPkiId" priority="31" />
       <Item value="r" priority="95" />
       <Item value="userToken" priority="31" />
@@ -203,7 +200,7 @@
       <Item value="dataStart" priority="63" />
       <Item value="dataString" priority="63" />
       <Item value="c" priority="31" />
-      <Item value="byte" priority="95" />
+      <Item value="byte" priority="159" />
       <Item value="serversPrivateKey" priority="191" />
       <Item value="MessageProcessingUtility`0" priority="223" />
       <Item value="rawPostedData" priority="31" />
@@ -219,6 +216,15 @@
       <Item value="postData" priority="31" />
       <Item value="input" priority="31" />
       <Item value="tokenCompares" priority="63" />
+      <Item value="ThirdPartyServer" priority="28" />
+      <Item value="domain" priority="63" />
+      <Item value="port" priority="31" />
+      <Item value="BDSA_Project_Cryptography" priority="63" />
+      <Item value="protocol" priority="31" />
+      <Item value="fullURI" priority="63" />
+      <Item value="Uri`0" priority="31" />
+      <Item value="privateKey" priority="63" />
+      <Item value="AuthenticatorService" priority="28" />
     </ItemStatistics>
     <ItemStatistics item="Qualified:@System.Diagnostics.Contracts.Contract">
       <Item value="Requires`0" priority="80" />
@@ -435,6 +441,21 @@
     </ItemStatistics>
     <ItemStatistics item="Qualified:System.IO.Stream">
       <Item value="Close`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:BDSA_Project_ThirdParty.MainThirdParty">
+      <Item value="server" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@BDSA_Project_Cryptography.Cryptograph">
+      <Item value="GenerateKeys`0" priority="53" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:BDSA_Project_ThirdParty.ThirdPartyServer">
+      <Item value="RunServer`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:BDSA_Project_ThirdParty.ThirdParty">
+      <Item value="AddUserAccount`0" priority="80" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:BDSA_Project_Authenticator.AuthenticatorService">
+      <Item value="ServiceLoop`0" priority="26" />
     </ItemStatistics>
   </CompletionStatisticsManager>
 </Configuration>

@@ -16,7 +16,7 @@ namespace BDSA_Project_ThirdParty
     /// </summary>
     public class MainThirdParty
     {
-        private static string serverUri = "https://localhost:8082/";
+        private static string serverUri = "http://localhost:8082/";
 
         private static ThirdPartyServer server;
 
