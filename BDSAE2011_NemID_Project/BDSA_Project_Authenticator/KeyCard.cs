@@ -79,7 +79,7 @@ namespace BDSA_Project_Authenticator
             {
                 sb.AppendLine("Index = " + element.Key.ToString("D4") + "  " + "key = " + element.Value.ToString("D6"));
             }
-            File.WriteAllText(@"C:\test\testFile.txt", sb.ToString());
+
             return sb.ToString();
         }
 
