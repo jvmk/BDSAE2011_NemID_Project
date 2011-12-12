@@ -50,11 +50,11 @@
     <Compile Include="ThirdPartyUserAccount.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BDSAE2011_NemID_Project\BDSA_Project_Communication\BDSA_Project_Communication.csproj">
+    <ProjectReference Include="..\BDSA_Project_Communication\BDSA_Project_Communication.csproj">
       <Project>{EFA1FD0A-896D-4ABC-8735-093F19C4A85B}</Project>
       <Name>BDSA_Project_Communication</Name>
     </ProjectReference>
-    <ProjectReference Include="..\BDSAE2011_NemID_Project\BDSA_Project_Cryptography\BDSA_Project_Cryptography.csproj">
+    <ProjectReference Include="..\BDSA_Project_Cryptography\BDSA_Project_Cryptography.csproj">
       <Project>{726F27B1-1930-4826-B74C-AAF63044CD5B}</Project>
       <Name>BDSA_Project_Cryptography</Name>
     </ProjectReference>
