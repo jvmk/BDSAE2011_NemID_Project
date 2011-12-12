@@ -6,11 +6,7 @@
 
 namespace BDSA_Project_Communication
 {
-    using System;
-    using System.Collections.Generic;
     using System.Diagnostics.Contracts;
-    using System.Linq;
-    using System.Text;
 
     /// <summary>
     /// TODO: Update summary.
@@ -22,11 +18,6 @@ namespace BDSA_Project_Communication
         /// and the authenticator.
         /// </summary>
         private readonly ClientSocket socket;
-
-        /// <summary>
-        /// The server domain of the server the client is connected to.
-        /// </summary>
-        private readonly string serverDomain;
 
         /// <summary>
         /// string representation of the most recently received and
@@ -48,7 +39,6 @@ namespace BDSA_Project_Communication
         /// </param>
         public AuthenticatorProxy(string serverDomain, string clientIdentifier, byte[] clientPrivateKey)
         {
-            this.serverDomain = serverDomain;
             this.socket = new ClientSocket(serverDomain, clientIdentifier, clientPrivateKey);
         }
 
@@ -74,7 +64,8 @@ namespace BDSA_Project_Communication
         {
             this.socket.SendMessage(
                 "createAccount",
-                "username=" + userName + "&password=" + password + "&cprnumber=" + cprNumber + "&email=" + email);
+                "username=" + userName + "&password=" + password +
+                "&cprnumber=" + cprNumber + "&email=" + email);
             this.currentServerResponse = this.socket.ReadMessage();
             return this.currentServerResponse.Accepted;
         }
@@ -112,7 +103,7 @@ namespace BDSA_Project_Communication
         /// </returns>
         public string GetKeyIndex()
         {
-            return this.ProcessReturnValueOf(this.currentServerResponse); // TODO process response.
+            return this.GetReturnValueOf(this.currentServerResponse);
         }
 
         /// <summary>
@@ -150,7 +141,7 @@ namespace BDSA_Project_Communication
         /// <returns>
         /// True if the client can proceed, false otherwise.
         /// </returns>
-        public bool Proceed(string userName) // TODO user name as parameter?
+        public bool Proceed(string userName)
         {
             this.socket.SendMessage(
                 "proceed",
@@ -170,7 +161,7 @@ namespace BDSA_Project_Communication
         /// </returns>
         public string GetToken()
         {
-            return this.ProcessReturnValueOf(this.currentServerResponse);
+            return this.GetReturnValueOf(this.currentServerResponse);
         }
 
         /// <summary>
@@ -184,7 +175,7 @@ namespace BDSA_Project_Communication
         /// <returns>
         /// True if the abortion was accepted, false otherwise.
         /// </returns>
-        public bool Abort(string userName) // TODO user name as parameter?
+        public bool Abort(string userName)
         {
             this.socket.SendMessage(
                 "abort",
@@ -218,14 +209,14 @@ namespace BDSA_Project_Communication
         /// Processes the specified string representation of a 
         /// http message.
         /// </summary>
-        /// <param name="messageBody">
-        /// Raw string representation of the http response message.
+        /// <param name="response">
+        /// The response containing a return value.
         /// </param>
         /// <returns>
-        /// A string constitution the return values of the authentication
+        /// A string constituting the return values of the authentication
         /// server.
         /// </returns>
-        private string ProcessReturnValueOf(Response response)
+        private string GetReturnValueOf(Response response)
         {
             Contract.Requires(response.Accepted);
 

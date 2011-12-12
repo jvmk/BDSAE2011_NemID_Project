@@ -69,6 +69,7 @@ namespace BDSA_Project_Cryptography
             Contract.Requires(messageToEncrypt != null);
             Contract.Requires(publicKeyInfo != null);
             Contract.Requires(messageToEncrypt != string.Empty);
+
             //// Our bytearray to hold all of our data after the encryption
             byte[] encryptedBytes;
             using (var rsa = new RSACryptoServiceProvider())
@@ -257,7 +258,7 @@ namespace BDSA_Project_Cryptography
             {
                 //// Write the message to a byte array using UTF8 as the encoding.
                 var encoder = new UTF8Encoding();
-                var originalData = encoder.GetBytes(message);
+                byte[] originalData = encoder.GetBytes(message);
 
                 try
                 {
