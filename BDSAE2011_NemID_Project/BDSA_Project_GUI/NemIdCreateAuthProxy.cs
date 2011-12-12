@@ -26,7 +26,7 @@ namespace BDSA_Project_GUI
         private ThirdPartyHttpGenerator tp;
 
         private string username;
-        
+
         public NemIdCreateAuthProxy(string username)
         {
             InitializeComponent();
