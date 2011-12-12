@@ -69,11 +69,12 @@ namespace BDSA_Project_Communication
         /// True if the creation was successful at the authenticator,
         /// false otherwise.
         /// </returns>
-        public bool CreateUserAccount(string userName, string password, string cprNumber)
+        public bool CreateUserAccount(
+            string userName, string password, string cprNumber, string email)
         {
             this.socket.SendMessage(
                 "createAccount",
-                "username=" + userName + "&password=" + password);
+                "username=" + userName + "&password=" + password + "&cprnumber=" + cprNumber + "&email=" + email);
             this.currentServerResponse = this.socket.ReadMessage();
             return this.currentServerResponse.Accepted;
         }

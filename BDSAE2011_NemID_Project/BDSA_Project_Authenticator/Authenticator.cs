@@ -98,7 +98,7 @@ namespace BDSA_Project_Authenticator
         /// <param name="password">The password for the new user account.</param>
         /// <param name="cprNumber">The CPR number of this user.</param>
         /// <returns>True if the user is successfully added to the database. False if the username is already taken.</returns>
-        public bool AddNewUser(string username, string password, string cprNumber)
+        public bool AddNewUser(string username, string password, string cprNumber, string email)
         {
             Contract.Requires(!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password) && !string.IsNullOrWhiteSpace(cprNumber));
             Contract.Ensures(this.IsUserInDatabase(username));
@@ -107,7 +107,7 @@ namespace BDSA_Project_Authenticator
                 return false;
             }
 
-            this.database.Add(username, new UserAccount(username, password, cprNumber));
+            this.database.Add(username, new UserAccount(username, password, cprNumber, email));
             this.SendKeyCardToUser(username); // Simulate that the keycard is send by snail mail
             return true;
         }
