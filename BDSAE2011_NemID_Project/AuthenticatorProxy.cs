@@ -40,16 +40,16 @@ namespace BDSA_Project_Communication
         /// <param name="serverDomain">
         /// The domain of the authenticator.
         /// </param>
-        /// <param name="serverName">
-        /// The authenticator's name as it appears on it certificate. // TODO SSL doesn't require this anymore.
+        /// <param name="clientIdentifier">
+        /// The PKI-identifier of the client using the proxy.
         /// </param>
         /// <param name="clientPrivateKey">
         /// The private key of the client.
         /// </param>
-        public AuthenticatorProxy(string serverDomain, string serverName, byte[] clientPrivateKey) // TODO servername must be removed.
+        public AuthenticatorProxy(string serverDomain, string clientIdentifier, byte[] clientPrivateKey)
         {
             this.serverDomain = serverDomain;
-            this.socket = new ClientSocket(serverDomain, serverName, clientPrivateKey);
+            this.socket = new ClientSocket(serverDomain, clientIdentifier, clientPrivateKey);
         }
 
         /// <summary>
