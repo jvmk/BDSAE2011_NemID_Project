@@ -32,6 +32,7 @@
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.errorMessage = new System.Windows.Forms.Label();
             this.UsernameLabel = new System.Windows.Forms.Label();
             this.UsernameTextbox = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -64,6 +65,7 @@
             // 
             // splitContainer1.Panel2
             // 
+            this.splitContainer1.Panel2.Controls.Add(this.errorMessage);
             this.splitContainer1.Panel2.Controls.Add(this.UsernameLabel);
             this.splitContainer1.Panel2.Controls.Add(this.UsernameTextbox);
             this.splitContainer1.Panel2.Controls.Add(this.groupBox1);
@@ -83,10 +85,18 @@
             this.pictureBox1.TabIndex = 0;
             this.pictureBox1.TabStop = false;
             // 
+            // errorMessage
+            // 
+            this.errorMessage.AutoSize = true;
+            this.errorMessage.Location = new System.Drawing.Point(174, 254);
+            this.errorMessage.Name = "errorMessage";
+            this.errorMessage.Size = new System.Drawing.Size(0, 13);
+            this.errorMessage.TabIndex = 3;
+            // 
             // UsernameLabel
             // 
             this.UsernameLabel.AutoSize = true;
-            this.UsernameLabel.Location = new System.Drawing.Point(174, 115);
+            this.UsernameLabel.Location = new System.Drawing.Point(171, 93);
             this.UsernameLabel.Name = "UsernameLabel";
             this.UsernameLabel.Size = new System.Drawing.Size(55, 13);
             this.UsernameLabel.TabIndex = 2;
@@ -166,6 +176,7 @@
         private System.Windows.Forms.Button danskeBankLoginButton;
         private System.Windows.Forms.TextBox UsernameTextbox;
         private System.Windows.Forms.Label UsernameLabel;
+        private System.Windows.Forms.Label errorMessage;
 
 
     }

@@ -495,6 +495,7 @@ namespace BDSA_Project_Authenticator
             string userName = processedRequest.Parameters[0];
             string password = processedRequest.Parameters[1];
             string cprNumber = processedRequest.Parameters[2];
+            string email = processedRequest.Parameters[3];
 
             // Check if it is legal to call this operation
             ClientSession userSession = this.userSessions[userName];
@@ -504,7 +505,7 @@ namespace BDSA_Project_Authenticator
             if (validOperation)
             {
                 // ...check if the request is valid.
-                validRequest = this.authenticator.AddNewUser(userName, password, cprNumber);
+                validRequest = this.authenticator.AddNewUser(userName, password, cprNumber, email);
 
                 if (validRequest)
                 {

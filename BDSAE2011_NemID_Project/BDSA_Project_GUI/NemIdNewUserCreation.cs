@@ -16,12 +16,6 @@ namespace BDSA_Project_GUI
             InitializeComponent();
         }
 
-        private void MenuLoginButton_Click(object sender, EventArgs e)
-        {
-            this.ParentForm.Controls.Clear();
-            this.ParentForm.Controls.Add(new NemIdLogin());
-        }
-
         private void CreateUserButton_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(usernameTextBox.Text))
@@ -59,10 +53,14 @@ namespace BDSA_Project_GUI
             //// Specify path to save the private key
             string result = folderBrowserDialog1.SelectedPath;
 
-            //// Todo, create a writekey/readkey method in cryptograph to handle the serialization to path?
+            //// Todo write key to file
             //// todo: create user
             ///  todo: generate keys, write private key to file 
-            
+            if (succes)
+            {
+                this.ParentForm.Controls.Clear();
+                this.ParentForm.Controls.Add(new NemIdAccountCreationSuccess());
+            }
             UsersBrowser browser = (UsersBrowser)this.ParentForm;
             /*bool accountCreationSuccess = browser.AuthProxy.CreateUserAccount(usernameTextBox.Text, passwordTextBox.Text, cprTextBox.Text);
             if (accountCreationSuccess)
@@ -77,8 +75,7 @@ namespace BDSA_Project_GUI
 
         private void AbortButton_Click(object sender, EventArgs e)
         {
-            //// If the user abandons ship, then do something silly:
-            
+            Application.Exit();
         }
     }
 }

@@ -30,6 +30,11 @@ namespace BDSA_Project_Authenticator
         private string cprNumber;
 
         /// <summary>
+        /// The user's email address.
+        /// </summary>
+        private string email;
+
+        /// <summary>
         /// The user's current keycard
         /// </summary>
         private KeyCard keycard;
@@ -40,11 +45,13 @@ namespace BDSA_Project_Authenticator
         /// <param name="username">The username</param>
         /// <param name="password">The password</param>
         /// <param name="cprNumber">The CPR-number</param>
-        public UserAccount(string username, string password, string cprNumber)
+        /// <param name="email">The email address</param>
+        public UserAccount(string username, string password, string cprNumber, string email)
         {
             this.username = username;
             this.password = password;
             this.cprNumber = cprNumber;
+            this.email = email;
             this.keycard = new KeyCard();
         }
 
@@ -67,6 +74,17 @@ namespace BDSA_Project_Authenticator
             get
             {
                 return this.password;
+            }
+        }
+
+        /// <summary>
+        /// Gets the user's email address..
+        /// </summary>
+        public string Email
+        {
+            get
+            {
+                return this.email;
             }
         }
 

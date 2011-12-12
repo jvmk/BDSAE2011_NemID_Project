@@ -40,16 +40,16 @@ namespace BDSA_Project_Communication
         /// <param name="serverDomain">
         /// The domain of the authenticator.
         /// </param>
-        /// <param name="serverName">
-        /// The authenticator's name as it appears on it certificate. // TODO SSL doesn't require this anymore.
+        /// <param name="clientIdentifier">
+        /// The PKI-identifier of the client using the proxy.
         /// </param>
         /// <param name="clientPrivateKey">
         /// The private key of the client.
         /// </param>
-        public AuthenticatorProxy(string serverDomain, string serverName, byte[] clientPrivateKey) // TODO servername must be removed.
+        public AuthenticatorProxy(string serverDomain, string clientIdentifier, byte[] clientPrivateKey)
         {
             this.serverDomain = serverDomain;
-            this.socket = new ClientSocket(serverDomain, serverName, clientPrivateKey);
+            this.socket = new ClientSocket(serverDomain, clientIdentifier, clientPrivateKey);
         }
 
         /// <summary>
@@ -69,11 +69,12 @@ namespace BDSA_Project_Communication
         /// True if the creation was successful at the authenticator,
         /// false otherwise.
         /// </returns>
-        public bool CreateUserAccount(string userName, string password, string cprNumber)
+        public bool CreateUserAccount(
+            string userName, string password, string cprNumber, string email)
         {
             this.socket.SendMessage(
                 "createAccount",
-                "username=" + userName + "&password=" + password);
+                "username=" + userName + "&password=" + password + "&cprnumber=" + cprNumber + "&email=" + email);
             this.currentServerResponse = this.socket.ReadMessage();
             return this.currentServerResponse.Accepted;
         }
@@ -128,7 +129,7 @@ namespace BDSA_Project_Communication
         /// Returns true if the value of the submitted key is
         /// what the authentication server expected, false otherwise.
         /// </returns>
-        public bool SubmitKey(int keyValue, string userName)
+        public bool SubmitKey(string keyValue, string userName)
         {
             this.socket.SendMessage(
                 "submitKey",
@@ -204,7 +205,7 @@ namespace BDSA_Project_Communication
         /// True if the revokation was succesful at the authenticator,
         /// false otherwise.
         /// </returns>
-        public bool RevokeUserAccount(string userName, string pkiIdentifier)
+        public bool RevokeUserAccount(string userName)
         {
             this.socket.SendMessage(
                 "revokeAccount",

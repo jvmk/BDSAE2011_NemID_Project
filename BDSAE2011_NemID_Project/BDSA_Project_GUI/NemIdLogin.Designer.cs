@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.label2 = new System.Windows.Forms.Label();
+            this.KeyPathLabel = new System.Windows.Forms.Label();
             this.LoginGroupBox = new System.Windows.Forms.GroupBox();
             this.CancelButton = new System.Windows.Forms.Button();
             this.authButton = new System.Windows.Forms.Button();
@@ -37,7 +39,6 @@
             this.passwordTextBox = new System.Windows.Forms.TextBox();
             this.usernameTextBox = new System.Windows.Forms.TextBox();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
-            this.KeyPathLabel = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -58,11 +59,29 @@
             // 
             // splitContainer1.Panel2
             // 
+            this.splitContainer1.Panel2.Controls.Add(this.label2);
             this.splitContainer1.Panel2.Controls.Add(this.KeyPathLabel);
             this.splitContainer1.Panel2.Controls.Add(this.LoginGroupBox);
             this.splitContainer1.Size = new System.Drawing.Size(500, 500);
             this.splitContainer1.SplitterDistance = 125;
             this.splitContainer1.TabIndex = 1;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(103, 39);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(93, 13);
+            this.label2.TabIndex = 7;
+            this.label2.Text = "Enter login details:";
+            // 
+            // KeyPathLabel
+            // 
+            this.KeyPathLabel.AutoSize = true;
+            this.KeyPathLabel.Location = new System.Drawing.Point(103, 178);
+            this.KeyPathLabel.Name = "KeyPathLabel";
+            this.KeyPathLabel.Size = new System.Drawing.Size(0, 13);
+            this.KeyPathLabel.TabIndex = 4;
             // 
             // LoginGroupBox
             // 
@@ -73,7 +92,7 @@
             this.LoginGroupBox.Controls.Add(this.passwordTextBox);
             this.LoginGroupBox.Controls.Add(this.usernameTextBox);
             this.LoginGroupBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LoginGroupBox.Location = new System.Drawing.Point(94, 101);
+            this.LoginGroupBox.Location = new System.Drawing.Point(106, 55);
             this.LoginGroupBox.MaximumSize = new System.Drawing.Size(285, 105);
             this.LoginGroupBox.MinimumSize = new System.Drawing.Size(285, 105);
             this.LoginGroupBox.Name = "LoginGroupBox";
@@ -90,6 +109,7 @@
             this.CancelButton.TabIndex = 5;
             this.CancelButton.Text = "Cancel";
             this.CancelButton.UseVisualStyleBackColor = true;
+            this.CancelButton.Click += new System.EventHandler(this.CancelButton_Click);
             // 
             // authButton
             // 
@@ -146,14 +166,6 @@
             // 
             this.openFileDialog1.FileName = "openFileDialog1";
             // 
-            // KeyPathLabel
-            // 
-            this.KeyPathLabel.AutoSize = true;
-            this.KeyPathLabel.Location = new System.Drawing.Point(94, 257);
-            this.KeyPathLabel.Name = "KeyPathLabel";
-            this.KeyPathLabel.Size = new System.Drawing.Size(0, 13);
-            this.KeyPathLabel.TabIndex = 4;
-            // 
             // NemIdLogin
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -183,6 +195,7 @@
         private System.Windows.Forms.TextBox usernameTextBox;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.Label KeyPathLabel;
+        private System.Windows.Forms.Label label2;
 
 
     }
