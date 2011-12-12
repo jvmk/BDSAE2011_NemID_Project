@@ -26,7 +26,7 @@ namespace BDSA_Project_GUI
         private ThirdPartyHttpGenerator tp;
 
         private string username;
-        
+
         public NemIdCreateAuthProxy(string username)
         {
             InitializeComponent();
@@ -66,7 +66,7 @@ namespace BDSA_Project_GUI
         {
             if (!ReferenceEquals(privateKey, null))
             {
-                if (Cryptograph.TestKeyPair(privateKey, keyPkiIdTextBox.Text))
+                if (Cryptograph.CheckConsistency(privateKey, keyPkiIdTextBox.Text))
                 {
                     this.auth = new AuthenticatorProxy(StringData.AuthUri, keyPkiIdTextBox.Text, privateKey);
                     this.tp = new ThirdPartyHttpGenerator(StringData.ThirdUri, keyPkiIdTextBox.Text, privateKey);
