@@ -1,0 +1,9 @@
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSA_Project_ThirdParty\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSA_Project_ThirdParty\bin\Debug\BDSA_Project_ThirdParty.exe
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSA_Project_ThirdParty\bin\Debug\BDSA_Project_ThirdParty.pdb
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSA_Project_ThirdParty\bin\Debug\BDSA_Project_Communication.dll
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSA_Project_ThirdParty\bin\Debug\BDSA_Project_Cryptography.dll
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSA_Project_ThirdParty\bin\Debug\BDSA_Project_Communication.pdb
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSA_Project_ThirdParty\bin\Debug\BDSA_Project_Cryptography.pdb
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSA_Project_ThirdParty\obj\x86\Debug\BDSA_Project_ThirdParty.exe
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSA_Project_ThirdParty\obj\x86\Debug\BDSA_Project_ThirdParty.pdb

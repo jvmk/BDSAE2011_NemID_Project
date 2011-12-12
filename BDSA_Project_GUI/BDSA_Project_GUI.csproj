@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6B9B85AD-DCD0-4632-AD69-D1B927A37FE4}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BDSA_Project_GUI</RootNamespace>
+    <AssemblyName>BDSA_Project_GUI</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile>Client</TargetFrameworkProfile>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Deployment" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UIAutomationProvider" />
+    <Reference Include="WindowsBase" />
+    <Reference Include="WindowsFormsIntegration" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="NemIdAccountCreationSuccess.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="NemIdAccountCreationSuccess.Designer.cs">
+      <DependentUpon>NemIdAccountCreationSuccess.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NemIdBase.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="NemIdBase.Designer.cs">
+      <DependentUpon>NemIdBase.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NemIdDeleteUser.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="NemIdDeleteUser.Designer.cs">
+      <DependentUpon>NemIdDeleteUser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NemIdEnterKeyValue.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="NemIdEnterKeyValue.Designer.cs">
+      <DependentUpon>NemIdEnterKeyValue.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NemIdLoggedIn.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="NemIdLoggedIn.Designer.cs">
+      <DependentUpon>NemIdLoggedIn.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NemIdLogin.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="NemIdLogin.Designer.cs">
+      <DependentUpon>NemIdLogin.cs</DependentUpon>
+    </Compile>
+    <Compile Include="NemIdNewUserCreation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="NemIdNewUserCreation.Designer.cs">
+      <DependentUpon>NemIdNewUserCreation.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UsersBrowser.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UsersBrowser.Designer.cs">
+      <DependentUpon>UsersBrowser.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Program.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="NemIdAccountCreationSuccess.resx">
+      <DependentUpon>NemIdAccountCreationSuccess.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NemIdBase.resx">
+      <DependentUpon>NemIdBase.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NemIdDeleteUser.resx">
+      <DependentUpon>NemIdDeleteUser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NemIdEnterKeyValue.resx">
+      <DependentUpon>NemIdEnterKeyValue.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NemIdLoggedIn.resx">
+      <DependentUpon>NemIdLoggedIn.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NemIdLogin.resx">
+      <DependentUpon>NemIdLogin.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="NemIdNewUserCreation.resx">
+      <DependentUpon>NemIdNewUserCreation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UsersBrowser.resx">
+      <DependentUpon>UsersBrowser.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Settings.settings</DependentUpon>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Properties\danske bank logo.jpg" />
+    <Content Include="Resources\nemidlogo.jpg" />
+    <Content Include="Resources\nemidlogo1.jpg" />
+    <None Include="Resources\danske bank logo.jpg" />
+    <None Include="Resources\danskeBankLogo.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <WCFMetadata Include="Service References\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project.csproj">
+      <Project>{B8509EC2-898C-4F2E-BC78-673578DFC529}</Project>
+      <Name>BDSAE2011_NemID_Project</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

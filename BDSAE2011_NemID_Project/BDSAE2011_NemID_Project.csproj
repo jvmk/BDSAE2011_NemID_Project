@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{B8509EC2-898C-4F2E-BC78-673578DFC529}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BDSAE2011_NemID_Project</RootNamespace>
     <AssemblyName>BDSAE2011_NemID_Project</AssemblyName>
@@ -33,6 +33,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -43,18 +46,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Authenticator.cs" />
-    <Compile Include="AuthenticatorHttpProcesser.cs" />
     <Compile Include="AuthenticatorProxy.cs" />
-    <Compile Include="AuthenticatorSocket.cs" />
-    <Compile Include="ClientSocket.cs" />
     <Compile Include="Communicator.cs" />
-    <Compile Include="Cryptograph.cs" />
-    <Compile Include="KeyCard.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PublicKeyInfrastructure.cs" />
-    <Compile Include="ThirdParty.cs" />
-    <Compile Include="UserAccount.cs" />
+    <Compile Include="ThirdPartyHttpGenerator.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="BDSA_Project_Communication\BDSA_Project_Communication.csproj">
+      <Project>{EFA1FD0A-896D-4ABC-8735-093F19C4A85B}</Project>
+      <Name>BDSA_Project_Communication</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1,0 +1,11 @@
+<Configuration>
+  <CoverageFilters>
+    <IncludeFilters>
+      <Filter ModuleMask="*" ClassMask="*" FunctionMask="*" />
+    </IncludeFilters>
+    <ExcludeFilters />
+  </CoverageFilters>
+  <SnapshotDialog>
+    <InitialDirectory>C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project</InitialDirectory>
+  </SnapshotDialog>
+</Configuration>

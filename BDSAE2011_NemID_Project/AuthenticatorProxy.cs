@@ -4,7 +4,7 @@
 // </copyright>
 // ----------------------------------------------------------------------
 
-namespace ClientComponent
+namespace BDSA_Project_Communication
 {
     using System;
     using System.Collections.Generic;

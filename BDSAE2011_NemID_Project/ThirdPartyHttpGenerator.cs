@@ -4,14 +4,14 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace ThirdPartyComponent
+namespace BDSA_Project_ThirdParty
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Text;
 
-    using ClientComponent;
+    using BDSA_Project_Communication;
 
     /// <summary>
     /// Class used to generate and send http messages to the third party server.
