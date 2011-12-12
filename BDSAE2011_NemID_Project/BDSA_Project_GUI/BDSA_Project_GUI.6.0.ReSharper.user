@@ -1,0 +1,54 @@
+<Configuration>
+  <RecentFiles>
+    <RecentFiles>
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:NemIdEnterKeyValue.cs" caret="963" fromTop="11" />
+      <File id="FC07DB14-DCE3-4D15-8701-229F66F987B5/f:ThirdPartyHttpGenerator.cs" caret="0" fromTop="0" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:NemIdLogin.cs" caret="3157" fromTop="66" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:Program.cs" caret="0" fromTop="0" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:UsersBrowser.cs" caret="3099" fromTop="72" />
+      <File id="FC07DB14-DCE3-4D15-8701-229F66F987B5/f:Program.cs" caret="0" fromTop="0" />
+    </RecentFiles>
+    <RecentEdits>
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:NemIdLogin.cs" caret="2209" fromTop="4" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:UsersBrowser.cs" caret="2633" fromTop="11" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:NemIdLogin.cs" caret="3154" fromTop="8" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:UsersBrowser.cs" caret="543" fromTop="15" />
+      <File id="6B9B85AD-DCD0-4632-AD69-D1B927A37FE4/f:UsersBrowser.cs" caret="3099" fromTop="12" />
+    </RecentEdits>
+  </RecentFiles>
+  <NAntValidationSettings>
+    <NAntPath value="" />
+  </NAntValidationSettings>
+  <UnitTestRunner>
+    <Providers />
+  </UnitTestRunner>
+  <UnitTestRunnerNUnit>
+    <NUnitInstallDir>C:\Program Files (x86)\NUnit 2.5.10\bin\net-2.0\lib</NUnitInstallDir>
+    <UseAddins>Never</UseAddins>
+  </UnitTestRunnerNUnit>
+  <SettingsComponent>
+    <string />
+    <integer />
+    <boolean>
+      <setting name="SolutionAnalysisEnabled">False</setting>
+    </boolean>
+  </SettingsComponent>
+  <CompletionStatisticsManager>
+    <ItemStatistics item="CSharpCodeCompletionContext">
+      <Item value="KeyPathLabel" priority="63" />
+      <Item value="UsersBrowser`0" priority="31" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:System.Windows.Forms.Label">
+      <Item value="Text" priority="80" />
+      <Item value="Font" priority="27" />
+      <Item value="ForeColor" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.String">
+      <Item value="IsNullOrEmpty`0" priority="26" />
+    </ItemStatistics>
+    <ItemStatistics item="Qualified:@System.Drawing.Color">
+      <Item value="Red" priority="54" />
+      <Item value="DarkGreen" priority="27" />
+    </ItemStatistics>
+  </CompletionStatisticsManager>
+</Configuration>

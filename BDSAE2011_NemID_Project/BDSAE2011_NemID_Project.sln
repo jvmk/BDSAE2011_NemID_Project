@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BDSA_Project_Cryptography",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BDSA_Project_ThirdParty", "BDSA_Project_ThirdParty\BDSA_Project_ThirdParty.csproj", "{415FA94B-B1D3-469A-863E-B9994F5D5D0E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BDSA_Project_GUI", "BDSA_Project_GUI\BDSA_Project_GUI.csproj", "{6B9B85AD-DCD0-4632-AD69-D1B927A37FE4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -71,6 +73,16 @@ Global
 		{415FA94B-B1D3-469A-863E-B9994F5D5D0E}.Release|Mixed Platforms.Build.0 = Release|x86
 		{415FA94B-B1D3-469A-863E-B9994F5D5D0E}.Release|x86.ActiveCfg = Release|x86
 		{415FA94B-B1D3-469A-863E-B9994F5D5D0E}.Release|x86.Build.0 = Release|x86
+		{6B9B85AD-DCD0-4632-AD69-D1B927A37FE4}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{6B9B85AD-DCD0-4632-AD69-D1B927A37FE4}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
+		{6B9B85AD-DCD0-4632-AD69-D1B927A37FE4}.Debug|Mixed Platforms.Build.0 = Debug|x86
+		{6B9B85AD-DCD0-4632-AD69-D1B927A37FE4}.Debug|x86.ActiveCfg = Debug|x86
+		{6B9B85AD-DCD0-4632-AD69-D1B927A37FE4}.Debug|x86.Build.0 = Debug|x86
+		{6B9B85AD-DCD0-4632-AD69-D1B927A37FE4}.Release|Any CPU.ActiveCfg = Release|x86
+		{6B9B85AD-DCD0-4632-AD69-D1B927A37FE4}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{6B9B85AD-DCD0-4632-AD69-D1B927A37FE4}.Release|Mixed Platforms.Build.0 = Release|x86
+		{6B9B85AD-DCD0-4632-AD69-D1B927A37FE4}.Release|x86.ActiveCfg = Release|x86
+		{6B9B85AD-DCD0-4632-AD69-D1B927A37FE4}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

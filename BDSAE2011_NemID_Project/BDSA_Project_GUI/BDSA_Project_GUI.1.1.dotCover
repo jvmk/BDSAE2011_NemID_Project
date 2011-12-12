@@ -1,0 +1,11 @@
+<Configuration>
+  <CoverageFilters>
+    <IncludeFilters>
+      <Filter ModuleMask="*" ClassMask="*" FunctionMask="*" />
+    </IncludeFilters>
+    <ExcludeFilters />
+  </CoverageFilters>
+  <SnapshotDialog>
+    <InitialDirectory>C:\My Dropbox\BDSA project\GUI til simon\BDSA_Project_GUI</InitialDirectory>
+  </SnapshotDialog>
+</Configuration>
