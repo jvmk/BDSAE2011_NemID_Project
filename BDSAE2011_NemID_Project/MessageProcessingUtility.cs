@@ -80,8 +80,11 @@ namespace Miscellaneoues
             Contract.Requires(DoesUrlContainRequest(url));
 
             int start = url.IndexOf("request=") + "request=".Length;
-            int end = url.IndexOf('/', start);
+            int end = -1;
 
+            // The redirect url will contain '&' characters, all others
+            // will not.
+            end = url.Contains('&') ? url.IndexOf('&') : url.IndexOf('/', start);
             return url.Substring(start, end - start);
         }
 
