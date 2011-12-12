@@ -293,6 +293,15 @@ namespace BDSA_Project_Authenticator
                 // is valid. If it is invalid, can be empty.
                 string httpResponseMessageBody = string.Empty;
 
+                // If the parameters is null...
+                if (processedRequest.Parameters == null)
+                {
+                    // ... the request in invalid.
+                    Console.WriteLine("Server is responding to: " + processedRequest.RequesterDomain);
+                    this.serverSocket.SendMessage(processedRequest, validRequest, httpResponseMessageBody);
+                    continue;
+                }
+
                 // Check if the requested operation is supported.
                 if (!this.supportedOperations.Contains(processedRequest.RequestedOperation))
                 {
@@ -425,6 +434,8 @@ namespace BDSA_Project_Authenticator
         /// </returns>
         private string ProcessLogin(Request processedRequest, ref bool validRequest)
         {
+            Contract.Requires(processedRequest.Parameters != null);
+
             // The parameters for the requested operation.
             string userName = processedRequest.Parameters[0];
             string password = processedRequest.Parameters[1];
@@ -526,12 +537,13 @@ namespace BDSA_Project_Authenticator
                 string sessionToken = this.GenerateToken();
 
                 // Send session token to third party:
-                ClientSocket thirdPartyClient = new ClientSocket(                   // TODO right 2nd parameter?
-                    userSession.ThirdPartyDomain, "authenticator", this.authenticatorPrivateKey);
+                ClientSocket thirdPartyClient = new ClientSocket(
+                    userSession.ThirdPartyDomain, StringData.AuthUri, this.authenticatorPrivateKey);
 
                 thirdPartyClient.SendMessage("authtoken", "username=" + userName + "&token=" + sessionToken);
 
                 return sessionToken;
+
                 // TODO Call read to send complete the send?
             }
 

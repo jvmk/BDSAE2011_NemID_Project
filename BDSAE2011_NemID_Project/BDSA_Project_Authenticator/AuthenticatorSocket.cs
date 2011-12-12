@@ -13,7 +13,6 @@ namespace BDSA_Project_Authenticator
     using System.Text;
 
     using BDSA_Project_Communication;
-
     using BDSA_Project_Cryptography;
 
     /// <summary>

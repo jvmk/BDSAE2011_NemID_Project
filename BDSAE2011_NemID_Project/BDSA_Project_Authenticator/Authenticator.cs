@@ -12,8 +12,11 @@ namespace BDSA_Project_Authenticator
     {
         /// <summary>
         /// Represents the underlying database where user information is stored.
+        /// The key is the user name and the UserAccount is the account associated
+        /// with that user.
         /// </summary>
-        private Dictionary<string, UserAccount> database = new Dictionary<string, UserAccount>(); // the string is the username for the associated useraccount
+        private Dictionary<string, UserAccount> database =
+            new Dictionary<string, UserAccount>();
 
         /// <summary>
         /// A set of URIs that this authenticator trusts.
