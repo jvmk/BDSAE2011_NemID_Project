@@ -137,6 +137,8 @@ namespace ClientComponent
         /// </param>
         public void SendMessage(string operation, string message)
         {
+            Contract.Requires(!string.IsNullOrEmpty(operation));
+            Contract.Requires(!string.IsNullOrEmpty(message));
             Contract.Requires(!this.HaveSentMessage());
             Contract.Ensures(this.HaveSentMessage());
 

@@ -34,9 +34,6 @@ namespace ClientComponent
         /// </summary>
         private Response currentServerResponse = default(Response);
 
-
-        private byte[] clientPrivateKey;
-
         /// <summary>
         /// Initializes a new instance of the AuthenticatorProxy class.
         /// </summary>

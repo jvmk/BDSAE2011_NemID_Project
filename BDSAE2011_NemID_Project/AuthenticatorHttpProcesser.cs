@@ -236,7 +236,7 @@ namespace AuthenticatorComponent
                 if (!this.supportedOperations.Contains(processedRequest.RequestedOperation))
                 {
                     // If it does not, respond to the requester with a negative response
-                    Console.WriteLine("Server is responding.");
+                    Console.WriteLine("Server is responding to: " + processedRequest.RequesterDomain);
                     this.serverSocket.SendMessage(processedRequest, validRequest, httpResponseMessageBody);
                     continue;
                 }
@@ -280,10 +280,10 @@ namespace AuthenticatorComponent
         }
 
         /// <summary>
-        /// Processes a client's requested operation.
+        /// Processes a client's requested redirect-operation.
         /// </summary>
         /// <param name="processedRequest">
-        /// The Request-object representing properties of the client's
+        /// The Request-struct representing properties of the client's
         /// request.
         /// </param>
         /// <param name="validRequest">
@@ -294,21 +294,23 @@ namespace AuthenticatorComponent
             // Get the raw url of the request.
             string rawUrl = processedRequest.RawUrl;
 
+            // If the redirected url is not well formed...
             if (!this.IsRedirectUrlWellFormed(rawUrl))
             {
+                // ...the request is not valid.
                 validRequest = false;
                 return;
             }
 
             // Retrieve the user name specified in the redirection
             // url.
-            int start = rawUrl.IndexOf("username=") + "username=".Length;
+            int start = rawUrl.IndexOf("username=") + "username=".Length;   // TODO Validated
             int end = rawUrl.IndexOf('&', start);
 
             string userName = rawUrl.Substring(start, end - start);
 
             // If the user is not in the userSession dictionary, the user
-            // is not in the authenticator database.
+            // is not in the authenticator database: Invalid request.
             if (!this.userSessions.ContainsKey(userName))
             {
                 validRequest = false;
@@ -317,15 +319,16 @@ namespace AuthenticatorComponent
 
             ClientSession userSession = this.userSessions[userName];
 
-            // The submitted operation is not valid.
+            // If the requeseted operation is not valid...
             if (!userSession.IsOperationValid("redirect"))
             {
+                // ...the request is not valid.
                 validRequest = false;
                 return;
             }
 
             // Retrieve the third party domain in the raw url.
-            start = rawUrl.LastIndexOf("3rd=") + "3rd=".Length;
+            start = rawUrl.LastIndexOf("3rd=") + "3rd=".Length;         // TODO validated
             end = rawUrl.Length;
 
             // Update the client session with the new third party url.
@@ -346,6 +349,19 @@ namespace AuthenticatorComponent
             userSession.ChangeStateTo(ClientSession.SessionState.AwaitSessionStart);
         }
 
+        /// <summary>
+        /// Processes a client's requested login-operation.
+        /// </summary>
+        /// <param name="processedRequest">
+        /// The Request-struct representing properties of the client's
+        /// request.
+        /// </param>
+        /// <param name="validRequest">
+        /// A bool reference indicating success of the client's success.
+        /// </param>
+        /// <returns>
+        /// Returns null if the request was not accepted by the authenticator.
+        /// </returns>
         private string processLogin(Request processedRequest, ref bool validRequest)
         {
             // The parameters for the requested operation.
@@ -359,24 +375,33 @@ namespace AuthenticatorComponent
             // If the requested operation is valid...
             if (validOperation)
             {
-                // ...check if the submitted key is valid.
+                // ...check if the submitted user name and password are valid.
                 validRequest = this.authenticator.IsLoginValid(userName, password);
-
-                // Key index which corresponding key must be submitted by the client.
-                string keyIndex = string.Empty;
-
                 if (validRequest)
                 {
+                    // The request is valid, update the user's session...
                     userSession.ChangeStateTo(ClientSession.SessionState.InitialLoginAccepted);
+
+                    // ...and get the key index which corresponding key 
+                    // must be submitted by the client next.
                     return this.authenticator.GetKeyIndex(userName);
                 }
             }
 
             validRequest = false;
-
             return null;
         }
 
+        /// <summary>
+        /// Processes a client's requested submitKey-operation.
+        /// </summary>
+        /// <param name="processedRequest">
+        /// The Request-struct representing properties of the client's
+        /// request.
+        /// </param>
+        /// <param name="validRequest">
+        /// 
+        /// </param>
         private void processSubmitKey(Request processedRequest, ref bool validRequest)
         {
             // The parameters for the requested operation.

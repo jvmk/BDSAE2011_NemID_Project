@@ -106,6 +106,11 @@ namespace AuthenticatorComponent
     public class AuthenticatorServer
     {
         /// <summary>
+        /// The domian of the authencator server.
+        /// </summary>
+        private readonly string authenticatorDomain;
+
+        /// <summary>
         /// Represents the server instance.
         /// </summary>
         private readonly HttpListener server;
@@ -115,11 +120,6 @@ namespace AuthenticatorComponent
         /// SendMessage will repond using the same HttpListenerObject.
         /// </summary>
         private HttpListenerContext currentListenerContext = default(HttpListenerContext);
-
-        /// <summary>
-        /// Is "http://localhost:8080" for this application.
-        /// </summary>
-        private string authenticatorDomain;
 
         /// <summary>
         /// Used for contracts; determines if a read has occured. Is necessary
@@ -134,14 +134,17 @@ namespace AuthenticatorComponent
         private byte[] authenticatorPrivateKey;
 
         /// <summary>
-        /// Initializes a new instance of the AuthenticatorSocket class.
+        /// Initializes a new instance of the AuthenticatorServer class.
         /// </summary>
-        /// <param name="port">
-        /// The port with the socket listens to request from.
+        /// <param name="authenticatorDomain">
+        /// The domain of the authenticator server.
+        /// </param>
+        /// <param name="authenticatorPrivateKey">
+        /// The private key of the authenticator.
         /// </param>
         public AuthenticatorServer(string authenticatorDomain, byte[] authenticatorPrivateKey)
         {
-            Contract.Requires(IsValidURL(authenticatorDomain));
+            Contract.Requires(IsValidUrl(authenticatorDomain));
 
             this.authenticatorDomain = authenticatorDomain;
             this.authenticatorPrivateKey = authenticatorPrivateKey;
@@ -153,6 +156,23 @@ namespace AuthenticatorComponent
         }
 
         /// <summary>
+        /// Checks if the given url is a valid url.
+        /// Source: http://stackoverflow.com/questions/7578857/how-to-check-whether-a-string-is-a-valid-http-url
+        /// </summary>
+        /// <param name="url">
+        /// Stirng representation of the URL.
+        /// </param>
+        /// <returns>
+        /// True if it is a valid URL, false otherwise.
+        /// </returns>
+        [Pure]
+        public static bool IsValidUrl(string url)
+        {
+            Uri uri = new Uri(url);
+            return Uri.TryCreate(url, UriKind.Absolute, out uri) && uri.Scheme == Uri.UriSchemeHttp;
+        }
+
+        /// <summary>
         /// Makes the socket listen for client requests.
         /// Blocks until a client connects and a ssl-connection
         /// between the parties has been established.
@@ -161,22 +181,6 @@ namespace AuthenticatorComponent
         {
             this.server.Start();
             Console.WriteLine("Server is listening");
-        }
-
-        /// <summary>
-        /// Source: http://stackoverflow.com/questions/7578857/how-to-check-whether-a-string-is-a-valid-http-url
-        /// </summary>
-        /// <param name="URL">
-        /// Stirng representation of the URL.
-        /// </param>
-        /// <returns>
-        /// True if it is a valid URL, false otherwise.
-        /// </returns>
-        [Pure]
-        public static bool IsValidURL(string URL)
-        {
-            Uri uri = new Uri(URL);
-            return Uri.TryCreate(URL, UriKind.Absolute, out uri) && uri.Scheme == Uri.UriSchemeHttp;
         }
 
         /// <summary>
@@ -242,12 +246,18 @@ namespace AuthenticatorComponent
         /// <param name="request">
         /// The request this new message is a response to.
         /// </param>
-        /// <param name="accepted"></param>
-        /// <param name="message"></param>
+        /// <param name="accepted">
+        /// Indicates if the request, this message is a response, was
+        /// accepted by the authenticator.
+        /// </param>
+        /// <param name="message">
+        /// The return value to be sent back to the requester.
+        /// If the request was not accepted, then message will just be
+        /// an empty string.
+        /// </param>
         public void SendMessage(Request request, bool accepted, string message)
         {
             Contract.Requires(this.HasReadHappened());
-            Contract.Requires(string.IsNullOrEmpty(message));
             Contract.Ensures(!this.HasReadHappened());
 
             // Obtain a response object.
@@ -260,10 +270,10 @@ namespace AuthenticatorComponent
             string encOrigin = Cryptograph.Encrypt(
                 this.authenticatorDomain, Cryptograph.GetPublicKey(request.RequesterDomain));
 
-            // If the request was not succesfully completed.
+            // If the request was not succesfully completed...
             if (!accepted)
             {
-                // HTTP status code  403: Forbidden.
+                // ... the HTTP status code is set to 403 Forbidden.
                 responseMessage.StatusCode = 403;
 
                 output = responseMessage.OutputStream;
@@ -305,7 +315,6 @@ namespace AuthenticatorComponent
             // Update the state of the socket.
             this.hasReadHappened = false;
         }
-
 
         // TODO closing of stream and sockets.
     }
