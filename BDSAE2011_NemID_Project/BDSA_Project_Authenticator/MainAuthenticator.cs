@@ -16,7 +16,14 @@ namespace BDSA_Project_Authenticator
 
         public static void Main(string[] args)
         {
+
+
             byte[] privateKey = BDSA_Project_Cryptography.Cryptograph.GenerateKeys(serverUri);
+
+            bool success = BDSA_Project_Cryptography.PublicKeyInfrastructure.ContainsKey(serverUri);
+
+            bool success1 = BDSA_Project_Cryptography.PublicKeyInfrastructure.ContainsKey(serverUri);
+
             var server = new AuthenticatorService(serverUri, privateKey);
             server.ServiceLoop();
         }
