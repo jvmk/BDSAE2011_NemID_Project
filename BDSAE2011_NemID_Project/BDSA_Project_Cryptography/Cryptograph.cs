@@ -257,7 +257,7 @@ namespace BDSA_Project_Cryptography
             {
                 //// Write the message to a byte array using UTF8 as the encoding.
                 var encoder = new UTF8Encoding();
-                byte[] originalData = encoder.GetBytes(message);
+                var originalData = encoder.GetBytes(message);
 
                 try
                 {
