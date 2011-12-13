@@ -34,6 +34,11 @@ namespace BDSA_Project_Authenticator
         private uint cardNumber;
 
         /// <summary>
+        /// The unique ID of the keycard
+        /// </summary>
+        private string uniqueID;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="KeyCard"/> class. 
         /// Constructor for the keycard class
         /// </summary>
@@ -41,6 +46,30 @@ namespace BDSA_Project_Authenticator
         {
             this.GenerateKeyCard();
             this.SetNextKeyIndex();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KeyCard"/> class with a unique ID.
+        /// </summary>
+        /// <param name="username">
+        /// The username of the owner of this card.
+        /// </param>
+        /// <param name="password">
+        /// The password of the owner of this card.
+        /// </param>
+        /// <param name="cprnumber">
+        /// The cprnumber of the owner of this card.
+        /// </param>
+        /// <param name="email">
+        /// The email of the owner of this card.
+        /// </param>
+        public KeyCard(string username, string password, string cprnumber, string email)
+        {
+            Contract.Requires(string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(cprnumber) || string.IsNullOrEmpty(email));
+            this.GenerateKeyCard();
+            this.SetNextKeyIndex();
+            this.uniqueID =
+                BDSA_Project_Cryptography.Cryptograph.GenerateSHA2Hash(username + password + cprnumber + email + this.GetKeyCardNumber());
         }
 
         /// <summary>
@@ -53,6 +82,17 @@ namespace BDSA_Project_Authenticator
         public uint GetKeyCardNumber()
         {
             return this.cardNumber;
+        }
+
+        /// <summary>
+        /// Can I get the unique ID of this keycard?
+        /// </summary>
+        /// <returns>
+        /// The unique id of this keycard
+        /// </returns>
+        public string GetUniqueId()
+        {
+            return this.uniqueID;
         }
 
         /// <summary>
