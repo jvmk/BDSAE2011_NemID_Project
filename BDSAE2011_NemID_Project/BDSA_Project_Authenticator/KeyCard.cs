@@ -34,6 +34,11 @@ namespace BDSA_Project_Authenticator
         private uint cardNumber;
 
         /// <summary>
+        /// The unique ID of the keycard
+        /// </summary>
+        private string uniqueID;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="KeyCard"/> class. 
         /// Constructor for the keycard class
         /// </summary>
@@ -41,6 +46,30 @@ namespace BDSA_Project_Authenticator
         {
             this.GenerateKeyCard();
             this.SetNextKeyIndex();
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="KeyCard"/> class with a unique ID.
+        /// </summary>
+        /// <param name="username">
+        /// The username of the owner of this card.
+        /// </param>
+        /// <param name="password">
+        /// The password of the owner of this card.
+        /// </param>
+        /// <param name="cprnumber">
+        /// The cprnumber of the owner of this card.
+        /// </param>
+        /// <param name="email">
+        /// The email of the owner of this card.
+        /// </param>
+        public KeyCard(string username, string password, string cprnumber, string email)
+        {
+            Contract.Requires(string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(cprnumber) || string.IsNullOrEmpty(email));
+            this.GenerateKeyCard();
+            this.SetNextKeyIndex();
+            this.uniqueID =
+                BDSA_Project_Cryptography.Cryptograph.GenerateSHA2Hash(username + password + cprnumber + email + this.GetKeyCardNumber());
         }
 
         /// <summary>
@@ -53,6 +82,17 @@ namespace BDSA_Project_Authenticator
         public uint GetKeyCardNumber()
         {
             return this.cardNumber;
+        }
+
+        /// <summary>
+        /// Can I get the unique ID of this keycard?
+        /// </summary>
+        /// <returns>
+        /// The unique id of this keycard
+        /// </returns>
+        public string GetUniqueId()
+        {
+            return this.uniqueID;
         }
 
         /// <summary>
@@ -79,7 +119,7 @@ namespace BDSA_Project_Authenticator
             {
                 sb.AppendLine("Index = " + element.Key.ToString("D4") + "  " + "key = " + element.Value.ToString("D6"));
             }
-            File.WriteAllText(@"C:\test\testFile.txt", sb.ToString() + this.GetKeyIndex());
+
             return sb.ToString();
         }
 
@@ -91,13 +131,11 @@ namespace BDSA_Project_Authenticator
         {
             Contract.Requires(this.KeysLeft() > 0);
             Contract.Ensures(this.KeysLeft() == Contract.OldValue(this.KeysLeft()));
-            uint currentIndex = this.currentIndex;
-            //// TODO: Set a new key if timeout or?
-            return currentIndex;
+            return this.currentIndex;
         }
 
         /// <summary>
-        /// TODO: Evauluate: maybe have a string return that auto formats to 4 digits?
+        /// TODO: So far no usages, remove?
         /// </summary>
         /// <returns>Returns the index of the key the user has to login as a formatted string </returns>
         [Pure]
@@ -121,11 +159,11 @@ namespace BDSA_Project_Authenticator
         {
             Contract.Ensures(Contract.Result<bool>() == (this.KeysLeft() == Contract.OldValue(this.KeysLeft() - 1)));
             //// Sets the key to be entered as the key corresponding to the current index value
-            uint keyToBeEntered = this.keyCollection[this.currentIndex];
+            var keyToBeEntered = this.keyCollection[this.currentIndex];
 
-            bool success = false;
+            var success = false;
 
-            //// Checks if the entered key corresponds to the expected key.
+            //// Checks if the entered key corresponds to the expected key, then discard key and find next index
             if (enteredKey.Equals(keyToBeEntered))
             {
                 this.RemoveKeyPair(this.currentIndex);
@@ -155,7 +193,7 @@ namespace BDSA_Project_Authenticator
             //// In order to not skew the results of the random number generation, 
             //// We need to specify the set of valid values, which is the maximum of values divded by the amount of accepted values (0-9)
             //// This is then the amount of valid sets.
-            uint fullSetOfValues = byte.MaxValue / highestValue;
+            var fullSetOfValues = byte.MaxValue / highestValue;
 
             return value < highestValue * fullSetOfValues;
         }
@@ -206,7 +244,7 @@ namespace BDSA_Project_Authenticator
                 var randomKeyIndex = new uint[4];
                 var randomKey = new uint[6];
 
-                for (int j = 0; j < 4; j++)
+                for (var j = 0; j < 4; j++)
                 {
                     randomKeyIndex[j] = GenerateRandomNumber(10);
                 }
@@ -216,10 +254,10 @@ namespace BDSA_Project_Authenticator
                     randomKey[k] = GenerateRandomNumber(10);
                 }
 
-                uint index =
+                var index =
                     uint.Parse(randomKeyIndex[0].ToString() + randomKeyIndex[1] + randomKeyIndex[2] + randomKeyIndex[3]);
 
-                uint key =
+                var key =
                     uint.Parse(randomKey[0].ToString() + randomKey[1] + randomKey[2] + randomKey[3] + randomKey[4] + randomKey[5]);
 
                 //// Careful only to add if the index is not already added.
@@ -239,13 +277,12 @@ namespace BDSA_Project_Authenticator
         /// </summary>
         private void SetNextKeyIndex()
         {
-
             Contract.Requires(this.KeysLeft() > 0);
             Contract.Ensures(Contract.OldValue(this.KeysLeft()) == this.KeysLeft());
             //// Contract.Ensures(this.GetKeyIndex() != Contract.OldValue(this.GetKeyIndex()));
 
             //// Generate a number between 0 and the amount of keys.
-            uint nextIndex = GenerateRandomNumber((byte)this.keyCollection.Count);
+            var nextIndex = GenerateRandomNumber((byte)this.keyCollection.Count);
 
             //// Copy the keys to an array
             var aux = new uint[this.keyCollection.Count];

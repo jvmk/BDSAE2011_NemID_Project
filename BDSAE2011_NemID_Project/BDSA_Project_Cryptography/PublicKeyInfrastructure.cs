@@ -10,25 +10,66 @@ namespace BDSA_Project_Cryptography
     using System.Diagnostics.Contracts;
     using System.IO;
     using System.Linq;
-    using System.Security.Cryptography;
-
+    
     /// <summary>
     /// TODO: Update summary.
     /// </summary>
     public static class PublicKeyInfrastructure
     {
         /// <summary>
-        /// A collection to store a unique ID corresponding to a specific key.
-        /// </summary>
-        private static Dictionary<string, byte[]> keyCollection = new Dictionary<string, byte[]>();
-
-        /// <summary>
         /// The path at which to store the collection of keys.
         /// </summary>
         private const string DatabasePath = @"C:\Test\PKIFile.bin";
 
         /// <summary>
-        /// Stores the specified public key in the PKI
+        /// A collection to store a unique ID corresponding to a specific key.
+        /// </summary>
+        private static Dictionary<string, byte[]> keyCollection = new Dictionary<string, byte[]>();
+
+        /// <summary>
+        /// Can I get the public key of this domain?
+        /// </summary>
+        /// <param name="uniqueIdentifier">The unique identifier for the domain</param>
+        /// <returns>the corresponding key for the domain</returns>
+        [Pure]
+        public static byte[] GetKey(string uniqueIdentifier)
+        {
+            Contract.Requires(uniqueIdentifier != null);
+            Contract.Requires(uniqueIdentifier != string.Empty);
+            Contract.Requires(ContainsKey(uniqueIdentifier));
+            keyCollection = ReadFromFile(DatabasePath);
+            return keyCollection[uniqueIdentifier];
+        }
+
+        /// <summary>
+        /// Does the PKI contain a key from this domain?
+        /// </summary>
+        /// <param name="uniqueIdentifier">the unique ID for the domain</param>
+        /// <returns>True if the key is present, otherwise false</returns>
+        [Pure]
+        public static bool ContainsKey(string uniqueIdentifier)
+        {
+            Contract.Requires(uniqueIdentifier != null);
+            Contract.Requires(uniqueIdentifier != string.Empty);
+            keyCollection = ReadFromFile(DatabasePath);
+            return keyCollection.ContainsKey(uniqueIdentifier);
+        }
+
+        /// <summary>
+        /// Does the PKI contain this key?
+        /// </summary>
+        /// <param name="publicKey">The key to check for</param>
+        /// <returns>returns true if the value exists in the PKI</returns>
+        [Pure]
+        public static bool ContainsValue(byte[] publicKey)
+        {
+            Contract.Requires(publicKey != null);
+            keyCollection = ReadFromFile(DatabasePath);
+            return keyCollection.ContainsValue(publicKey);
+        }
+
+        /// <summary>
+        /// Store this public key of this domain in the PKI.
         /// </summary>
         /// <param name="publicKey">
         /// The public Key.
@@ -52,31 +93,16 @@ namespace BDSA_Project_Cryptography
                 {
                     keyCollection.Add(uniqueIdentifier, publicKey);
                     success = true;
-                    //// Write the updated collection to path;
-                    WriteToFile(keyCollection, DatabasePath);
 
+                    WriteToFile(keyCollection, DatabasePath);
                 }
             }
+
             return success;
         }
 
         /// <summary>
-        /// Can I get the public key of this domain?
-        /// </summary>
-        /// <param name="uniqueIdentifier">The unique identifier for the domain</param>
-        /// <returns>the corresponding key for the domain</returns>
-        [Pure]
-        public static byte[] GetKey(string uniqueIdentifier)
-        {
-            Contract.Requires(uniqueIdentifier != null);
-            Contract.Requires(uniqueIdentifier != string.Empty);
-            Contract.Requires(ContainsKey(uniqueIdentifier));
-            //// Read the stored keyCollection from path;
-            return keyCollection[uniqueIdentifier];
-        }
-
-        /// <summary>
-        /// Removes the key from the PKI
+        /// Remove the public key of this domain from the PKI.
         /// </summary>
         /// <param name="uniqueIdentifier">The unique identifier for the domain</param>
         /// <returns>True if the key is removed, otherwise false</returns>
@@ -87,56 +113,27 @@ namespace BDSA_Project_Cryptography
             Contract.Requires(ContainsKey(uniqueIdentifier));
             Contract.Ensures(
                 Contract.Result<bool>() == (keyCollection.Count == Contract.OldValue(keyCollection.Count) - 1));
-            //// The key is required to be contained, thus no need for guard, thus write updated keyCollection to
-
-            return keyCollection.Remove(uniqueIdentifier);
+            if (keyCollection.Remove(uniqueIdentifier))
+            {
+                WriteToFile(keyCollection, DatabasePath);
+                return true;
+            }
+            
+            return false;
         }
 
         /// <summary>
-        /// Does this PKI contain a key from this domain?
-        /// </summary>
-        /// <param name="uniqueIdentifier">the unique ID for the domain</param>
-        /// <returns>True if the key is present, otherwise false</returns>
-        [Pure]
-        public static bool ContainsKey(string uniqueIdentifier)
-        {
-            Contract.Requires(uniqueIdentifier != null);
-            Contract.Requires(uniqueIdentifier != string.Empty);
-            //// Read possible updated file from path
-            keyCollection = ReadFromFile(DatabasePath);
-            return keyCollection.ContainsKey(uniqueIdentifier);
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="publicKey"></param>
-        /// <returns></returns>
-        public static bool ContainsValue(byte[] publicKey)
-        {
-            Contract.Requires(publicKey != null);
-            //// Read possible updated file from path
-            return keyCollection.ContainsValue(publicKey);
-        }
-
-        /// <summary>
-        /// Indicates if the passed byte[] represents a valid public key header
+        /// Does this key contain a valid public key header?
         /// </summary>
         /// <param name="keyBlob">The blob containing the key info</param>
         /// <returns>true if the blob has the signature of a public key blob</returns>
-        public static bool ValidKeyBlob(IEnumerable<byte> keyBlob)
+        [Pure]
+        public static bool ValidPublicKeyBlob(IEnumerable<byte> keyBlob)
         {
             byte[] publicKeyTemplate = { 6, 2, 0, 0, 0, 164, 0, 0, 82, 83, 65, 49, 0, 16, 0, 0, 1, 0, 1, 0 };
 
             //// Compare the first 20 elements of the keyBlob collection to the template and see if they matches
             return publicKeyTemplate.Take(20).SequenceEqual(keyBlob.Take(20));
-        }
-
-        [ContractInvariantMethod]
-        private static void PKIClassInvariant()
-        {
-            //// Each key must be unique
-            //// each identifier must be unique
         }
 
         /// <summary>
@@ -147,6 +144,8 @@ namespace BDSA_Project_Cryptography
         /// <param name="path">The path to write the path to</param>
         private static void WriteToFile(Dictionary<string, byte[]> dictionary, string path)
         {
+            Contract.Requires(dictionary != null);
+            Contract.Requires(!string.IsNullOrEmpty(path));
             using (FileStream fs = File.OpenWrite(path))
             using (var writer = new BinaryWriter(fs))
             {
@@ -170,14 +169,15 @@ namespace BDSA_Project_Cryptography
         /// <returns>The dictionary read from the file</returns>
         private static Dictionary<string, byte[]> ReadFromFile(string path)
         {
+            Contract.Requires(!string.IsNullOrEmpty(path));
             var result = new Dictionary<string, byte[]>();
             using (FileStream fs = File.OpenRead(path))
             using (var reader = new BinaryReader(fs))
             {
-                // Get count.
+                // Determine the amount of key value pairs to read.
                 int count = reader.ReadInt32();
 
-                // Read in all pairs.
+                // Read in all the pairs.
                 for (int i = 0; i < count; i++)
                 {
                     string key = reader.ReadString();
@@ -186,6 +186,26 @@ namespace BDSA_Project_Cryptography
                 }
             }
             return result;
+        }
+
+        /// <summary>
+        /// The class invariant for the PublicKeyInfrastructure class
+        /// </summary>
+        [ContractInvariantMethod]
+        private static void PKIClassInvariant()
+        {
+            
+            //// Each key must be unique
+            //// each identifier must be unique
+        }
+
+        /// <summary>
+        /// A helper method to 
+        /// </summary>
+        /// <returns></returns>
+        private static bool InvarianHelper()
+        {
+            return true;
         }
     }
 }

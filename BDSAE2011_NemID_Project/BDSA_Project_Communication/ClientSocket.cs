@@ -7,20 +7,17 @@
 namespace BDSA_Project_Communication
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics.Contracts;
     using System.IO;
     using System.Linq;
     using System.Net;
     using System.Text;
 
-    using BDSA_Project_Communication;
-
     using BDSA_Project_Cryptography;
 
     /// <summary>
     /// Data structure representing the properties of the 
-    /// http response message from the authenticator.
+    /// HTTP response message from the authenticator.
     /// </summary>
     public struct Response
     {
@@ -80,17 +77,19 @@ namespace BDSA_Project_Communication
         }
     }
 
-
     /// <summary>
     /// TODO: Update summary.
     /// </summary>
     public class ClientSocket
     {
         /// <summary>
-        /// Represents the non-validated connection to a server.
+        /// Represents the connection to a server.
         /// </summary>
-        private HttpWebRequest clientRequest = default(HttpWebRequest);
+        private HttpWebRequest clientRequest = null;
 
+        /// <summary>
+        /// The url of the server this client socket has connected to.
+        /// </summary>
         private readonly string serverDomain;
 
         /// <summary>
@@ -100,33 +99,41 @@ namespace BDSA_Project_Communication
         /// </summary>
         private readonly string clientIdentifier;
 
-        private bool haveSentMessage = false;
+        /// <summary>
+        /// The private key of the client.
+        /// </summary>
+        private readonly byte[] clientPrivateKey;
 
-        private byte[] clientPrivateKey;
+        /// <summary>
+        /// Indicated whether a message to the server has been sent.
+        /// </summary>
+        private bool haveSentMessage = false;
 
         /// <summary>
         /// Initializes a new instance of the ClientSocket class.
-        /// http://stackoverflow.com/questions/749030/keep-a-http-connection-alive-in-c
         /// </summary>
         /// <param name="serverDomain">
-        /// The domain of the server wished to connect to.
+        /// The URL of the server wished to connect to.
         /// </param>
-        /// <param name="port">
-        /// The port that is wished to connect to.
+        /// <param name="clientIdentifier">
+        /// The PKI-identifier of the client that uses the ClientSocket.
         /// </param>
         /// <param name="clientPrivateKey">
         /// The private key of the client that uses the ClientSocket.
         /// </param>
         public ClientSocket(string serverDomain, string clientIdentifier, byte[] clientPrivateKey)
         {
-            Contract.Requires(IsValidURL(serverDomain));
+            Contract.Requires(MessageProcessingUtility.IsValidUrl(serverDomain));
+            Contract.Requires(Cryptograph.KeyExists(clientIdentifier));
+            Contract.Requires(Cryptograph.CheckConsistency(clientPrivateKey, clientIdentifier));
+
             this.serverDomain = serverDomain;
             this.clientIdentifier = clientIdentifier;
             this.clientPrivateKey = clientPrivateKey;
         }
 
         /// <summary>
-        /// Sends an HTTP request message to the server domian requesting
+        /// Sends an HTTP request message to the server requesting
         /// the specified operation and supplying the specified message.
         /// </summary>
         /// <param name="operation">
@@ -156,6 +163,7 @@ namespace BDSA_Project_Communication
             // For this reason the client always must use the POST method.
             this.clientRequest.Method = "POST";
 
+            // Compile the message body of the HTTP request.
             string compiledMessageBody = this.CompileMessageBody(message);
             byte[] messageBytes = Encoding.UTF8.GetBytes(compiledMessageBody);
 
@@ -166,7 +174,6 @@ namespace BDSA_Project_Communication
 
             Stream dataStream = this.clientRequest.GetRequestStream();
             dataStream.Write(messageBytes, 0, messageBytes.Length);
-
             dataStream.Close();
 
             // Update the state of the socket.
@@ -177,7 +184,8 @@ namespace BDSA_Project_Communication
         /// Reads a message from the stream.
         /// </summary>
         /// <returns>
-        /// The message read from the stream.
+        /// A Response-struct representing properties of the 
+        /// HTTP message received from the server.
         /// </returns>
         public Response ReadMessage()
         {
@@ -209,6 +217,12 @@ namespace BDSA_Project_Communication
             // contain a return value.
             string returnValue = this.GetResponderReturnValue(rawMessageBody);
 
+            // If the returnValue is null, that message has been tangled with.
+            if (returnValue == null)
+            {
+                return new Response(false, string.Empty);
+            }
+
             // Update the state of the socket
             this.haveSentMessage = false;
 
@@ -218,29 +232,33 @@ namespace BDSA_Project_Communication
         }
 
         /// <summary>
-        /// Source: http://stackoverflow.com/questions/7578857/how-to-check-whether-a-string-is-a-valid-http-url
+        /// Has a message been sent with this socket?
+        /// When a message has been read, this method returns
+        /// false, and returns true again, when a new message
+        /// has been sent.
         /// </summary>
-        /// <param name="URL">
-        /// Stirng representation of the URL.
-        /// </param>
         /// <returns>
-        /// True if it is a valid URL, false otherwise.
+        /// True if a message has been sent, false otherwise.
         /// </returns>
-        [Pure]
-        public static bool IsValidURL(string URL)
-        {
-            Uri uri = new Uri(URL);
-            return Uri.TryCreate(URL, UriKind.Absolute, out uri) && uri.Scheme == Uri.UriSchemeHttp;
-        }
-
         [Pure]
         public bool HaveSentMessage()
         {
             return this.haveSentMessage;
         }
 
-        private string CompileMessageBody(String message)
+        /// <summary>
+        /// Compiles the message body of a HTTP message body 
+        /// containing the specified message.
+        /// </summary>
+        /// <param name="message">
+        /// The message to be compiled.
+        /// </param>
+        /// <returns>
+        /// Encrypted and well formed HTTP message body.
+        /// </returns>
+        private string CompileMessageBody(string message)
         {
+            Contract.Requires(message != null);
             Contract.Ensures(MessageProcessingUtility.IsRawMessageBodyWellFormed(Contract.Result<string>()));
 
             StringBuilder messageBody = new StringBuilder();
@@ -258,7 +276,7 @@ namespace BDSA_Project_Communication
             messageBody.Append(encMessage + "&");
 
             // Sign encMessage in client's private key.
-            string signedEncMessage = Cryptograph.SignData(encMessage, clientPrivateKey); // TODO client private key
+            string signedEncMessage = Cryptograph.SignData(encMessage, this.clientPrivateKey);
 
             messageBody.Append(signedEncMessage);
 
@@ -268,7 +286,9 @@ namespace BDSA_Project_Communication
         /// <summary>
         /// Gets the domain of the http-message received.
         /// </summary>
-        /// <param name="rawMessageBody"></param>
+        /// <param name="rawMessageBody">
+        /// The raw HTTP message body to be processed.
+        /// </param>
         /// <returns>
         /// String representation of the domain specified
         /// in the raw message body.
@@ -300,8 +320,14 @@ namespace BDSA_Project_Communication
         /// <summary>
         /// Gets the return value form the raw response message.
         /// </summary>
-        /// <param name="rawResponseMessage"></param>
-        /// <returns></returns>
+        /// <param name="rawResponseMessageBody">
+        /// The raw message body to be processed.
+        /// </param>
+        /// <returns>
+        /// The return value of the reponse.
+        /// Null if the processing of the raw HTTP message body failed, 
+        /// indicating that the message has been tangled with.
+        /// </returns>
         private string GetResponderReturnValue(string rawResponseMessageBody)
         {
             Contract.Requires(MessageProcessingUtility.IsRawMessageBodyWellFormed(rawResponseMessageBody));
@@ -323,9 +349,7 @@ namespace BDSA_Project_Communication
                     encMessageBody, Cryptograph.GetPublicKey(this.serverDomain));
             }
 
-            // TODO 
-            // The message has been tangled with:
-            throw new Exception();
+            return null;
         }
     }
 }

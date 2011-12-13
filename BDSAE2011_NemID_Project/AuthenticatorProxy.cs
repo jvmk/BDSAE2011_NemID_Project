@@ -6,11 +6,9 @@
 
 namespace BDSA_Project_Communication
 {
-    using System;
-    using System.Collections.Generic;
     using System.Diagnostics.Contracts;
-    using System.Linq;
-    using System.Text;
+
+    using BDSA_Project_Cryptography;
 
     /// <summary>
     /// TODO: Update summary.
@@ -24,11 +22,6 @@ namespace BDSA_Project_Communication
         private readonly ClientSocket socket;
 
         /// <summary>
-        /// The server domain of the server the client is connected to.
-        /// </summary>
-        private readonly string serverDomain;
-
-        /// <summary>
         /// string representation of the most recently received and
         /// processed server response.
         /// </summary>
@@ -40,16 +33,19 @@ namespace BDSA_Project_Communication
         /// <param name="serverDomain">
         /// The domain of the authenticator.
         /// </param>
-        /// <param name="serverName">
-        /// The authenticator's name as it appears on it certificate. // TODO SSL doesn't require this anymore.
+        /// <param name="clientIdentifier">
+        /// The PKI-identifier of the client using the proxy.
         /// </param>
         /// <param name="clientPrivateKey">
         /// The private key of the client.
         /// </param>
-        public AuthenticatorProxy(string serverDomain, string serverName, byte[] clientPrivateKey) // TODO servername must be removed.
+        public AuthenticatorProxy(string serverDomain, string clientIdentifier, byte[] clientPrivateKey)
         {
-            this.serverDomain = serverDomain;
-            this.socket = new ClientSocket(serverDomain, serverName, clientPrivateKey);
+            Contract.Requires(MessageProcessingUtility.IsValidUrl(serverDomain));
+            Contract.Requires(Cryptograph.KeyExists(clientIdentifier));
+            Contract.Requires(Cryptograph.CheckConsistency(clientPrivateKey, clientIdentifier));
+
+            this.socket = new ClientSocket(serverDomain, clientIdentifier, clientPrivateKey);
         }
 
         /// <summary>
@@ -69,11 +65,18 @@ namespace BDSA_Project_Communication
         /// True if the creation was successful at the authenticator,
         /// false otherwise.
         /// </returns>
-        public bool CreateUserAccount(string userName, string password, string cprNumber)
+        public bool CreateUserAccount(
+            string userName, string password, string cprNumber, string email)
         {
+            Contract.Requires(userName != null);
+            Contract.Requires(password != null);
+            Contract.Requires(cprNumber != null);
+            Contract.Requires(email != null);
+
             this.socket.SendMessage(
                 "createAccount",
-                "username=" + userName + "&password=" + password);
+                "username=" + userName + "&password=" + password +
+                "&cprnumber=" + cprNumber + "&email=" + email);
             this.currentServerResponse = this.socket.ReadMessage();
             return this.currentServerResponse.Accepted;
         }
@@ -93,6 +96,9 @@ namespace BDSA_Project_Communication
         /// </returns>
         public bool LogIn(string userName, string password)
         {
+            Contract.Requires(userName != null);
+            Contract.Requires(password != null);
+
             this.socket.SendMessage(
                 "login",
                 "userName=" + userName + ":" + "password=" + password);
@@ -111,7 +117,7 @@ namespace BDSA_Project_Communication
         /// </returns>
         public string GetKeyIndex()
         {
-            return this.ProcessReturnValueOf(this.currentServerResponse); // TODO process response.
+            return this.GetReturnValueOf(this.currentServerResponse);
         }
 
         /// <summary>
@@ -130,6 +136,9 @@ namespace BDSA_Project_Communication
         /// </returns>
         public bool SubmitKey(string keyValue, string userName)
         {
+            Contract.Requires(keyValue != null);
+            Contract.Requires(userName != null);
+
             this.socket.SendMessage(
                 "submitKey",
                 "keyValue=" + keyValue + "&" + "userName=" + userName);
@@ -149,8 +158,10 @@ namespace BDSA_Project_Communication
         /// <returns>
         /// True if the client can proceed, false otherwise.
         /// </returns>
-        public bool Proceed(string userName) // TODO user name as parameter?
+        public bool Proceed(string userName)
         {
+            Contract.Requires(userName != null);
+
             this.socket.SendMessage(
                 "proceed",
                 "userName=" + userName);
@@ -169,7 +180,7 @@ namespace BDSA_Project_Communication
         /// </returns>
         public string GetToken()
         {
-            return this.ProcessReturnValueOf(this.currentServerResponse);
+            return this.GetReturnValueOf(this.currentServerResponse);
         }
 
         /// <summary>
@@ -183,8 +194,10 @@ namespace BDSA_Project_Communication
         /// <returns>
         /// True if the abortion was accepted, false otherwise.
         /// </returns>
-        public bool Abort(string userName) // TODO user name as parameter?
+        public bool Abort(string userName)
         {
+            Contract.Requires(userName != null);
+
             this.socket.SendMessage(
                 "abort",
                 "userName=" + userName);
@@ -206,6 +219,8 @@ namespace BDSA_Project_Communication
         /// </returns>
         public bool RevokeUserAccount(string userName)
         {
+            Contract.Requires(userName != null);
+
             this.socket.SendMessage(
                 "revokeAccount",
                 "userName=" + userName);
@@ -217,14 +232,14 @@ namespace BDSA_Project_Communication
         /// Processes the specified string representation of a 
         /// http message.
         /// </summary>
-        /// <param name="messageBody">
-        /// Raw string representation of the http response message.
+        /// <param name="response">
+        /// The response containing a return value.
         /// </param>
         /// <returns>
-        /// A string constitution the return values of the authentication
+        /// A string constituting the return values of the authentication
         /// server.
         /// </returns>
-        private string ProcessReturnValueOf(Response response)
+        private string GetReturnValueOf(Response response)
         {
             Contract.Requires(response.Accepted);
 

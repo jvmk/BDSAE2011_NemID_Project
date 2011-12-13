@@ -16,7 +16,7 @@ namespace BDSA_Project_Communication
     using BDSA_Project_Cryptography;
 
     /// <summary>
-    /// TODO: Update summary.
+    /// HTTP message body processing utilities.
     /// </summary>
     public class MessageProcessingUtility
     {
@@ -34,6 +34,8 @@ namespace BDSA_Project_Communication
         /// </returns>
         public static string ReadFrom(Stream stream)
         {
+            Contract.Requires(stream != null);
+
             // Read the message sent by the client.
             byte[] buffer = new byte[2048];
             StringBuilder messageData = new StringBuilder();
@@ -59,12 +61,35 @@ namespace BDSA_Project_Communication
         /// <summary>
         /// Determines if he url contains a request parameter.
         /// </summary>
-        /// <param name="rawUrl"></param>
-        /// <returns></returns>
+        /// <param name="rawUrl">
+        /// Raw URL to be processed.
+        /// </param>
+        /// <returns>
+        /// True if the url contains a request, false otherwise.
+        /// </returns>
         [Pure]
         public static bool DoesUrlContainRequest(string rawUrl)
         {
+            Contract.Requires(IsValidUrl(rawUrl));
+
             return rawUrl.Contains("request=");
+        }
+
+        /// <summary>
+        /// Checks if the given url is a valid url.
+        /// Source: http://stackoverflow.com/questions/7578857/how-to-check-whether-a-string-is-a-valid-http-url
+        /// </summary>
+        /// <param name="url">
+        /// Stirng representation of the URL.
+        /// </param>
+        /// <returns>
+        /// True if it is a valid URL, false otherwise.
+        /// </returns>
+        [Pure]
+        public static bool IsValidUrl(string url)
+        {
+            Uri uri = new Uri(url);
+            return Uri.TryCreate(url, UriKind.Absolute, out uri) && uri.Scheme == Uri.UriSchemeHttp;
         }
 
         /// <summary>
@@ -91,15 +116,22 @@ namespace BDSA_Project_Communication
         }
 
         /// <summary>
-        /// 
+        /// Gets the requester domain specified in the given
+        /// raw HTTP message body.
         /// </summary>
-        /// <param name="rawMessageBody"></param>
+        /// <param name="rawMessageBody">
+        /// The raw HTTP message body to be processed.
+        /// </param>
+        /// <param name="serverPrivateKey">
+        /// The private key of the server.
+        /// </param>
         /// <returns>
-        /// Is encrypted
+        /// The requester's domain.
         /// </returns>
         public static string GetRequesterDomain(string rawMessageBody, byte[] serverPrivateKey)
         {
             Contract.Requires(IsRawMessageBodyWellFormed(rawMessageBody));
+            Contract.Requires(serverPrivateKey != null);
 
             int start = rawMessageBody.IndexOf("origin=") + "origin=".Length;
 
@@ -113,26 +145,40 @@ namespace BDSA_Project_Communication
         }
 
         /// <summary>
-        /// 
+        /// Gets the parameters in the specified raw HTTP message body.
+        /// If verification failed, returns null.
         /// </summary>
-        /// <param name="rawMessageBody"></param>
-        /// <param name="clientDomain">
+        /// <param name="rawMessageBody">
+        /// The raw HTTP message body to be processed.
+        /// </param>
+        /// <param name="clientIdentifier">
         /// The domain of the requester, who sent the original HTTP message.
         /// Used for verification of the signed message body part.
+        /// </param>
+        /// <param name="serverPrivateKey">
+        /// The private key of the server.
         /// </param>
         /// <returns>
         /// String representations of the parameters in the specified raw
         /// message body.
+        /// Returns null if the message body has been tangled with.
         /// </returns>
-        public static string[] GetRequesterParameters(string rawMessageBody, string clientDomain, byte[] serverPrivateKey)
+        public static string[] GetRequesterParameters(
+            string rawMessageBody, string clientIdentifier, byte[] serverPrivateKey)
         {
             Contract.Requires(IsRawMessageBodyWellFormed(rawMessageBody));
+            Contract.Requires(Cryptograph.KeyExists(clientIdentifier));
+            Contract.Requires(serverPrivateKey != null);
 
-            // Get string representation of the parameters to the requested operation
-            // invocation sent in the message.
+            string decryptedMessage = ProcessRequesterMessageData(rawMessageBody, clientIdentifier, serverPrivateKey);
 
-            Console.WriteLine("MessageBody: " + rawMessageBody);
-            string decryptedMessage = ProcessRequesterMessageData(rawMessageBody, clientDomain, serverPrivateKey);
+            // If the decrypted message is null, there are inconsistencies with the 
+            // provided client identifier, indicating that the message body has been
+            // tangled with.
+            if (decryptedMessage == null)
+            {
+                return null;
+            }
 
             // Process the decrypted messagebody to obtain parameters sent from
             // the client.
@@ -170,15 +216,25 @@ namespace BDSA_Project_Communication
 
         /// <summary>
         /// Helper method for GetParameters.
-        /// Get the data sent in the specified raw message body by verify
-        /// the signing and decrypting the message.
+        /// Gets the data sent in the specified raw message body by verifying
+        /// and decrypting the message.
         /// </summary>
-        /// <param name="rawMessageBody"></param>
-        /// <param name="clientDomain"></param>
+        /// <param name="rawMessageBody">
+        /// The raw http message body to be processed.
+        /// </param>
+        /// <param name="clientIdentifier">
+        /// The unique identifier of the key.
+        /// </param>
+        /// <param name="serverPrivateKey">
+        /// The private key of the server.
+        /// </param>
         /// <returns>
         /// The decrypted messagebody.
+        /// Returns null if the verification or decryption of
+        /// the message failed, indicating wrong client identifier.
         /// </returns>
-        private static string ProcessRequesterMessageData(string rawMessageBody, string clientDomain, byte[] serverPrivateKey) // TODO client unique identifier.
+        private static string ProcessRequesterMessageData(
+            string rawMessageBody, string clientIdentifier, byte[] serverPrivateKey)
         {
             Contract.Requires(IsRawMessageBodyWellFormed(rawMessageBody));
 
@@ -194,7 +250,7 @@ namespace BDSA_Project_Communication
             string signedEncMessageBody = parts[2];
 
             bool verified = Cryptograph.VerifyData(
-                encMessageBody, signedEncMessageBody, Cryptograph.GetPublicKey(clientDomain));
+                encMessageBody, signedEncMessageBody, Cryptograph.GetPublicKey(clientIdentifier));
 
             if (verified)
             {
@@ -202,14 +258,12 @@ namespace BDSA_Project_Communication
                     encMessageBody, serverPrivateKey);
             }
 
-            // TODO way to end?
-            // The message has been tangled with:
-            throw new Exception();
+            return null;
         }
 
         /// <summary>
         /// Determines if the specified raw message body of an HTTP message
-        /// is well formed as defined in the http message structure text. // TODO done?
+        /// is well formed as defined in the README. // TODO done?
         /// </summary>
         /// <param name="rawMessageBody">
         /// The string representing a raw HTTP message body.
@@ -262,6 +316,9 @@ namespace BDSA_Project_Communication
             return isWellFormed;
         }   // TODO VERIFIED.
 
+        /// <summary>
+        /// Set of all the characters that is in the base64 encoding.
+        /// </summary>
         private static readonly HashSet<char> Base64Characters = new HashSet<char>() 
             { 
                 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 
@@ -273,9 +330,16 @@ namespace BDSA_Project_Communication
 
         /// <summary>
         /// Helper method for IsRawMessageBodyWellFormed.
+        /// Determines if the passed string only contains base64
+        /// characters.
         /// </summary>
-        /// <param name="testString"></param>
-        /// <returns></returns>
+        /// <param name="testString">
+        /// The string to be tested.
+        /// </param>
+        /// <returns>
+        /// True if the test string only contains characters in 
+        /// the base64 encoding, false otherwise.
+        /// </returns>
         [Pure]
         private static bool IsBase64String(string testString)
         {
@@ -286,6 +350,5 @@ namespace BDSA_Project_Communication
 
             return true;
         }  // TODO VERIFIED.
-
     }
 }
