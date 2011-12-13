@@ -12,8 +12,11 @@ namespace BDSA_Project_Authenticator
     {
         /// <summary>
         /// Represents the underlying database where user information is stored.
+        /// The key is the user name and the UserAccount is the account associated
+        /// with that user.
         /// </summary>
-        private Dictionary<string, UserAccount> database = new Dictionary<string, UserAccount>(); // the string is the username for the associated useraccount
+        private Dictionary<string, UserAccount> database =
+            new Dictionary<string, UserAccount>();
 
         /// <summary>
         /// A set of URIs that this authenticator trusts.
@@ -21,11 +24,17 @@ namespace BDSA_Project_Authenticator
         private HashSet<string> trustedThirdPartyURIs = new HashSet<string>();
 
         /// <summary>
+        /// 
+        /// </summary>
+        private string fileLocation = @".\";
+
+        /// <summary>
         /// Initializes a new instance of the Authenticator class.
         /// </summary>
         public Authenticator()
         {
-            // TODO load persisted data (database).
+            // Add a test user. For demonstration purposed only.
+            this.AddNewUser("testUser", "password", "010101-0101", "testUser@nemId.dk");
         }
 
         /// <summary>
@@ -98,7 +107,7 @@ namespace BDSA_Project_Authenticator
         /// <param name="password">The password for the new user account.</param>
         /// <param name="cprNumber">The CPR number of this user.</param>
         /// <returns>True if the user is successfully added to the database. False if the username is already taken.</returns>
-        public bool AddNewUser(string username, string password, string cprNumber)
+        public bool AddNewUser(string username, string password, string cprNumber, string email)
         {
             Contract.Requires(!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password) && !string.IsNullOrWhiteSpace(cprNumber));
             Contract.Ensures(this.IsUserInDatabase(username));
@@ -107,7 +116,7 @@ namespace BDSA_Project_Authenticator
                 return false;
             }
 
-            this.database.Add(username, new UserAccount(username, password, cprNumber));
+            this.database.Add(username, new UserAccount(username, password, cprNumber, email));
             this.SendKeyCardToUser(username); // Simulate that the keycard is send by snail mail
             return true;
         }
@@ -142,8 +151,12 @@ namespace BDSA_Project_Authenticator
         {
             Contract.Requires(this.IsUserInDatabase(username));
             string keycardPrint = this.database[username].Keycard.ToString();
+            if (!Directory.Exists(this.fileLocation))
+            {
+                Directory.CreateDirectory(this.fileLocation);
+            }
             File.WriteAllText(
-                @"C:\" + username +
+                fileLocation + username +
                 this.database[username].Keycard.GetKeyCardNumber() +
                 ".txt",
                 keycardPrint);
