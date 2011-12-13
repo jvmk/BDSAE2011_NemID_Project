@@ -165,7 +165,7 @@ namespace BDSA_Project_Authenticator
         [ContractInvariantMethod]
         private void AuthenticatorInvariant()
         {
-            // It must hold that the username used to look up a user account is equal to the username registered with that useraccount
+            // It must hold that the username used to look up a user account is equal to the username registered in that useraccount
             Contract.Invariant(Contract.ForAll<string>(this.database.Keys, k => this.database[k].Username.Equals(k)));
             Contract.Invariant(Contract.ForAll<string>(this.database.Keys, k => !string.IsNullOrWhiteSpace(k)));
         }

@@ -68,10 +68,12 @@
             public void RunServer()
             {
                 this.server.Start(); // start the server
+                Console.WriteLine(".Start() called on ThirdPartyServer...");
 
                 // Run forever
                 while (true)
                 {
+                    Console.WriteLine("ThirdPartyServer is now listening for request... (entered GetContext loop).");
                     HttpListenerContext hlc = this.server.GetContext(); // blocking call
                     HttpListenerRequest request = hlc.Request;
                     HttpListenerResponse response = hlc.Response;

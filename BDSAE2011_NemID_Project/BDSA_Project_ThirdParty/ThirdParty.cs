@@ -86,5 +86,13 @@ namespace BDSA_Project_ThirdParty
 
             this.users[username].SetAuthToken(authToken);
         }
+
+        [ContractInvariantMethod]
+        private void ThirdPartyContract()
+        {
+            // It must hold that the username used to look up a user account is equal to the username registered in that useraccount
+            Contract.Invariant(Contract.ForAll<string>(this.users.Keys, k => this.users[k].Username.Equals(k)));
+            Contract.Invariant(Contract.ForAll<string>(this.users.Keys, k => !string.IsNullOrWhiteSpace(k)));
+        }
     }
 }
