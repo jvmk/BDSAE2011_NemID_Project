@@ -20,24 +20,49 @@ namespace BDSA_Project_GUI
         /// </summary>
         private string username;
 
-        private AuthenticatorProxy auth;
+        /// <summary>
+        /// The AuthenticatorProxy instance used during the whole
+        /// authentication session for communication between the client and
+        /// the authenticator.
+        /// </summary>
+        private AuthenticatorProxy authenticatorProxy;
 
-        private ThirdPartyHttpGenerator tp;
+        /// <summary>
+        /// The ThirdPartyHttpGenerator instance used during the 
+        /// authentication session for communication between the client and
+        /// the third party.
+        /// </summary>
+        private ThirdPartyHttpGenerator thirdPartyProxy;
 
-        public NemIdLoggedIn(AuthenticatorProxy auth, ThirdPartyHttpGenerator tp, string username)
+        /// <summary>
+        /// Initializes a new instance of the NemIdLoggedIn class.
+        /// </summary>
+        /// <param name="authenticatorProxy">
+        /// The authenticatorProxy instance used by the client during 
+        /// the whole auhtentication process.
+        /// </param>
+        /// <param name="thirdPartyProxy">
+        /// The ThirdPartyHTTPGenerator instance user by the client
+        /// during the whole authentication process.
+        /// </param>
+        /// <param name="username">
+        /// The user name used of the autentication session.
+        /// </param>
+        public NemIdLoggedIn(
+            AuthenticatorProxy authenticatorProxy, ThirdPartyHttpGenerator thirdPartyProxy, string username)
         {
             InitializeComponent();
-            this.auth = auth;
-            this.tp = tp;
+            this.authenticatorProxy = authenticatorProxy;
+            this.thirdPartyProxy = thirdPartyProxy;
             this.username = username;
         }
 
         private void ContinueToExternalSiteButton_Click(object sender, EventArgs e)
         {
-            bool proceedOk = this.auth.Proceed(this.username);
+            bool proceedOk = this.authenticatorProxy.Proceed(this.username);
             if (proceedOk)
             {
-                string token = this.auth.GetToken();
+                string token = this.authenticatorProxy.GetToken();
                 bool authWithTpOk = tp.SubmitUserToken(username, token);
                 if (authWithTpOk)
                 {
@@ -55,7 +80,7 @@ namespace BDSA_Project_GUI
         {
             if (MessageBox.Show("Delete user?", "Delete user", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
-                this.auth.RevokeUserAccount(this.username);
+                this.authenticatorProxy.RevokeUserAccount(this.username);
                 Application.Exit();
             }
         }
