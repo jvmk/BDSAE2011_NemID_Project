@@ -8,6 +8,8 @@ namespace BDSA_Project_Communication
 {
     using System.Diagnostics.Contracts;
 
+    using BDSA_Project_Cryptography;
+
     /// <summary>
     /// TODO: Update summary.
     /// </summary>
@@ -39,6 +41,10 @@ namespace BDSA_Project_Communication
         /// </param>
         public AuthenticatorProxy(string serverDomain, string clientIdentifier, byte[] clientPrivateKey)
         {
+            Contract.Requires(MessageProcessingUtility.IsValidUrl(serverDomain));
+            Contract.Requires(Cryptograph.KeyExists(clientIdentifier));
+            Contract.Requires(Cryptograph.CheckConsistency(clientPrivateKey, clientIdentifier));
+
             this.socket = new ClientSocket(serverDomain, clientIdentifier, clientPrivateKey);
         }
 
@@ -62,6 +68,11 @@ namespace BDSA_Project_Communication
         public bool CreateUserAccount(
             string userName, string password, string cprNumber, string email)
         {
+            Contract.Requires(userName != null);
+            Contract.Requires(password != null);
+            Contract.Requires(cprNumber != null);
+            Contract.Requires(email != null);
+
             this.socket.SendMessage(
                 "createAccount",
                 "username=" + userName + "&password=" + password +
@@ -85,6 +96,9 @@ namespace BDSA_Project_Communication
         /// </returns>
         public bool LogIn(string userName, string password)
         {
+            Contract.Requires(userName != null);
+            Contract.Requires(password != null);
+
             this.socket.SendMessage(
                 "login",
                 "userName=" + userName + ":" + "password=" + password);
@@ -122,6 +136,9 @@ namespace BDSA_Project_Communication
         /// </returns>
         public bool SubmitKey(string keyValue, string userName)
         {
+            Contract.Requires(keyValue != null);
+            Contract.Requires(userName != null);
+
             this.socket.SendMessage(
                 "submitKey",
                 "keyValue=" + keyValue + "&" + "userName=" + userName);
@@ -143,6 +160,8 @@ namespace BDSA_Project_Communication
         /// </returns>
         public bool Proceed(string userName)
         {
+            Contract.Requires(userName != null);
+
             this.socket.SendMessage(
                 "proceed",
                 "userName=" + userName);
@@ -177,6 +196,8 @@ namespace BDSA_Project_Communication
         /// </returns>
         public bool Abort(string userName)
         {
+            Contract.Requires(userName != null);
+
             this.socket.SendMessage(
                 "abort",
                 "userName=" + userName);
@@ -198,6 +219,8 @@ namespace BDSA_Project_Communication
         /// </returns>
         public bool RevokeUserAccount(string userName)
         {
+            Contract.Requires(userName != null);
+
             this.socket.SendMessage(
                 "revokeAccount",
                 "userName=" + userName);

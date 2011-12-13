@@ -123,28 +123,13 @@ namespace BDSA_Project_Communication
         /// </param>
         public ClientSocket(string serverDomain, string clientIdentifier, byte[] clientPrivateKey)
         {
-            Contract.Requires(IsValidUrl(serverDomain));
+            Contract.Requires(MessageProcessingUtility.IsValidUrl(serverDomain));
+            Contract.Requires(Cryptograph.KeyExists(clientIdentifier));
+            Contract.Requires(Cryptograph.CheckConsistency(clientPrivateKey, clientIdentifier));
 
             this.serverDomain = serverDomain;
             this.clientIdentifier = clientIdentifier;
             this.clientPrivateKey = clientPrivateKey;
-        }
-
-        /// <summary>
-        /// Is this URL valid?
-        /// Source: http://stackoverflow.com/questions/7578857/how-to-check-whether-a-string-is-a-valid-http-url
-        /// </summary>
-        /// <param name="url">
-        /// Stirng representation of the URL.
-        /// </param>
-        /// <returns>
-        /// True if it is a valid URL, false otherwise.
-        /// </returns>
-        [Pure]
-        public static bool IsValidUrl(string url)
-        {
-            Uri uri = new Uri(url);
-            return Uri.TryCreate(url, UriKind.Absolute, out uri) && uri.Scheme == Uri.UriSchemeHttp;
         }
 
         /// <summary>

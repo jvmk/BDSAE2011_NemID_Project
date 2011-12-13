@@ -21,12 +21,15 @@ namespace BDSA_Project_Authenticator
     /// </summary>
     public struct Request
     {
+        /// <summary>
+        /// The raw URL that this request originated from.
+        /// </summary>
         private string rawUrl;
 
         /// <summary>
         /// PKI-identifier of the client.
         /// </summary>
-        private string requesterDomain;
+        private string requesterIdentifier;
 
         /// <summary>
         /// Represents the requested operation of the parameters for
@@ -52,10 +55,10 @@ namespace BDSA_Project_Authenticator
         /// string representation of the requested operation's
         /// parameters.
         /// </param>
-        public Request(string rawUrl, string requesterDomain, string requestedOperation, string[] parameters)
+        public Request(string rawUrl, string requesterIdentifier, string requestedOperation, string[] parameters)
         {
             this.rawUrl = rawUrl;
-            this.requesterDomain = requesterDomain;
+            this.requesterIdentifier = requesterIdentifier;
             this.requestedOperation = requestedOperation;
             this.parameters = parameters;
         }
@@ -72,7 +75,7 @@ namespace BDSA_Project_Authenticator
         {
             get
             {
-                return this.requesterDomain;
+                return this.requesterIdentifier;
             }
         }
 
@@ -145,7 +148,8 @@ namespace BDSA_Project_Authenticator
         /// </param>
         public AuthenticatorServer(string authenticatorDomain, byte[] authenticatorPrivateKey)
         {
-            Contract.Requires(IsValidUrl(authenticatorDomain));
+            Contract.Requires(MessageProcessingUtility.IsValidUrl(authenticatorDomain));
+            Contract.Requires(authenticatorPrivateKey != null);
 
             this.authenticatorDomain = authenticatorDomain;
             this.authenticatorPrivateKey = authenticatorPrivateKey;
@@ -154,23 +158,6 @@ namespace BDSA_Project_Authenticator
 
             // Generate a public/private key pair
             // this.authenticatorPrivateKey = Cryptograph.GenerateKeys(this.authenticatorDomain);
-        }
-
-        /// <summary>
-        /// Checks if the given url is a valid url.
-        /// Source: http://stackoverflow.com/questions/7578857/how-to-check-whether-a-string-is-a-valid-http-url
-        /// </summary>
-        /// <param name="url">
-        /// Stirng representation of the URL.
-        /// </param>
-        /// <returns>
-        /// True if it is a valid URL, false otherwise.
-        /// </returns>
-        [Pure]
-        public static bool IsValidUrl(string url)
-        {
-            Uri uri = new Uri(url);
-            return Uri.TryCreate(url, UriKind.Absolute, out uri) && uri.Scheme == Uri.UriSchemeHttp;
         }
 
         /// <summary>
