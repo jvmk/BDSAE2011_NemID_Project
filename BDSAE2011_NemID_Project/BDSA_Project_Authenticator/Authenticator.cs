@@ -34,7 +34,7 @@ namespace BDSA_Project_Authenticator
         /// <param name="username">Username to look up.</param>
         /// <returns>True if the username is registered in the database, false otherwise.</returns>
         [Pure]
-        private bool IsUserInDatabase(string username)
+        public bool IsUserInDatabase(string username)
         {
             Contract.Requires(!string.IsNullOrWhiteSpace(username));
             return this.database.ContainsKey(username);
@@ -44,7 +44,7 @@ namespace BDSA_Project_Authenticator
         /// Get all the user names of the users current
         /// registered in the authenticator's database.
         /// </summary>
-        /// <returns></returns>
+        /// <returns>An array respresentation of all user names in the database.</returns>
         public string[] GetAllUsers()
         {
             string[] keysArray = new string[this.database.Count];

@@ -48,14 +48,14 @@ namespace BDSA_Project_GUI
                 // Get entered text
                 string username = UsernameTextbox.Text;
 
-                // Encrypt text
-                string encryptedUsername = Cryptograph.Encrypt(username, PublicKeyInfrastructure.GetKey(ThirdPartyMainUri));
+                // Encrypt text in 3rd party public key
+                string encryptedUsername = Cryptograph.Encrypt(username, PublicKeyInfrastructure.GetKey(StringData.ThirdUri));
 
                 // convert encrypted text to bytes
                 byte[] buf = Encoding.UTF8.GetBytes(encryptedUsername);
 
                 // Get a request
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(ThirdPartyMainUri + "request=loginpage"); // TODO update to correct https URI
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(StringData.ThirdUri + "request=loginpage"); // TODO update to correct https URI
                 request.Method = "POST";
                 Stream output = request.GetRequestStream();
 
