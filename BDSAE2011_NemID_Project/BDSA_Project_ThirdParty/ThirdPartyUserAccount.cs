@@ -46,6 +46,17 @@ namespace BDSA_Project_ThirdParty
         }
 
         /// <summary>
+        /// Gets the username of this user.
+        /// </summary>
+        internal string Username
+        {
+            get
+            {
+                return this.username;
+            }
+        }
+
+        /// <summary>
         /// Sets the authenticator token (nonce) and sets the time of this update.
         /// </summary>
         /// <param name="token">The new value of the authenticator token (nonce).</param>
