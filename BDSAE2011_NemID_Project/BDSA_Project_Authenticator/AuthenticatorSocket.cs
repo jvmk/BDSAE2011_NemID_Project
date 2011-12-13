@@ -168,7 +168,7 @@ namespace BDSA_Project_Authenticator
         public void Start()
         {
             this.server.Start();
-            Console.WriteLine("Server is listening");
+            Console.WriteLine("Authenticator server is listening for client requests.");
         }
 
         /// <summary>
@@ -195,15 +195,18 @@ namespace BDSA_Project_Authenticator
             Contract.Ensures(this.HasReadHappened());
 
             this.currentListenerContext = this.server.GetContext();
-            Console.WriteLine("Server received client request.");
             HttpListenerRequest request = this.currentListenerContext.Request;
 
             // Get the raw url of the requst:
             string rawUrl = request.RawUrl;
 
+            Console.WriteLine("Server received client request, url: " + rawUrl);
+
             // Get the raw messageBody of the HTTP request message.
             Stream requestDataStream = request.InputStream;
             string rawMessageBody = MessageProcessingUtility.ReadFrom(requestDataStream);
+
+            Console.WriteLine("The raw message body of the request is: \n" + rawMessageBody);
 
             // Get requester's domain.
             string requesterDomain = MessageProcessingUtility.GetRequesterDomain(
@@ -224,6 +227,7 @@ namespace BDSA_Project_Authenticator
 
             // Return a Request struct containing the properties just
             // achieved.
+
             return new Request(rawUrl, requesterDomain, requestedOperation, parameters);
         }
 
@@ -266,9 +270,9 @@ namespace BDSA_Project_Authenticator
 
                 output = responseMessage.OutputStream;
                 byte[] messageBodyBytes = Encoding.UTF8.GetBytes("origin=" + encOrigin);
-                Console.WriteLine("Server responding to client request.");
                 output.Write(messageBodyBytes, 0, messageBodyBytes.Length);
-
+                Console.WriteLine("Server sent response to client request: " + request.RequesterDomain +
+                    "\nResponding to request with the url: " + request.RawUrl);
                 output.Close();
                 return;
             }
@@ -293,9 +297,11 @@ namespace BDSA_Project_Authenticator
 
             byte[] compiledMessageBytes = Encoding.UTF8.GetBytes(compiledMessage);
 
-            Console.WriteLine("Server responding to client request.");
             output = responseMessage.OutputStream;
             output.Write(compiledMessageBytes, 0, compiledMessageBytes.Length);
+
+            Console.WriteLine("Server sent response to client: " + request.RequesterDomain +
+                "\nResponding to request with the url: " + request.RawUrl);
 
             output.Close();
             responseMessage.Close(); // TODO ADDED

@@ -151,9 +151,11 @@ namespace BDSA_Project_Communication
             Contract.Requires(!this.HaveSentMessage());
             Contract.Ensures(this.HaveSentMessage());
 
-            Console.WriteLine("Client sending message.");
+            string requestUrl = this.serverDomain + "request=" + operation + "/";
 
-            this.clientRequest = (HttpWebRequest)WebRequest.Create(this.serverDomain + "request=" + operation + "/");
+            this.clientRequest = (HttpWebRequest)WebRequest.Create(requestUrl);
+
+            Console.WriteLine("Client sends message to server, url: " + requestUrl);
 
             // request.Credentials = CredentialCache.DefaultCredentials; // TODO remove?
             // ((HttpWebRequest)request).UserAgent = "AuthenticationSerivce";
@@ -165,6 +167,9 @@ namespace BDSA_Project_Communication
 
             // Compile the message body of the HTTP request.
             string compiledMessageBody = this.CompileMessageBody(message);
+
+            Console.Write("HTTP request message body is: \n" + compiledMessageBody);
+
             byte[] messageBytes = Encoding.UTF8.GetBytes(compiledMessageBody);
 
             this.clientRequest.ContentLength = messageBytes.Length;
@@ -193,6 +198,9 @@ namespace BDSA_Project_Communication
             Contract.Ensures(!this.HaveSentMessage());
 
             HttpWebResponse response = (HttpWebResponse)this.clientRequest.GetResponse();
+
+            Console.WriteLine("Client received response from server.");
+            Console.WriteLine("Processing response...");
 
             // The HTTP status code indicates whether the request was 
             // accepted by the server. If the codes is anything other than
