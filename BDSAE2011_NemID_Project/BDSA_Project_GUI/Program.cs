@@ -7,6 +7,8 @@ namespace BDSA_Project_GUI
 {
     using System.IO;
 
+    using BDSA_Project_Communication;
+
     using BDSA_Project_Cryptography;
 
     static class Program
@@ -24,7 +26,7 @@ namespace BDSA_Project_GUI
             byte[] testUserPrivateKey = Cryptograph.GenerateKeys("testUser@nemId.dk");
 
             // Write the private key to the execution path.
-            File.WriteAllBytes(@"C:\Users\Kenneth88\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\testUserPrivateKey.bin", testUserPrivateKey);
+            File.WriteAllBytes(StringData.filePath + "testUserPrivateKey.bin", testUserPrivateKey);
 
             Console.WriteLine("Test user generated, launching application.");
 

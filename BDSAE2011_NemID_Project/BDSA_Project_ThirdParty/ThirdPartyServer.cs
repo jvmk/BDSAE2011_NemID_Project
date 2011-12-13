@@ -34,11 +34,6 @@ namespace BDSA_Project_ThirdParty
         private readonly StringCollection subpagesForPost = new StringCollection();
 
         /// <summary>
-        /// The URI of the trusted authenticator.
-        /// </summary>
-        private static readonly string AUTH_URI = "https://localhost:8081/"; // TODO agree on this address
-
-        /// <summary>
         /// Represents the ThirdParty backend database
         /// </summary>
         private ThirdParty database = new ThirdParty();
@@ -49,7 +44,7 @@ namespace BDSA_Project_ThirdParty
         /// Initializes a new instance of the ThirdPartyServer class.
         /// Protocol cannot be specified since a server of this type should always use https.
         /// </summary>
-        /// <param name="fullURI">The full URI for this server. Should be of the form "https://localhost:8080/".</param>
+        /// <param name="fullURI">The full URI for this server.</param>
         /// <param name="serversPrivateKey">The private key of this server.</param>
         public ThirdPartyServer(string fullURI, byte[] serversPrivateKey)
         {
@@ -58,7 +53,7 @@ namespace BDSA_Project_ThirdParty
             string serverAddress = fullURI; // TODO update to https after testing!!!
             this.server.Prefixes.Add(serverAddress);
 
-            this.subpagesForPost.AddRange(new[] { "/request=loginpage", "/request=usertoken", "/request=authtoken" });
+            this.subpagesForPost.AddRange(new[] { "/request=loginpage", "/request=usertoken/", "/request=authtoken/" });
         }
 
 
@@ -253,11 +248,11 @@ namespace BDSA_Project_ThirdParty
 
             switch (urlForPost)
             {
-                case @"/request=authtoken":
+                case @"/request=authtoken/":
                     Console.WriteLine("Processing /request=authtoken request with username=" + inputValues[0] + " and token value=" + inputValues[1]);
                     this.AnswerAuthtokenPost(response, rawMessageBody, inputValues[0], inputValues[1]); // index 0 is username, index 1 is token
                     break;
-                case @"/request=usertoken":
+                case @"/request=usertoken/":
                     Console.WriteLine("Processing /request=usertoken request with username=" + inputValues[0] + " and token value=" + inputValues[1]);
                     this.AnswerUsertokenPost(response, inputValues[0], inputValues[1]); // index 0 is username, index 1 is token
                     break;
@@ -297,6 +292,8 @@ namespace BDSA_Project_ThirdParty
             Contract.Requires(!ReferenceEquals(httpMessageBody, null));
             Contract.Requires(!ReferenceEquals(expectedPkiId, null));
             string senderPkiId = MessageProcessingUtility.GetRequesterDomain(httpMessageBody, this.serversPrivateKey);
+
+
             if (ReferenceEquals(senderPkiId, null) || !senderPkiId.Equals(expectedPkiId))
             {
                 // Origin is not determable or not equal to expected origin
@@ -307,8 +304,10 @@ namespace BDSA_Project_ThirdParty
             string actualMessage = httpMessageBody.Substring(0, httpMessageBody.LastIndexOf('&'));
 
             // Get the message signature
+            int start = httpMessageBody.LastIndexOf('&') + 1;
+            int end = httpMessageBody.Length;
             string signedMessage = httpMessageBody.Substring(
-                httpMessageBody.LastIndexOf('&') + 1, httpMessageBody.Length - 1);
+               start, end - start);
 
             // verify data with sender's public key
             return Cryptograph.VerifyData(actualMessage, signedMessage, Cryptograph.GetPublicKey(expectedPkiId));

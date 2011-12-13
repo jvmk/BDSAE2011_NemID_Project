@@ -9,6 +9,11 @@
 
     namespace Sample
     {
+        /// <summary>
+        /// http://www.dacris.com/blog/2010/07/31/c-serializable-dictionary-a-working-example/
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TVal"></typeparam>
         [Serializable()]
         public class SerializableDictionary<TKey, TVal> : Dictionary<TKey, TVal>, IXmlSerializable, ISerializable
         {

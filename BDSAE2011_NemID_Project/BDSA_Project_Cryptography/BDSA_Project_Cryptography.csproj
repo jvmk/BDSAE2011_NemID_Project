@@ -43,6 +43,8 @@
     <Compile Include="Cryptograph.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="PublicKeyInfrastructure.cs" />
+    <Compile Include="SerializableDictionary.cs" />
+    <Compile Include="StringData.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

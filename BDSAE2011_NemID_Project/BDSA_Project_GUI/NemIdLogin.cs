@@ -89,8 +89,8 @@
             if (loginAccept)
             {
                 string keyIndexLabelText = authenticatorProxy.GetKeyIndex();
-                this.ParentForm.Controls.Clear();
-                this.ParentForm.Controls.Add(new NemIdEnterKeyValue(authenticatorProxy, tp, keyIndexLabelText, username));
+                Application.OpenForms[0].Controls.Clear();
+                Application.OpenForms[0].Controls.Add(new NemIdEnterKeyValue(authenticatorProxy, tp, keyIndexLabelText, username));
             }
             else
             {

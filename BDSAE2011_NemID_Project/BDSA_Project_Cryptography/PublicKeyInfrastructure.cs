@@ -14,6 +14,7 @@ namespace BDSA_Project_Cryptography
     using System.Runtime.Serialization.Formatters.Binary;
 
     using BDSA_Project_Cryptography.Sample;
+    using BDSA_Project_Communication;
 
     /// <summary>
     /// TODO: Update summary.
@@ -23,7 +24,7 @@ namespace BDSA_Project_Cryptography
         /// <summary>
         /// The path at which to store the collection of keys.
         /// </summary>
-        private const string DatabasePath = @"C:\Users\Kenneth88\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\PKIFile.bin"; // TODO hardcoded.
+        private static string DatabasePath = StringData.filePath + "PKIFile.bin";
 
         /// <summary>
         /// A collection to store a unique ID corresponding to a specific key.

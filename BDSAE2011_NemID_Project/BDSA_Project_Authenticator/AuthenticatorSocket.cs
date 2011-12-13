@@ -201,6 +201,7 @@ namespace BDSA_Project_Authenticator
             string rawUrl = request.RawUrl;
 
             Console.WriteLine("Server received client request, url: " + rawUrl);
+            Console.WriteLine("url: " + request.Url);
 
             // Get the raw messageBody of the HTTP request message.
             Stream requestDataStream = request.InputStream;

@@ -110,7 +110,7 @@ namespace BDSA_Project_Communication
 
             this.socket.SendMessage(
                 "login",
-                "userName=" + userName + ":" + "password=" + password);
+                "userName=" + userName + "&" + "password=" + password);
             this.currentServerResponse = this.socket.ReadMessage();
 
             Console.WriteLine("The log-in request at the authenticator was accepted: " +

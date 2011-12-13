@@ -216,7 +216,7 @@ namespace BDSA_Project_Communication
             // If true we are certain the response came from the authenticator. // TODO really?
             bool originMatch = this.serverDomain.Equals(responderDomain);
 
-            if (!(acceptedRequest && originMatch))
+            if (!acceptedRequest)
             {
                 return new Response(false, string.Empty);
             }
@@ -312,7 +312,7 @@ namespace BDSA_Project_Communication
             int end = -1;
             if (rawMessageBody.Contains('&'))
             {
-                end = rawMessageBody.IndexOf('&') - 1;
+                end = rawMessageBody.IndexOf('&');
             }
             else
             {
@@ -354,7 +354,7 @@ namespace BDSA_Project_Communication
             if (verified)
             {
                 return Cryptograph.Decrypt(
-                    encMessageBody, Cryptograph.GetPublicKey(this.serverDomain));
+                    encMessageBody, clientPrivateKey);
             }
 
             return null;

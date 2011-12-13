@@ -47,8 +47,8 @@ namespace BDSA_Project_GUI
 
             if (validKey)
             {
-                this.ParentForm.Controls.Clear();
-                this.ParentForm.Controls.Add(new NemIdLoggedIn(auth, tp, username));
+                Application.OpenForms[0].Controls.Clear();
+                Application.OpenForms[0].Controls.Add(new NemIdLoggedIn(auth, tp, username));
             }
             else
             {

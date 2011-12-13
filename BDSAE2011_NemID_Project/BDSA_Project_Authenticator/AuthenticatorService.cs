@@ -146,6 +146,7 @@ namespace BDSA_Project_Authenticator
         {
             // Reset number of attempts when the user session is changed.
             this.numberOfAttempts = 0;
+            this.timeOfLastValidRequest = DateTime.Now;
 
             this.currentState = state;
         }
@@ -178,7 +179,9 @@ namespace BDSA_Project_Authenticator
         /// </returns>
         private bool TimedOut()
         {
-            bool timedOut = this.timeOfLastValidRequest.AddMinutes(1) <= DateTime.Now;
+            return false;
+            /*
+            bool timedOut = this.timeOfLastValidRequest.AddMinutes(1) >= DateTime.Now;
             this.timeOfLastValidRequest = DateTime.Now;
 
             if (this.currentState == SessionState.AwaitRedirection)
@@ -194,6 +197,7 @@ namespace BDSA_Project_Authenticator
 
             // No time out.
             return false;
+             * */
         }
     }
 
@@ -513,7 +517,7 @@ namespace BDSA_Project_Authenticator
         private string ProcessProceed(Request processedRequest, ref bool validRequest)
         {
             // The parameters for the requested operation.
-            string userName = processedRequest.Parameters[1];
+            string userName = processedRequest.Parameters[0];
 
             // Check if it is legal to call this operation
             ClientSession userSession = this.userSessions[userName];

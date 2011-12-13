@@ -187,7 +187,7 @@ namespace BDSA_Project_Communication
 
             int currentIndex = 0;
 
-            for (int i = 1; i < numberOfParameters; i++)
+            for (int i = 0; i < numberOfParameters; i++)
             {
                 int s = decryptedMessage.IndexOf('=', currentIndex) + 1;
                 Console.WriteLine(s);
