@@ -26,14 +26,15 @@ namespace BDSA_Project_Authenticator
         /// <summary>
         /// 
         /// </summary>
-        private string fileLocation = @"C:\Authenticator\";
+        private string fileLocation = @".\";
 
         /// <summary>
         /// Initializes a new instance of the Authenticator class.
         /// </summary>
         public Authenticator()
         {
-            // TODO load persisted data (database).
+            // Add a test user. For demonstration purposed only.
+            this.AddNewUser("testUser", "password", "010101-0101", "testUser@nemId.dk");
         }
 
         /// <summary>

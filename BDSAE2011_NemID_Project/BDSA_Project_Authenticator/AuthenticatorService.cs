@@ -381,6 +381,7 @@ namespace BDSA_Project_Authenticator
                 return;
             }
 
+
             // Retrieve the third party domain in the raw url.
             start = rawUrl.LastIndexOf("3rd=") + "3rd=".Length;         // TODO validated
             end = rawUrl.Length;
