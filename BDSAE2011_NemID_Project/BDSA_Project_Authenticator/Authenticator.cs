@@ -5,6 +5,8 @@ namespace BDSA_Project_Authenticator
     using System.Diagnostics.Contracts;
     using System.IO;
 
+    using BDSA_Project_Communication;
+
     /// <summary>
     /// The backend database of the authenticator. Stores user accounts.
     /// </summary>
@@ -35,6 +37,7 @@ namespace BDSA_Project_Authenticator
         {
             // Add a test user. For demonstration purposed only.
             this.AddNewUser("testUser", "password", "010101-0101", "testUser@nemId.dk");
+            this.trustedThirdPartyURIs.Add(StringData.ThirdUri);
         }
 
         /// <summary>

@@ -346,7 +346,7 @@ namespace BDSA_Project_Authenticator
 
             // Sign the message with the authenticator's private key.
             string signedMessage = Cryptograph.SignData(
-                message, Cryptograph.GetPublicKey(request.RequesterDomain));
+                message, this.authenticatorPrivateKey);
 
             byte[] compiledMessageBytes = Encoding.UTF8.GetBytes(signedMessage);
 

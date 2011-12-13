@@ -137,7 +137,7 @@ namespace BDSA_Project_Communication
 
             // Get the index of the last character i in the encrypted domain
             // string:
-            int end = rawMessageBody.IndexOf('&') - 1;
+            int end = rawMessageBody.IndexOf('&');
 
             // This string is encrypted in the authenticator's public key.
             string encRequesterDomain = rawMessageBody.Substring(start, end - start);
@@ -239,6 +239,11 @@ namespace BDSA_Project_Communication
             Contract.Requires(IsRawMessageBodyWellFormed(rawMessageBody));
 
             string[] parts = rawMessageBody.Split('&');
+
+            for (int i = 0; i < 3; i++)
+            {
+                Console.WriteLine("Parameter " + i + ": " + parts[i]);
+            }
 
             // encMessageBody is encrypted in the authenticator's public
             // key. This text represents the text that is signed by the

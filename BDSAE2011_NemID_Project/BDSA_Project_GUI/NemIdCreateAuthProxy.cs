@@ -70,8 +70,11 @@ namespace BDSA_Project_GUI
                 {
                     this.auth = new AuthenticatorProxy(StringData.AuthUri, keyPkiIdTextBox.Text, privateKey);
                     this.tp = new ThirdPartyHttpGenerator(StringData.ThirdUri, keyPkiIdTextBox.Text, privateKey);
-                    this.ParentForm.Controls.Clear();
-                    this.ParentForm.Controls.Add(new NemIdLogin(this.auth, this.tp, username));
+                    Application.OpenForms[0].Controls.Clear();
+                    // this.ParentForm.Controls.Clear();
+                    Console.WriteLine(Application.OpenForms[0].Controls);
+
+                    Application.OpenForms[0].Controls.Add(new NemIdLogin(this.auth, this.tp, username));
                 }
                 else
                 {
