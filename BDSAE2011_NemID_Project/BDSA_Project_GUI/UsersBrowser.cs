@@ -40,40 +40,59 @@ namespace BDSA_Project_GUI
             InitializeComponent();
         }
 
-
+        /// <summary>
+        /// This method is called, when the login button on the third party
+        /// login screen is pressed.
+        /// </summary>
+        /// <param name="sender">
+        /// The sender object
+        /// </param>
+        /// <param name="e">
+        /// Arguments associated with the event.
+        /// </param>
         private void danskeBankLoginButton_Click(object sender, EventArgs e)
         {
             if (!string.IsNullOrEmpty(UsernameTextbox.Text)) // Establish connection to authenticator by creating a new AuthenticatorProxy
             {
-                // Get entered text
+                // Get entered user name
                 string username = UsernameTextbox.Text;
 
-                // Encrypt text
+                // Encrypt user name in thirds party's public key.
                 string encryptedUsername = Cryptograph.Encrypt(username, PublicKeyInfrastructure.GetKey(ThirdPartyMainUri));
 
-                // convert encrypted text to bytes
+                // Convert encrypted text to bytes.
                 byte[] buf = Encoding.UTF8.GetBytes(encryptedUsername);
 
-                // Get a request
+                // Create a request.
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(ThirdPartyMainUri + "request=loginpage"); // TODO update to correct https URI
                 request.Method = "POST";
                 Stream output = request.GetRequestStream();
 
-                // Write to 
+                // Write the encrypted user name to the request.
                 output.Write(buf, 0, buf.Length);
 
-                // Send the request and get the response
+                // Send the request and get the response.
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+
+                // If the response was accepted (the third has the user name in it's database)...
                 if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    // sucessfully redirected to authenticator login
+                    // ...redirect client to authenticator login screen.
                     this.Controls.Clear(); // reset window
                     this.Controls.Add(new NemIdCreateAuthProxy(username)); // go to nem id login screen
                 }
+                // If the request was not successful...
                 else
                 {
+                    // ...print an error message.
                     errorMessage.Text = "Username not found.";
                 }
+            }
+            // If the user input was not valid...
+            else
+            {
+                // ...print an error message.
+                errorMessage.Text = "No value inserted.";
             }
         }
     }

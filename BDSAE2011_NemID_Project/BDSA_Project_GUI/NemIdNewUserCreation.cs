@@ -87,6 +87,12 @@ namespace BDSA_Project_GUI
             }
         }
 
+        /// <summary>
+        /// When the "Cancel"-button is pressed, this method is 
+        /// invoked.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void AbortButton_Click(object sender, EventArgs e)
         {
             Application.Exit();
