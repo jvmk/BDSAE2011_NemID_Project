@@ -58,7 +58,7 @@
                 string serverAddress = fullURI; // TODO update to https after testing!!!
                 this.server.Prefixes.Add(serverAddress);
                 
-                this.subpagesForPost.AddRange(new[] { @"/request=usertoken", @"/request=authtoken" });
+                this.subpagesForPost.AddRange(new[] { "/request=loginpage", "/request=usertoken", "/request=authtoken" });
             }
 
 
@@ -75,12 +75,20 @@
                     HttpListenerContext hlc = this.server.GetContext(); // blocking call
                     HttpListenerRequest request = hlc.Request;
                     HttpListenerResponse response = hlc.Response;
+                    
                     Console.WriteLine(
                         "SSL connection between 3rd Party and Client established: "
                         + request.IsSecureConnection);
                     Console.WriteLine("<ThirdPartyServer>: User authenticated: " + request.IsAuthenticated);
+                    
                     string requestMethod = request.HttpMethod;
                     
+                    Console.WriteLine("HTTP request to " + this.server.Prefixes.First() + " recieved.");
+                    Console.WriteLine("Request method: " + requestMethod + " to resource " + request.RawUrl);
+                    Console.WriteLine("--- REQUEST MESSAGE BODY BEGINS: ---");
+                    Console.WriteLine(this.GetPostString(hlc));
+                    Console.WriteLine("--- REQUEST MESSAGE BODY ENDS ---");
+
                     // Let request method specify action
                     switch (requestMethod) 
                     {
@@ -97,21 +105,12 @@
                             }
                             else
                             {
+                                Console.WriteLine("Processing the POST request...");
                                 this.ProcessIncomingPost(hlc);
+                                Console.WriteLine("POST request processed!");
                             }
 
                             break;
-                            //string postData = this.GetPostString(hlc); // read the posted input
-                            //if (string.IsNullOrWhiteSpace(postData))
-                            //{
-                                // not a valid request, do nothing
-                            //    break;
-                            //}
-                            //else
-                            //{
-                             //   this.ProcessIncomingPost(hlc);
-                              //  break;
-                            //}
 
                         default:
                             // Reply that an error has occured: http method was not supported
@@ -240,13 +239,16 @@
                 switch (urlForPost)
                 {
                     case @"/request=authtoken":
+                        Console.WriteLine("Processing /request=authtoken request with username=" + inputValues[0] + " and token value=" + inputValues[1]);
                         this.AnswerAuthtokenPost(response, rawMessageBody, inputValues[0], inputValues[1]); // index 0 is username, index 1 is token
                         break;
                     case @"/request=usertoken":
+                        Console.WriteLine("Processing /request=usertoken request with username=" + inputValues[0] + " and token value=" + inputValues[1]);
                         this.AnswerUsertokenPost(response, inputValues[0], inputValues[1]); // index 0 is username, index 1 is token
                         break;
                     default:
                         // Resource either not found or not meant for posting
+                        Console.WriteLine("Requested resource not found.");
                         response.StatusCode = 404; // Status code: NOT FOUND
                         response.StatusDescription = "Resource does either not exist or is not accepting POST messages.";
                         break;
