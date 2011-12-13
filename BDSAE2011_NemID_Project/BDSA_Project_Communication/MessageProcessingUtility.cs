@@ -16,7 +16,7 @@ namespace BDSA_Project_Communication
     using BDSA_Project_Cryptography;
 
     /// <summary>
-    /// TODO: Update summary.
+    /// HTTP message body processing utilities.
     /// </summary>
     public class MessageProcessingUtility
     {
@@ -34,6 +34,8 @@ namespace BDSA_Project_Communication
         /// </returns>
         public static string ReadFrom(Stream stream)
         {
+            Contract.Requires(stream != null);
+
             // Read the message sent by the client.
             byte[] buffer = new byte[2048];
             StringBuilder messageData = new StringBuilder();
@@ -68,7 +70,26 @@ namespace BDSA_Project_Communication
         [Pure]
         public static bool DoesUrlContainRequest(string rawUrl)
         {
+            Contract.Requires(IsValidUrl(rawUrl));
+
             return rawUrl.Contains("request=");
+        }
+
+        /// <summary>
+        /// Checks if the given url is a valid url.
+        /// Source: http://stackoverflow.com/questions/7578857/how-to-check-whether-a-string-is-a-valid-http-url
+        /// </summary>
+        /// <param name="url">
+        /// Stirng representation of the URL.
+        /// </param>
+        /// <returns>
+        /// True if it is a valid URL, false otherwise.
+        /// </returns>
+        [Pure]
+        public static bool IsValidUrl(string url)
+        {
+            Uri uri = new Uri(url);
+            return Uri.TryCreate(url, UriKind.Absolute, out uri) && uri.Scheme == Uri.UriSchemeHttp;
         }
 
         /// <summary>
@@ -110,6 +131,7 @@ namespace BDSA_Project_Communication
         public static string GetRequesterDomain(string rawMessageBody, byte[] serverPrivateKey)
         {
             Contract.Requires(IsRawMessageBodyWellFormed(rawMessageBody));
+            Contract.Requires(serverPrivateKey != null);
 
             int start = rawMessageBody.IndexOf("origin=") + "origin=".Length;
 
@@ -145,6 +167,8 @@ namespace BDSA_Project_Communication
             string rawMessageBody, string clientIdentifier, byte[] serverPrivateKey)
         {
             Contract.Requires(IsRawMessageBodyWellFormed(rawMessageBody));
+            Contract.Requires(Cryptograph.KeyExists(clientIdentifier));
+            Contract.Requires(serverPrivateKey != null);
 
             string decryptedMessage = ProcessRequesterMessageData(rawMessageBody, clientIdentifier, serverPrivateKey);
 
