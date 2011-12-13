@@ -40,7 +40,9 @@
         /// The ThirdPartyHTTPGenerator instance user by the client
         /// during the whole authentication process.
         /// </param>
-        /// <param name="thirdPartyUsername"></param>
+        /// <param name="thirdPartyUsername">
+        /// The user name entered at the third party login page.
+        /// </param>
         public NemIdLogin(
             AuthenticatorProxy authenticatorProxy, ThirdPartyHttpGenerator thirdParty, string thirdPartyUsername)
         {
