@@ -20,22 +20,6 @@ namespace BDSA_Project_Cryptography
     public static class Cryptograph
     {
         /// <summary>
-        /// Is this public key valid?
-        /// </summary>
-        /// <param name="uniqueIdentifier">
-        /// The unique ID of the domain of the key
-        /// </param>
-        /// <returns>
-        /// True if the public key is deemed valid, otherwise false
-        /// </returns>
-        public static bool IsValid(string uniqueIdentifier)
-        {
-            //// Have this method in the PKI solely?
-            Contract.Requires(uniqueIdentifier != null);
-            return PublicKeyInfrastructure.ContainsKey(uniqueIdentifier);
-        }
-
-        /// <summary>
         /// Can I have the public key of this domain?
         /// </summary>
         /// <param name="uniqueIdentifier">
@@ -46,13 +30,23 @@ namespace BDSA_Project_Cryptography
         /// </returns>
         public static byte[] GetPublicKey(string uniqueIdentifier)
         {
-            //// Again, should this just be in the PKI?
             Contract.Requires(uniqueIdentifier != null);
             return PublicKeyInfrastructure.GetKey(uniqueIdentifier);
         }
 
         /// <summary>
-        /// Encrypt this message using this key
+        /// Does this key exist in the PKI?
+        /// </summary>
+        /// <param name="uniqueIdentifier">The unique ID of the public key</param>
+        /// <returns>returns true if the PKI contains the key</returns>
+        public static bool KeyExists(string uniqueIdentifier)
+        {
+            Contract.Requires(uniqueIdentifier != null);
+            return PublicKeyInfrastructure.ContainsKey(uniqueIdentifier); //// TODO: Update bon
+        }
+
+        /// <summary>
+        /// Encrypt this message using this public key
         /// </summary>
         /// <param name="messageToEncrypt">
         /// The data To Encrypt.
@@ -65,10 +59,11 @@ namespace BDSA_Project_Cryptography
         /// </returns>
         public static string Encrypt(string messageToEncrypt, byte[] publicKeyInfo)
         {
-            Contract.Requires(PublicKeyInfrastructure.ContainsValue(publicKeyInfo)); //// Add to bon?
-            Contract.Requires(messageToEncrypt != null);
+            Contract.Requires(PublicKeyInfrastructure.ContainsValue(publicKeyInfo)); //// TODO Add to bon?
             Contract.Requires(publicKeyInfo != null);
-            Contract.Requires(messageToEncrypt != string.Empty);
+            Contract.Requires(string.IsNullOrEmpty(messageToEncrypt));
+            Contract.Ensures(!Contract.Result<string>().Equals(messageToEncrypt)); ////TODO possible null?
+            
 
             //// Our bytearray to hold all of our data after the encryption
             byte[] encryptedBytes;
@@ -126,7 +121,7 @@ namespace BDSA_Project_Cryptography
         }
 
         /// <summary>
-        /// Decrypt this message using this key
+        /// Decrypt this message using this private key
         /// </summary>
         /// <param name="dataToDecrypt">
         /// The data To decrypt.
@@ -141,6 +136,7 @@ namespace BDSA_Project_Cryptography
         {
             Contract.Requires(dataToDecrypt != null);
             Contract.Requires(privateKeyInfo != null);
+            Contract.Ensures(!Contract.Result<string>().Equals(dataToDecrypt)); // TODO possible null?
             //// The bytearray to hold all of our data after decryption
             byte[] decryptedBytes;
 
@@ -197,46 +193,6 @@ namespace BDSA_Project_Cryptography
         }
 
         /// <summary>
-        /// Generate public-private key pair.
-        /// </summary>
-        /// <param name="uniqueIdentifier">
-        /// For a client this could be his/hers username or e-mail, for the server this could be its domain. Used to identify the public key.
-        /// </param>
-        /// <returns>
-        /// The generated private key, the public key is automatically stored in the PKI
-        /// </returns>
-        public static byte[] GenerateKeys(string uniqueIdentifier)
-        {
-            Contract.Requires(uniqueIdentifier != string.Empty);
-            byte[] privateKeyBlob;
-
-            using (var rsa = new RSACryptoServiceProvider(4096))
-            {
-                try
-                {
-                    byte[] publicKey = rsa.ExportCspBlob(false);
-
-                    privateKeyBlob = rsa.ExportCspBlob(true);
-
-                    //// Store the key as an xml string along with the unique id in the PKI.
-                    PublicKeyInfrastructure.StoreKey(publicKey, uniqueIdentifier);
-                }
-                catch (CryptographicException e)
-                {
-                    Console.Write(e.Message);
-                    return null;
-                }
-                finally
-                {
-                    //// Clear the RSA key container, deleting generated keys.
-                    rsa.PersistKeyInCsp = false;
-                }
-            }
-
-            return privateKeyBlob;
-        }
-
-        /// <summary>
         /// Sign this message, using this private key.
         /// </summary>
         /// <param name="message">
@@ -252,6 +208,7 @@ namespace BDSA_Project_Cryptography
         {
             Contract.Requires(message != string.Empty);
             Contract.Requires(privateKey != null);
+
             //// The array to store the signed message in bytes
             byte[] signedBytes;
             using (var rsa = new RSACryptoServiceProvider())
@@ -284,7 +241,7 @@ namespace BDSA_Project_Cryptography
         }
 
         /// <summary>
-        /// This method is used to verify the authenticity of a message sent by an entity.
+        /// Verify the signature of this message using this key.
         /// </summary>
         /// <param name="originalMessage">
         /// The original message.
@@ -325,15 +282,59 @@ namespace BDSA_Project_Cryptography
                 }
             }
         }
+        
+        /// <summary>
+        /// Generate a hash based upon this string.
+        /// </summary>
+        /// <param name="uniqueId">A unique parameter to hash</param>
+        /// <returns>The hashed value of the string</returns>
+        public static string GenerateSHA2Hash(string uniqueId)
+        {
+            byte[] dataToHash = Convert.FromBase64String(uniqueId);
+
+            var sha = new SHA512Managed();
+
+            return Convert.ToBase64String(sha.ComputeHash(dataToHash));
+        }
 
         /// <summary>
-        /// Ask the PKI if the given uniqueID corresponds to a valid public key
+        /// Generate a public-private key pair.
         /// </summary>
-        /// <param name="uniqueIdentifier">The unique ID of the public key</param>
-        /// <returns>returns true if the PKI contains the key</returns>
-        public static bool KeyExists(string uniqueIdentifier)
+        /// <param name="uniqueIdentifier">
+        /// For a client this could be his/hers username or e-mail, for the server this could be its domain. Used to identify the public key.
+        /// </param>
+        /// <returns>
+        /// The generated private key, the public key is automatically stored in the PKI
+        /// </returns>
+        public static byte[] GenerateKeys(string uniqueIdentifier)
         {
-            return PublicKeyInfrastructure.ContainsKey(uniqueIdentifier); //// TODO: Update bon
+            Contract.Requires(uniqueIdentifier != string.Empty);
+            byte[] privateKeyBlob;
+
+            using (var rsa = new RSACryptoServiceProvider(4096))
+            {
+                try
+                {
+                    byte[] publicKey = rsa.ExportCspBlob(false);
+
+                    privateKeyBlob = rsa.ExportCspBlob(true);
+
+                    //// Store the key as an xml string along with the unique id in the PKI.
+                    PublicKeyInfrastructure.StoreKey(publicKey, uniqueIdentifier);
+                }
+                catch (CryptographicException e)
+                {
+                    Console.Write(e.Message);
+                    return null;
+                }
+                finally
+                {
+                    //// Clear the RSA key container, deleting generated keys.
+                    rsa.PersistKeyInCsp = false;
+                }
+            }
+
+            return privateKeyBlob;
         }
 
         /// <summary>
@@ -360,7 +361,7 @@ namespace BDSA_Project_Cryptography
         }
 
         /// <summary>
-        /// Upload public key to public key repository.
+        /// Upload this public key to the public key repository.
         /// </summary>
         /// <param name="publicKey">
         /// The public Key.
