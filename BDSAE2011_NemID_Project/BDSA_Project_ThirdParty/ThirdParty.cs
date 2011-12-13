@@ -33,12 +33,17 @@ namespace BDSA_Project_ThirdParty
         /// Add a new user to the database.
         /// </summary>
         /// <param name="username">The new users username.</param>
-        internal void AddUserAccount(string username)
+        internal bool AddUserAccount(string username)
         {
             Contract.Requires(!ReferenceEquals(username, null));
-            Contract.Requires(!this.users.ContainsKey(username));
             Contract.Ensures(this.users.ContainsKey(username));
+            if (this.users.ContainsKey(username))
+            {
+                return false;
+            }
+
             this.users.Add(username, new ThirdPartyUserAccount(username));
+            return true;
         }
 
         /// <summary>
@@ -75,16 +80,17 @@ namespace BDSA_Project_ThirdParty
         /// </summary>
         /// <param name="username">username to identify the target account.</param>
         /// <param name="authToken">The value to update the authenticator token with.</param>
-        internal void SetAuthTokenForAccount(string username, string authToken)
+        internal bool SetAuthTokenForAccount(string username, string authToken)
         {
             Contract.Requires(!ReferenceEquals(username, null));
             Contract.Requires(!ReferenceEquals(authToken, null));
             if (!this.users.ContainsKey(username))
             {
-                return;
+                return false;
             }
 
             this.users[username].SetAuthToken(authToken);
+            return true;
         }
 
         [ContractInvariantMethod]
