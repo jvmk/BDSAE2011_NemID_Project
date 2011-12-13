@@ -6,6 +6,7 @@
 
 namespace BDSA_Project_Communication
 {
+    using System;
     using System.Diagnostics.Contracts;
 
     using BDSA_Project_Cryptography;
@@ -73,11 +74,17 @@ namespace BDSA_Project_Communication
             Contract.Requires(cprNumber != null);
             Contract.Requires(email != null);
 
+            Console.WriteLine("Client initiates createUserAccount-request to authenticator.");
+
             this.socket.SendMessage(
                 "createAccount",
                 "username=" + userName + "&password=" + password +
                 "&cprnumber=" + cprNumber + "&email=" + email);
             this.currentServerResponse = this.socket.ReadMessage();
+
+            Console.WriteLine("The createUserAccount-request at the authenticator was accepted: " +
+                currentServerResponse.Accepted);
+
             return this.currentServerResponse.Accepted;
         }
 
@@ -99,10 +106,16 @@ namespace BDSA_Project_Communication
             Contract.Requires(userName != null);
             Contract.Requires(password != null);
 
+            Console.WriteLine("Client initiates login-request to authenticator.");
+
             this.socket.SendMessage(
                 "login",
                 "userName=" + userName + ":" + "password=" + password);
             this.currentServerResponse = this.socket.ReadMessage();
+
+            Console.WriteLine("The log-in request at the authenticator was accepted: " +
+                currentServerResponse.Accepted);
+
             return this.currentServerResponse.Accepted;
         }
 
@@ -139,10 +152,16 @@ namespace BDSA_Project_Communication
             Contract.Requires(keyValue != null);
             Contract.Requires(userName != null);
 
+            Console.WriteLine("Client initiates subitKey-request to authenticator.");
+
             this.socket.SendMessage(
                 "submitKey",
                 "keyValue=" + keyValue + "&" + "userName=" + userName);
             this.currentServerResponse = this.socket.ReadMessage();
+
+            Console.WriteLine("The submitKey-request at the authenticator was accepted: " +
+                currentServerResponse.Accepted);
+
             return this.currentServerResponse.Accepted;
         }
 

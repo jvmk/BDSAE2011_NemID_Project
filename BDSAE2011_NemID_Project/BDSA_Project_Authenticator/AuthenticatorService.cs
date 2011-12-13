@@ -281,6 +281,7 @@ namespace BDSA_Project_Authenticator
                 if (processedRequest.Parameters == null)
                 {
                     // ... the request in invalid.
+                    Console.WriteLine("Client request processed with success: " + validRequest);
                     Console.WriteLine("Server is responding to: " + processedRequest.RequesterDomain);
                     this.serverSocket.SendMessage(processedRequest, validRequest, httpResponseMessageBody);
                     continue;
@@ -290,6 +291,7 @@ namespace BDSA_Project_Authenticator
                 if (!this.supportedOperations.Contains(processedRequest.RequestedOperation))
                 {
                     // If it does not, respond to the requester with a negative response
+                    Console.WriteLine("Client request processed with success: " + validRequest);
                     Console.WriteLine("Server is responding to: " + processedRequest.RequesterDomain);
                     this.serverSocket.SendMessage(processedRequest, validRequest, httpResponseMessageBody);
                     continue;
@@ -326,7 +328,8 @@ namespace BDSA_Project_Authenticator
                         httpResponseMessageBody = validRequest ? "revokeAccount=true" : string.Empty;
                         goto default;
                     default:
-                        Console.WriteLine("Server is responding");
+                        Console.WriteLine("Client request processed with success: " + validRequest);
+                        Console.WriteLine("Server is responding to: " + processedRequest.RequesterDomain);
                         this.serverSocket.SendMessage(processedRequest, validRequest, httpResponseMessageBody);
                         break;
                 }
