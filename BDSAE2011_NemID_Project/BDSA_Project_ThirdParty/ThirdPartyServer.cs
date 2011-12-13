@@ -34,11 +34,6 @@ namespace BDSA_Project_ThirdParty
         private readonly StringCollection subpagesForPost = new StringCollection();
 
         /// <summary>
-        /// The URI of the trusted authenticator.
-        /// </summary>
-        private static readonly string AUTH_URI = "https://localhost:8081/"; // TODO agree on this address
-
-        /// <summary>
         /// Represents the ThirdParty backend database
         /// </summary>
         private ThirdParty database = new ThirdParty();
