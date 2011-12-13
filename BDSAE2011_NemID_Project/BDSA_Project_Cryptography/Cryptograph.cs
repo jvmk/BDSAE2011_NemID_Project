@@ -28,6 +28,7 @@ namespace BDSA_Project_Cryptography
         /// <returns>
         /// The public key from the PKI belonging to the unique domain
         /// </returns>
+        [Pure]
         public static byte[] GetPublicKey(string uniqueIdentifier)
         {
             Contract.Requires(uniqueIdentifier != null);
@@ -208,6 +209,7 @@ namespace BDSA_Project_Cryptography
         {
             Contract.Requires(message != string.Empty);
             Contract.Requires(privateKey != null);
+            Contract.Ensures(!Contract.Result<string>().Equals(message)); // TODO Possible null
 
             //// The array to store the signed message in bytes
             byte[] signedBytes;
@@ -260,6 +262,10 @@ namespace BDSA_Project_Cryptography
             Contract.Requires(originalMessage != null);
             Contract.Requires(signedMessage != null);
             Contract.Requires(publicKey != null);
+            // require the key exists in PKI???
+            // TODO: Verify this? Require that input is not equal? makes no sense to compare then.
+            Contract.Requires(!originalMessage.Equals(signedMessage));
+            Contract.Requires(PublicKeyInfrastructure.ValidPublicKeyBlob(publicKey)); // TODO add to bon
             using (var rsa = new RSACryptoServiceProvider())
             {
                 var encoder = new UTF8Encoding();
@@ -290,6 +296,8 @@ namespace BDSA_Project_Cryptography
         /// <returns>The hashed value of the string</returns>
         public static string GenerateSHA2Hash(string uniqueId)
         {
+            Contract.Requires(!string.IsNullOrEmpty(uniqueId));
+            Contract.Ensures(!Contract.Result<string>().Equals(uniqueId)); // TODO possible null?
             byte[] dataToHash = Convert.FromBase64String(uniqueId);
 
             var sha = new SHA512Managed();
@@ -338,29 +346,6 @@ namespace BDSA_Project_Cryptography
         }
 
         /// <summary>
-        /// This method tests if the private key info and the public key connected to the unique ID
-        /// can be used to encrypt and decrypt text message and thus if the keys are part of the same keypair.
-        /// </summary>
-        /// <param name="privateKey">
-        /// The privateKey
-        /// </param>
-        /// <param name="publicKeyIdentifier">
-        /// The public Key Identifier.
-        /// </param>
-        /// <returns>
-        /// Returns true if the keyValuePair matches, otherwise false
-        /// </returns>
-        public static bool CheckConsistency(byte[] privateKey, string publicKeyIdentifier)
-        {
-            const string TestMessage = "encrypt and decrypt this";
-
-            //// Encrypt and decrypt info, fetching the public key information from the PKI
-            string result = Decrypt(Encrypt(TestMessage, PublicKeyInfrastructure.GetKey(publicKeyIdentifier)), privateKey);
-
-            return result.Equals(TestMessage);
-        }
-
-        /// <summary>
         /// Upload this public key to the public key repository.
         /// </summary>
         /// <param name="publicKey">
@@ -374,9 +359,40 @@ namespace BDSA_Project_Cryptography
         /// </returns>
         public static bool PublishKey(byte[] publicKey, string uniqueIdentifier)
         {
-            Contract.Requires(publicKey[0] == 0x06);
+            Contract.Requires(PublicKeyInfrastructure.ValidPublicKeyBlob(publicKey));
             Contract.Requires(publicKey != null || uniqueIdentifier != null);
+            Contract.Ensures(Contract.Result<bool>() == PublicKeyInfrastructure.ContainsKey(uniqueIdentifier)); // TODO no true? if publishKey already contained, then contract fails, remove or make check for contains?
             return PublicKeyInfrastructure.StoreKey(publicKey, uniqueIdentifier);
+        }
+
+        /// <summary>
+        /// This method tests if the private key info and the public key connected to the unique ID
+        /// can be used to encrypt and decrypt text message and thus if the keys are part of the same keypair.
+        /// </summary>
+        /// <param name="privateKey">
+        /// The privateKey
+        /// </param>
+        /// <param name="publicKeyIdentifier">
+        /// The public Key Identifier.
+        /// </param>
+        /// <returns>
+        /// Returns true if the keyValuePair matches, otherwise false
+        /// </returns>
+        [Pure]
+        public static bool CheckConsistency(byte[] privateKey, string publicKeyIdentifier)
+        {
+            Contract.Requires(privateKey != null);
+            Contract.Requires(publicKeyIdentifier != null);
+            //// TODO Requires is in PKI?
+            Contract.Requires(PublicKeyInfrastructure.ValidPublicKeyBlob(GetPublicKey(publicKeyIdentifier)));
+            Contract.Requires(!PublicKeyInfrastructure.ValidPublicKeyBlob(privateKey));
+
+            const string TestMessage = "encrypt and decrypt this";
+
+            //// Encrypt and decrypt info, fetching the public key information from the PKI
+            string result = Decrypt(Encrypt(TestMessage, GetPublicKey(publicKeyIdentifier)), privateKey);
+
+            return result.Equals(TestMessage);
         }
     }
 }

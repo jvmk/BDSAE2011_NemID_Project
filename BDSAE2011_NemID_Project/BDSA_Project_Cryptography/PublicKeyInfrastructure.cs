@@ -127,7 +127,8 @@ namespace BDSA_Project_Cryptography
         /// </summary>
         /// <param name="keyBlob">The blob containing the key info</param>
         /// <returns>true if the blob has the signature of a public key blob</returns>
-        public static bool ValidKeyBlob(IEnumerable<byte> keyBlob)
+        [Pure]
+        public static bool ValidPublicKeyBlob(IEnumerable<byte> keyBlob)
         {
             byte[] publicKeyTemplate = { 6, 2, 0, 0, 0, 164, 0, 0, 82, 83, 65, 49, 0, 16, 0, 0, 1, 0, 1, 0 };
 

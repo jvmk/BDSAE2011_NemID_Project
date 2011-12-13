@@ -27,7 +27,7 @@ namespace BDSA_Project_GUI
     public partial class UsersBrowser : Form
     {
 
-        private AuthenticatorProxy authenticator;
+        // private AuthenticatorProxy authenticator; // TODO add this?
 
         private static string ThirdPartyMainUri = "http://localhost:8082/";
 
