@@ -63,7 +63,7 @@ namespace BDSA_Project_GUI
             if (proceedOk)
             {
                 string token = this.authenticatorProxy.GetToken();
-                bool authWithTpOk = tp.SubmitUserToken(username, token);
+                bool authWithTpOk = thirdPartyProxy.SubmitUserToken(username, token);
                 if (authWithTpOk)
                 {
                     this.ParentForm.Controls.Clear();
