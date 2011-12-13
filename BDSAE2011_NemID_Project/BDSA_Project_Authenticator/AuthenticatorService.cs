@@ -44,7 +44,7 @@ namespace BDSA_Project_Authenticator
         /// </summary>
         public ClientSession()
         {
-            this.currentState = SessionState.AwaitLogin;
+            this.currentState = SessionState.AwaitRedirection;
             this.timeOfLastValidRequest = DateTime.Now;
         }
 
@@ -88,6 +88,11 @@ namespace BDSA_Project_Authenticator
         /// <returns></returns>
         public bool IsOperationValid(string operation)
         {
+            if (this.currentState == SessionState.AwaitRedirection)
+            {
+                return true;
+            }
+
             // If the session is awaiting either login and key submission...
             if (this.currentState == SessionState.AwaitLogin ||
                 this.currentState == SessionState.InitialLoginAccepted)
@@ -277,15 +282,15 @@ namespace BDSA_Project_Authenticator
                 // is valid. If it is invalid, can be empty.
                 string httpResponseMessageBody = string.Empty;
 
-                // If the parameters is null...
-                if (processedRequest.Parameters == null)
-                {
-                    // ... the request in invalid.
-                    Console.WriteLine("Client request processed with success: " + validRequest);
-                    Console.WriteLine("Server is responding to: " + processedRequest.RequesterDomain);
-                    this.serverSocket.SendMessage(processedRequest, validRequest, httpResponseMessageBody);
-                    continue;
-                }
+                //// If the parameters is null...
+                //if (processedRequest.Parameters == null)
+                //{
+                //    // ... the request in invalid.
+                //    Console.WriteLine("Client request processed with success: " + validRequest);
+                //    Console.WriteLine("Server is responding to: " + processedRequest.RequesterDomain);
+                //    this.serverSocket.SendMessage(processedRequest, validRequest, httpResponseMessageBody);
+                //    continue;
+                //}
 
                 // Check if the requested operation is supported.
                 if (!this.supportedOperations.Contains(processedRequest.RequestedOperation))
@@ -301,8 +306,10 @@ namespace BDSA_Project_Authenticator
                 {
                     case "redirect":
                         this.ProcessRedirect(processedRequest, ref validRequest);
-                        httpResponseMessageBody = validRequest ? "validRequest=true" : string.Empty;
-                        goto default;
+                        Console.WriteLine("Client request processed with success: " + validRequest);
+                        Console.WriteLine("Server is responding to: " + processedRequest.RequesterDomain);
+                        this.serverSocket.SendMessage(processedRequest, validRequest);
+                        break;
                     case "login":
                         string keyIndex = this.ProcessLogin(processedRequest, ref validRequest);
                         httpResponseMessageBody = validRequest ? "keyIndex=" + keyIndex : string.Empty;

@@ -29,13 +29,13 @@
         private void InitializeComponent()
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.label1 = new System.Windows.Forms.Label();
             this.LogOut = new System.Windows.Forms.Button();
             this.optionsGroupBox = new System.Windows.Forms.GroupBox();
             this.continueToExternalInfo = new System.Windows.Forms.Label();
             this.DeleteAccountButton = new System.Windows.Forms.Button();
             this.optionsLabel = new System.Windows.Forms.Label();
             this.ContinueToExternalSiteButton = new System.Windows.Forms.Button();
-            this.label1 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
@@ -62,6 +62,16 @@
             this.splitContainer1.Size = new System.Drawing.Size(500, 500);
             this.splitContainer1.SplitterDistance = 125;
             this.splitContainer1.TabIndex = 1;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(73, 61);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(366, 16);
+            this.label1.TabIndex = 4;
+            this.label1.Text = "You have succesfully been authenticated by NemID!";
             // 
             // LogOut
             // 
@@ -123,16 +133,6 @@
             this.ContinueToExternalSiteButton.Text = "Continue to external site";
             this.ContinueToExternalSiteButton.UseVisualStyleBackColor = true;
             this.ContinueToExternalSiteButton.Click += new System.EventHandler(this.ContinueToExternalSiteButton_Click);
-            // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(73, 61);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(366, 16);
-            this.label1.TabIndex = 4;
-            this.label1.Text = "You have succesfully been authenticated by NemID!";
             // 
             // NemIdLoggedIn
             // 

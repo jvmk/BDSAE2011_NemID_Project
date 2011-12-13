@@ -56,6 +56,8 @@ namespace BDSA_Project_GUI
                 // Get entered user name
                 string username = UsernameTextbox.Text;
 
+                Console.WriteLine("inserted user name: " + username);
+
                 // Encrypt user name in thirds party's public key.
                 string encryptedUsername = Cryptograph.Encrypt(username, PublicKeyInfrastructure.GetKey(StringData.ThirdUri));
 

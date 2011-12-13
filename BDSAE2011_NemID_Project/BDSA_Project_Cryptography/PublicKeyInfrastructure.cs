@@ -6,10 +6,14 @@
 
 namespace BDSA_Project_Cryptography
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
     using System.IO;
     using System.Linq;
+    using System.Runtime.Serialization.Formatters.Binary;
+
+    using BDSA_Project_Cryptography.Sample;
 
     /// <summary>
     /// TODO: Update summary.
@@ -19,12 +23,13 @@ namespace BDSA_Project_Cryptography
         /// <summary>
         /// The path at which to store the collection of keys.
         /// </summary>
-        private const string DatabasePath = @"./PKIFile.bin";
+        private const string DatabasePath = @"C:\Users\Kenneth88\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\PKIFile.bin"; // TODO hardcoded.
 
         /// <summary>
         /// A collection to store a unique ID corresponding to a specific key.
         /// </summary>
-        private static Dictionary<string, byte[]> keyCollection = new Dictionary<string, byte[]>();
+        private static SerializableDictionary<string, byte[]> keyCollection =
+            new SerializableDictionary<string, byte[]>();
 
         /// <summary>
         /// Can I get the public key of this domain?
@@ -88,16 +93,18 @@ namespace BDSA_Project_Cryptography
             Contract.Requires(uniqueIdentifier != string.Empty);
             bool success = false;
 
-            keyCollection = ReadFromFile(DatabasePath);
-            if (!keyCollection.ContainsKey(uniqueIdentifier))
+            if (File.Exists(DatabasePath))
             {
-                if (!keyCollection.ContainsValue(publicKey))
-                {
-                    keyCollection.Add(uniqueIdentifier, publicKey);
-                    success = true;
+                keyCollection = ReadFromFile(DatabasePath);
+            }
 
-                    WriteToFile(keyCollection, DatabasePath);
-                }
+            if (!keyCollection.ContainsKey(uniqueIdentifier)
+                && !keyCollection.ContainsValue(publicKey))
+            {
+                keyCollection.Add(uniqueIdentifier, publicKey);
+                success = true;
+
+                WriteToFile(keyCollection, DatabasePath);
             }
 
             return success;
@@ -144,10 +151,11 @@ namespace BDSA_Project_Cryptography
         /// </summary>
         /// <param name="dictionary">The dictionary to write to path</param>
         /// <param name="path">The path to write the path to</param>
-        private static void WriteToFile(Dictionary<string, byte[]> dictionary, string path)
+        private static void WriteToFile(SerializableDictionary<string, byte[]> dictionary, string path)
         {
             Contract.Requires(dictionary != null);
             Contract.Requires(!string.IsNullOrEmpty(path));
+            /*
             using (FileStream fs = File.OpenWrite(path))
             using (var writer = new BinaryWriter(fs))
             {
@@ -161,6 +169,13 @@ namespace BDSA_Project_Cryptography
                     writer.Write(pair.Value);
                 }
             }
+             * */
+
+            Stream stream = File.Open(path, FileMode.Create);
+            BinaryFormatter bformatter = new BinaryFormatter();
+
+            bformatter.Serialize(stream, dictionary);
+            stream.Close();
         }
 
         /// <summary>
@@ -169,9 +184,11 @@ namespace BDSA_Project_Cryptography
         /// </summary>
         /// <param name="path">The path to the file</param>
         /// <returns>The dictionary read from the file</returns>
-        private static Dictionary<string, byte[]> ReadFromFile(string path)
+        private static SerializableDictionary<string, byte[]> ReadFromFile(string path)
         {
+
             Contract.Requires(!string.IsNullOrEmpty(path));
+            /*
             var result = new Dictionary<string, byte[]>();
             using (FileStream fs = File.OpenRead(path))
             using (var reader = new BinaryReader(fs))
@@ -188,6 +205,16 @@ namespace BDSA_Project_Cryptography
                 }
             }
             return result;
+             * */
+
+            Stream stream = File.Open(path, FileMode.Open);
+            BinaryFormatter bformatter = new BinaryFormatter();
+
+            SerializableDictionary<string, byte[]> mp =
+                (SerializableDictionary<string, byte[]>)bformatter.Deserialize(stream);
+            stream.Close();
+
+            return mp;
         }
 
         /// <summary>

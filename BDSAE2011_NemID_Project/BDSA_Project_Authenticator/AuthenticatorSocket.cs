@@ -208,13 +208,19 @@ namespace BDSA_Project_Authenticator
 
             Console.WriteLine("The raw message body of the request is: \n" + rawMessageBody);
 
+            // If the raw message body is null or empty...
+            if (string.IsNullOrEmpty(rawMessageBody))
+            {
+                //... We return a Request with the properties known.
+                return new Request(rawUrl, null, MessageProcessingUtility.GetRequesterOperation(rawUrl), null);
+            }
+
             // Get requester's domain.
             string requesterDomain = MessageProcessingUtility.GetRequesterDomain(
                 rawMessageBody, this.authenticatorPrivateKey);
 
             // Get the requested operation.
-            string url = request.Url.OriginalString;
-            string requestedOperation = MessageProcessingUtility.GetRequesterOperation(url);
+            string requestedOperation = MessageProcessingUtility.GetRequesterOperation(rawUrl);
 
             // Get requester's parameters.
             string[] parameters = MessageProcessingUtility.GetRequesterParameters(
@@ -258,7 +264,6 @@ namespace BDSA_Project_Authenticator
             // Stream used to write the response HTTP-message.
             Stream output = null;
 
-            // Encrypted in requester's public key
             string encOrigin = Cryptograph.Encrypt(
                 this.authenticatorDomain, Cryptograph.GetPublicKey(request.RequesterDomain));
 
@@ -286,7 +291,7 @@ namespace BDSA_Project_Authenticator
 
             // Sign the encrypted message with the authenticator's private key.
             string signedEncMessage = Cryptograph.SignData(
-                encMessage, Cryptograph.GetPublicKey(request.RequesterDomain));
+                encMessage, this.authenticatorPrivateKey);
 
             // Finally assemble the message body that the requester will
             // receive.
@@ -301,6 +306,54 @@ namespace BDSA_Project_Authenticator
             output.Write(compiledMessageBytes, 0, compiledMessageBytes.Length);
 
             Console.WriteLine("Server sent response to client: " + request.RequesterDomain +
+                "\nResponding to request with the url: " + request.RawUrl);
+
+            output.Close();
+            responseMessage.Close(); // TODO ADDED
+
+            // Update the state of the socket.
+            this.hasReadHappened = false;
+        }
+
+        public void SendMessage(Request request, bool accepted)
+        {
+            Contract.Requires(this.HasReadHappened());
+            Contract.Ensures(!this.HasReadHappened());
+
+            // Obtain a response object.
+            HttpListenerResponse responseMessage = this.currentListenerContext.Response; // TODO use response in request objekt instead.
+
+            // Stream used to write the response HTTP-message.
+            Stream output = null;
+
+            // If the request was not succesfully completed...
+            if (!accepted)
+            {
+                // ... the HTTP status code is set to 403 Forbidden.
+                responseMessage.StatusCode = 403;
+
+                output = responseMessage.OutputStream;
+                Console.WriteLine("Server sent response to client request: " + request.RequesterDomain +
+                    "\nResponding to request with the url: " + request.RawUrl);
+                output.Close();
+                return;
+            }
+
+            // The request was accepted; HTTP status code 200 OK
+            responseMessage.StatusCode = 200;
+
+            string message = "validRirect=true";
+
+            // Sign the message with the authenticator's private key.
+            string signedMessage = Cryptograph.SignData(
+                message, Cryptograph.GetPublicKey(request.RequesterDomain));
+
+            byte[] compiledMessageBytes = Encoding.UTF8.GetBytes(signedMessage);
+
+            output = responseMessage.OutputStream;
+            output.Write(compiledMessageBytes, 0, compiledMessageBytes.Length);
+
+            Console.WriteLine("Server sent response to redirect." +
                 "\nResponding to request with the url: " + request.RawUrl);
 
             output.Close();
