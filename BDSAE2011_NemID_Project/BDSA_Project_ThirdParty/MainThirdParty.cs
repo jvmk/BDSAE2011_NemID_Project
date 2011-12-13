@@ -11,13 +11,13 @@ namespace BDSA_Project_ThirdParty
     using System.Linq;
     using System.Text;
 
+    using BDSA_Project_Communication;
+
     /// <summary>
     /// Starts the ThirdParty server.
     /// </summary>
     public class MainThirdParty
     {
-        private static string serverUri = "http://localhost:8082/";
-
         private static ThirdPartyServer server;
 
         private static byte[] privateKey;
@@ -28,8 +28,13 @@ namespace BDSA_Project_ThirdParty
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            privateKey = BDSA_Project_Cryptography.Cryptograph.GenerateKeys(serverUri);
-            server = new ThirdPartyServer(serverUri, privateKey);
+            Console.WriteLine("Generates public/private keypair for third party");
+
+            privateKey = BDSA_Project_Cryptography.Cryptograph.GenerateKeys(StringData.ThirdUri);
+
+            Console.WriteLine("Generation complete");
+
+            server = new ThirdPartyServer(StringData.ThirdUri, privateKey);
             server.RunServer();
         }
     }

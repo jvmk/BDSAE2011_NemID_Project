@@ -154,7 +154,7 @@ namespace BDSA_Project_Authenticator
             this.authenticatorDomain = authenticatorDomain;
             this.authenticatorPrivateKey = authenticatorPrivateKey;
             this.server = new HttpListener();
-            this.server.Prefixes.Add(authenticatorDomain + "/");
+            this.server.Prefixes.Add(authenticatorDomain);
 
             // Generate a public/private key pair
             // this.authenticatorPrivateKey = Cryptograph.GenerateKeys(this.authenticatorDomain);

@@ -10,7 +10,7 @@ namespace BDSA_Project_Cryptography
     using System.Diagnostics.Contracts;
     using System.IO;
     using System.Linq;
-    
+
     /// <summary>
     /// TODO: Update summary.
     /// </summary>
@@ -19,7 +19,7 @@ namespace BDSA_Project_Cryptography
         /// <summary>
         /// The path at which to store the collection of keys.
         /// </summary>
-        private const string DatabasePath = @"C:\Test\PKIFile.bin";
+        private const string DatabasePath = @"./PKIFile.bin";
 
         /// <summary>
         /// A collection to store a unique ID corresponding to a specific key.
@@ -87,6 +87,8 @@ namespace BDSA_Project_Cryptography
             Contract.Requires(uniqueIdentifier != null);
             Contract.Requires(uniqueIdentifier != string.Empty);
             bool success = false;
+
+            keyCollection = ReadFromFile(DatabasePath);
             if (!keyCollection.ContainsKey(uniqueIdentifier))
             {
                 if (!keyCollection.ContainsValue(publicKey))
@@ -118,7 +120,7 @@ namespace BDSA_Project_Cryptography
                 WriteToFile(keyCollection, DatabasePath);
                 return true;
             }
-            
+
             return false;
         }
 
@@ -194,7 +196,7 @@ namespace BDSA_Project_Cryptography
         [ContractInvariantMethod]
         private static void PKIClassInvariant()
         {
-            
+
             //// Each key must be unique
             //// each identifier must be unique
         }

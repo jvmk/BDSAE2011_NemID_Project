@@ -14,6 +14,7 @@ namespace BDSA_Project_GUI
     using System.Net;
     using System.Text;
     using System.Windows.Forms;
+    using System.Threading;
 
     using BDSA_Project_Communication;
 
@@ -28,8 +29,6 @@ namespace BDSA_Project_GUI
     {
 
         // private AuthenticatorProxy authenticator; // TODO add this?
-
-        private static string ThirdPartyMainUri = "http://localhost:8082/";
 
         /// <summary>
         /// Initializes a new instance of the UsersBrowser class.
@@ -58,13 +57,13 @@ namespace BDSA_Project_GUI
                 string username = UsernameTextbox.Text;
 
                 // Encrypt user name in thirds party's public key.
-                string encryptedUsername = Cryptograph.Encrypt(username, PublicKeyInfrastructure.GetKey(ThirdPartyMainUri));
+                string encryptedUsername = Cryptograph.Encrypt(username, PublicKeyInfrastructure.GetKey(StringData.ThirdUri));
 
                 // Convert encrypted text to bytes.
                 byte[] buf = Encoding.UTF8.GetBytes(encryptedUsername);
 
                 // Create a request.
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(ThirdPartyMainUri + "request=loginpage"); // TODO update to correct https URI
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(StringData.ThirdUri + "request=loginpage"); // TODO update to correct https URI
                 request.Method = "POST";
                 Stream output = request.GetRequestStream();
 

@@ -20,9 +20,12 @@ namespace BDSA_Project_Authenticator
         /// </summary>
         public static void Main()
         {
+            Console.WriteLine("Generates public/private keypair for authenticator");
 
-           // Generate public/private key pair of the authenticator.
+            // Generate public/private key pair of the authenticator.
             byte[] privateKey = BDSA_Project_Cryptography.Cryptograph.GenerateKeys(StringData.AuthUri);
+
+            Console.WriteLine("Generation complete.");
 
             // Start up the server.
             AuthenticatorService server = new AuthenticatorService(StringData.AuthUri, privateKey);
