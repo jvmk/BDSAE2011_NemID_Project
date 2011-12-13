@@ -7,6 +7,7 @@
 namespace BDSA_Project_ThirdParty
 {
     using System;
+    using System.Diagnostics.Contracts;
 
     /// <summary>
     /// Represents a user in the ThirdParty database.
@@ -40,6 +41,7 @@ namespace BDSA_Project_ThirdParty
         /// <param name="username">The username of the new user (same as at the authenticator).</param>
         internal ThirdPartyUserAccount(string username)
         {
+            Contract.Requires(!ReferenceEquals(username, null));
             this.username = username;
         }
 
@@ -49,6 +51,7 @@ namespace BDSA_Project_ThirdParty
         /// <param name="token">The new value of the authenticator token (nonce).</param>
         internal void SetAuthToken(string token)
         {
+            Contract.Requires(!ReferenceEquals(token, null));
             this.authToken = token;
             this.tokenCompares = 0; // Reset tokenCompares since a new token was provided.
             this.authTokenUpdate = DateTime.Now;
@@ -62,6 +65,7 @@ namespace BDSA_Project_ThirdParty
         /// <returns>True if the client token is equal to the registered authenticator token.</returns>
         internal bool CompareTokens(string clientToken)
         {
+            Contract.Requires(!ReferenceEquals(clientToken, null));
             this.tokenCompares++;
             return clientToken.Equals(this.authToken) && this.tokenCompares == 1
                     && DateTime.Now < this.authTokenUpdate.AddMinutes(1);

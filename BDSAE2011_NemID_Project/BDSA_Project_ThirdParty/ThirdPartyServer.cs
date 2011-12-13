@@ -8,6 +8,7 @@
     {
         using System;
         using System.Collections.Specialized;
+        using System.Diagnostics.Contracts;
         using System.IO;
         using System.Linq;
         using System.Net;
@@ -56,13 +57,8 @@
                 this.serversPrivateKey = serversPrivateKey;
                 string serverAddress = fullURI; // TODO update to https after testing!!!
                 this.server.Prefixes.Add(serverAddress);
-
-                // Add some demo users to the database
-                database.AddUserAccount("kenneth");
-                database.AddUserAccount("janus");
-                database.AddUserAccount("simon");
-
-                this.subpagesForPost.AddRange(new[] { @"/request=loginpage", @"/request=usertoken", @"/request=authtoken" });
+                
+                this.subpagesForPost.AddRange(new[] { @"/request=usertoken", @"/request=authtoken" });
             }
 
 
@@ -78,6 +74,7 @@
                 {
                     HttpListenerContext hlc = this.server.GetContext(); // blocking call
                     HttpListenerRequest request = hlc.Request;
+                    HttpListenerResponse response = hlc.Response;
                     Console.WriteLine(
                         "SSL connection between 3rd Party and Client established: "
                         + request.IsSecureConnection);
@@ -91,21 +88,33 @@
                             this.InvokeGetRequest(hlc);
                             break;
                         case "POST":
-                            string postData = this.GetPostString(hlc); // read the posted input
-                            if (string.IsNullOrWhiteSpace(postData))
+                            if (!this.IsPostingAllowed(hlc))
                             {
-                                // not a valid request, do nothing
-                                break;
+                                // If requested url is not part of subpagesForPost, posting is not allowed!
+                                response.StatusCode = 405; // Status code: http method not allowed
+                                response.Headers.Add(HttpRequestHeader.Allow, "GET"); // inform that only GET is allowed for any page not in subagesForPost
+                                response.Close(); // send response
                             }
                             else
                             {
                                 this.ProcessIncomingPost(hlc);
-                                break;
                             }
+
+                            break;
+                            //string postData = this.GetPostString(hlc); // read the posted input
+                            //if (string.IsNullOrWhiteSpace(postData))
+                            //{
+                                // not a valid request, do nothing
+                            //    break;
+                            //}
+                            //else
+                            //{
+                             //   this.ProcessIncomingPost(hlc);
+                              //  break;
+                            //}
 
                         default:
                             // Reply that an error has occured: http method was not supported
-                            HttpListenerResponse response = hlc.Response;
                             response.StatusCode = 501; // method not supported
                             response.StatusDescription = "HTTP method not supported by server.";
                             response.ProtocolVersion = HttpVersion.Version11;
@@ -129,32 +138,34 @@
                     // guard against null ref if unspecified get string
                     requestedUrl = string.Empty;
                 }
-
-                requestedUrl = requestedUrl.Trim(); // remove white space
                 Console.WriteLine("Requested RawURL: " + requestedUrl);
-                string responseStr = string.Empty;
                 switch (requestedUrl)
                 {
                     case @"/request=loginpage":
-                        // respond with loginpage
-                        responseStr =
-                            "<html><head><title>Login</title></head>" +
-                            "<body>Login page html goes here</body></html>";
+                        response.StatusCode = 200;
+                        // the html for the loginpage should be here - write it to response outputstream
+                        response.Close();
                         break;
 
                     // no other sub pages designed for get requests
                     default:
                         // direct user to main page
                         response.StatusCode = 404; // NOT FOUND status code
-                        response.Redirect(this.server.Prefixes.First());
-                        return;
+                        response.Close();
+                        break;
+                }
+            }
+
+            private bool IsPostingAllowed(HttpListenerContext hlc)
+            {
+                HttpListenerRequest request = hlc.Request;
+                string requestedUrl = request.RawUrl;
+                if (this.subpagesForPost.Contains(requestedUrl))
+                {
+                    return true;
                 }
 
-                // Write response...
-                Stream output = response.OutputStream;
-                byte[] buffer = Encoding.UTF8.GetBytes(responseStr);
-                output.Write(buffer, 0, buffer.Length);
-                response.Close();
+                return false;
             }
 
             /// <summary>
@@ -165,17 +176,6 @@
             private string GetPostString(HttpListenerContext hlc)
             {
                 HttpListenerRequest request = hlc.Request;
-                HttpListenerResponse response = hlc.Response;
-                string requestedUrl = request.RawUrl;
-                if (!this.subpagesForPost.Contains(requestedUrl)) 
-                {
-                    // if requested url is not part of subpagesForPost, posting is not allowed!
-                    response.StatusCode = 405; // Status code: http method not allowed
-                    response.Headers.Add(HttpRequestHeader.Allow, "GET"); // inform that only GET is allowed for any page not in subagesForPost
-                    response.Close(); // send response
-                    return null; // not a valid request
-                }
-
                 Stream input = request.InputStream; // access inputstream
                 byte[] buf = new byte[input.Length]; // TODO Stream.Length is a long - possible int overflow here
                 input.Read(buf, 0, buf.Length);
@@ -211,6 +211,18 @@
             {
                 HttpListenerResponse response = hlc.Response; // obtain response object
                 string rawMessageBody = this.GetPostString(hlc);
+                string urlForPost = hlc.Request.RawUrl; // Find out what subpage the data was posted to
+                
+                if (urlForPost.Equals("/request=loginpage"))
+                {
+                    // special case where clientPkiId cannot be determined (no email to identify public key)
+                    string encUsername = this.GetPostString(hlc);
+                    // decrypt username
+                    string decUsername = Cryptograph.Decrypt(encUsername, this.serversPrivateKey);
+                    this.AnswerLoginpagePost(response, decUsername);
+                    return;
+                }
+
                 string clientPki = MessageProcessingUtility.GetRequesterDomain(rawMessageBody, this.serversPrivateKey);
                 if (!this.ValidatePostOrigin(rawMessageBody, clientPki))
                 {
@@ -224,19 +236,14 @@
                 
                 string[] inputValues = MessageProcessingUtility.GetRequesterParameters(
                     rawMessageBody, clientPki, this.serversPrivateKey); // Processes the message body and obtains the values associated with the request's parametres
-                string username = inputValues[0]; // value of username is at position 0 in the input array
-                string tokenValue = inputValues[1]; // value of token is at position 1 in the input array
-                string urlForPost = hlc.Request.RawUrl; // Find out what subpage the data was posted to
+                
                 switch (urlForPost)
                 {
-                    case @"/request=loginpage":
-                        this.AnswerLoginpagePost(response, username);
-                        break;
                     case @"/request=authtoken":
-                        this.AnswerAuthtokenPost(response, rawMessageBody, username, tokenValue);
+                        this.AnswerAuthtokenPost(response, rawMessageBody, inputValues[0], inputValues[1]); // index 0 is username, index 1 is token
                         break;
                     case @"/request=usertoken":
-                        this.AnswerUsertokenPost(response, username, tokenValue);
+                        this.AnswerUsertokenPost(response, inputValues[0], inputValues[1]); // index 0 is username, index 1 is token
                         break;
                     default:
                         // Resource either not found or not meant for posting
@@ -267,6 +274,8 @@
             /// <returns>True if the token was sent by expected source, false otherwise.</returns>
             private bool ValidatePostOrigin(string httpMessageBody, string expectedPkiId)
             {
+                Contract.Requires(!ReferenceEquals(httpMessageBody, null));
+                Contract.Requires(!ReferenceEquals(expectedPkiId, null));
                 string senderPkiId = MessageProcessingUtility.GetRequesterDomain(httpMessageBody, this.serversPrivateKey);
                 if (ReferenceEquals(senderPkiId, null) || !senderPkiId.Equals(expectedPkiId))
                 {
@@ -298,7 +307,9 @@
                 if (this.database.ContainsUsername(username))
                 {
                     // redirect to NemID
-                    response.Redirect(AUTH_URI + "request=redirect&userName=" + username + "&3rd=" + this.server.Prefixes.First());
+                    response.StatusCode = 200;
+                    response.StatusDescription = "Redirecting you to authenticator.";
+                    response.Redirect(StringData.AuthUri + "request=redirect&username=" + username + "&3rd=" + this.server.Prefixes.First());
                     response.Close();
                 }
                 else
@@ -319,7 +330,7 @@
             private void AnswerAuthtokenPost(HttpListenerResponse response, string rawMessageBody, string username, string tokenValue)
             {
                 // check that the post came from the authenticator
-                if (this.ValidatePostOrigin(rawMessageBody, AUTH_URI))
+                if (this.ValidatePostOrigin(rawMessageBody, StringData.AuthUri))
                 {
                     this.database.SetAuthTokenForAccount(username, tokenValue);
                 }
