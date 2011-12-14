@@ -15,6 +15,7 @@ namespace BDSA_Project_Authenticator
 
     /// <summary>
     /// Represents instances of the clients’ key cards.
+    /// <author>Simon langhoff</author>    
     /// </summary>
     internal class KeyCard
     {
