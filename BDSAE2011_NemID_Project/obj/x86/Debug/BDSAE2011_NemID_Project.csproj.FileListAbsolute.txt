@@ -16,3 +16,12 @@ C:\Users\Kenneth88\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_Nem
 C:\Users\Kenneth88\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\obj\x86\Debug\ResolveAssemblyReference.cache
 C:\Users\Kenneth88\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\obj\x86\Debug\BDSAE2011_NemID_Project.dll
 C:\Users\Kenneth88\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\obj\x86\Debug\BDSAE2011_NemID_Project.pdb
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\bin\Debug\BDSAE2011_NemID_Project.dll
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\bin\Debug\BDSAE2011_NemID_Project.pdb
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\bin\Debug\BDSA_Project_Communication.dll
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\bin\Debug\BDSA_Project_Cryptography.dll
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\bin\Debug\BDSA_Project_Communication.pdb
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\bin\Debug\BDSA_Project_Cryptography.pdb
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\obj\x86\Debug\BDSAE2011_NemID_Project.dll
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\obj\x86\Debug\BDSAE2011_NemID_Project.pdb

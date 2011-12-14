@@ -74,8 +74,8 @@ namespace BDSA_Project_Communication
         [Pure]
         public static bool DoesUrlContainRequest(string rawUrl)
         {
+            Contract.Requires(!string.IsNullOrWhiteSpace(rawUrl));
             Contract.Requires(IsValidUrl(rawUrl));
-
             return rawUrl.Contains("request=");
         }
 
@@ -92,6 +92,7 @@ namespace BDSA_Project_Communication
         [Pure]
         public static bool IsValidUrl(string url)
         {
+            Contract.Requires(!string.IsNullOrWhiteSpace(url));
             Uri uri = new Uri(url);
             return Uri.TryCreate(url, UriKind.Absolute, out uri) && uri.Scheme == Uri.UriSchemeHttp;
         }
@@ -110,6 +111,7 @@ namespace BDSA_Project_Communication
         {
             Contract.Requires(string.IsNullOrEmpty(url));
             Contract.Requires(DoesUrlContainRequest(url));
+            Contract.Requires(url.Contains('&') || (url.LastIndexOf('/') == url.Length - 1));
 
             int start = url.IndexOf("request=") + "request=".Length;
             int end = -1;
