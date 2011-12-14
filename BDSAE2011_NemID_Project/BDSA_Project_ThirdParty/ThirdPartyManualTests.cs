@@ -4,11 +4,9 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace ThirdPartyComponentTests
+namespace BDSA_Project_ThirdParty
 {
     using System.Threading;
-
-    using BDSA_Project_ThirdParty;
 
     using NUnit.Framework;
 
@@ -35,7 +33,7 @@ namespace ThirdPartyComponentTests
             Assert.True(this.database.AddUserAccount(dwd));
             Assert.True(this.database.ContainsUsername(dwd));
             // Not possible to add user with equal username:
-            Assert.False(this.database.AddUserAccount(dwd)); // Todo change method to bool return type for testing purposes
+            Assert.False(this.database.AddUserAccount(dwd));
         }
         
         [Test]
@@ -97,6 +95,13 @@ namespace ThirdPartyComponentTests
             Assert.True(this.database.SetAuthTokenForAccount(usr, validTkn));
             Assert.False(this.database.CompareTokens(usr, invalidTkn)); // wrong token
             Assert.False(this.database.CompareTokens(usr, validTkn)); // token is correct, but access not allowed since an earlier attempt was made
+        }
+
+        [Test]
+        public void TestThirdPartyUserAccountUsernameProperty()
+        {
+            ThirdPartyUserAccount tpua = new ThirdPartyUserAccount("kingkong");
+            Assert.True(tpua.Username.Equals("kingkong"));
         }
     }    
 }
