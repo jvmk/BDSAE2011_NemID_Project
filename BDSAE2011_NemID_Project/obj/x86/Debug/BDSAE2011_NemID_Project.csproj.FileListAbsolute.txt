@@ -25,3 +25,5 @@ C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE20
 C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\obj\x86\Debug\ResolveAssemblyReference.cache
 C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\obj\x86\Debug\BDSAE2011_NemID_Project.dll
 C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\obj\x86\Debug\BDSAE2011_NemID_Project.pdb
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\bin\Debug\nunit.framework.dll
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\bin\Debug\nunit.framework.xml

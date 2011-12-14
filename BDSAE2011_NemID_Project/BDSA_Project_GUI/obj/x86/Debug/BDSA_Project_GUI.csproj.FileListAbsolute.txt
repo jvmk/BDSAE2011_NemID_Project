@@ -156,3 +156,5 @@ C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE20
 C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_GUI\obj\x86\Debug\GenerateResource.write.1.tlog
 C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_GUI\obj\x86\Debug\BDSA_Project_GUI.exe
 C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_GUI\obj\x86\Debug\BDSA_Project_GUI.pdb
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_GUI\bin\Debug\nunit.framework.dll
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_GUI\bin\Debug\nunit.framework.xml

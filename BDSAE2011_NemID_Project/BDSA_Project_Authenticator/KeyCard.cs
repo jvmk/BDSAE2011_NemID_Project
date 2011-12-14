@@ -39,16 +39,6 @@ namespace BDSA_Project_Authenticator
         private string uniqueID;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="KeyCard"/> class. 
-        /// Constructor for the keycard class
-        /// </summary>
-        public KeyCard()
-        {
-            this.GenerateKeyCard();
-            this.SetNextKeyIndex();
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="KeyCard"/> class with a unique ID.
         /// </summary>
         /// <param name="username">
@@ -65,7 +55,8 @@ namespace BDSA_Project_Authenticator
         /// </param>
         public KeyCard(string username, string password, string cprnumber, string email)
         {
-            Contract.Requires(string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password) || string.IsNullOrEmpty(cprnumber) || string.IsNullOrEmpty(email));
+            Contract.Requires(string.IsNullOrEmpty(username) && string.IsNullOrEmpty(password) && string.IsNullOrEmpty(cprnumber) && string.IsNullOrEmpty(email));
+            Contract.Ensures(this.KeysLeft() > 0);
             this.GenerateKeyCard();
             this.SetNextKeyIndex();
             this.uniqueID =

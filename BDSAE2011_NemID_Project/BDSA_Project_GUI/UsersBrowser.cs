@@ -59,7 +59,7 @@ namespace BDSA_Project_GUI
                 Console.WriteLine("inserted user name: " + username);
 
                 // Encrypt user name in thirds party's public key.
-                string encryptedUsername = Cryptograph.Encrypt(username, PublicKeyInfrastructure.GetKey(StringData.ThirdUri));
+                string encryptedUsername = Cryptograph.Encrypt(username, Cryptograph.GetPublicKey(StringData.ThirdUri));
 
                 // Convert encrypted text to bytes.
                 byte[] buf = Encoding.UTF8.GetBytes(encryptedUsername);

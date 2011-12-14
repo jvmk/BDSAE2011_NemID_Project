@@ -43,7 +43,7 @@ namespace BDSA_Project_Cryptography
         public static bool KeyExists(string uniqueIdentifier)
         {
             Contract.Requires(uniqueIdentifier != null);
-            return PublicKeyInfrastructure.ContainsKey(uniqueIdentifier); //// TODO: Update bon
+            return PublicKeyInfrastructure.ContainsKey(uniqueIdentifier);
         }
 
         /// <summary>
@@ -56,14 +56,14 @@ namespace BDSA_Project_Cryptography
         /// The public Key Info.
         /// </param>
         /// <returns>
-        /// The encrypted message.
+        /// The encrypted message. Returns null if cryptographic exception is caught
         /// </returns>
         public static string Encrypt(string messageToEncrypt, byte[] publicKeyInfo)
         {
-            Contract.Requires(PublicKeyInfrastructure.ContainsValue(publicKeyInfo)); //// TODO Add to bon?
+            Contract.Requires(PublicKeyInfrastructure.ContainsValue(publicKeyInfo));
             Contract.Requires(publicKeyInfo != null);
             Contract.Requires(string.IsNullOrEmpty(messageToEncrypt));
-            Contract.Ensures(!Contract.Result<string>().Equals(messageToEncrypt)); ////TODO possible null?
+            Contract.Ensures(!Contract.Result<string>().Equals(messageToEncrypt));
             
 
             //// Our bytearray to hold all of our data after the encryption
@@ -131,13 +131,13 @@ namespace BDSA_Project_Cryptography
         /// The private Key Info.
         /// </param>
         /// <returns>
-        /// The decrypted data.
+        /// The decrypted data. Returns null if cryptographic exception is caught
         /// </returns>
         public static string Decrypt(string dataToDecrypt, byte[] privateKeyInfo)
         {
             Contract.Requires(dataToDecrypt != null);
             Contract.Requires(privateKeyInfo != null);
-            Contract.Ensures(!Contract.Result<string>().Equals(dataToDecrypt)); // TODO possible null?
+            Contract.Ensures(!Contract.Result<string>().Equals(dataToDecrypt));
             //// The bytearray to hold all of our data after decryption
             byte[] decryptedBytes;
 
@@ -209,7 +209,7 @@ namespace BDSA_Project_Cryptography
         {
             Contract.Requires(message != string.Empty);
             Contract.Requires(privateKey != null);
-            Contract.Ensures(!Contract.Result<string>().Equals(message)); // TODO Possible null
+            Contract.Ensures(!Contract.Result<string>().Equals(message));
 
             //// The array to store the signed message in bytes
             byte[] signedBytes;
@@ -229,7 +229,6 @@ namespace BDSA_Project_Cryptography
                 }
                 catch (CryptographicException e)
                 {
-                    Console.WriteLine(e.Message);
                     return null;
                 }
                 finally
@@ -255,17 +254,15 @@ namespace BDSA_Project_Cryptography
         /// The public key of the sender of the original message
         /// </param>
         /// <returns>
-        /// Returns true if the message is authentic and sent by the holder of the specified public key.
+        /// Returns true if the message is authentic and sent by the holder of the specified public key. Returns false if cryptographic exception is caught
         /// </returns>
         public static bool VerifyData(string originalMessage, string signedMessage, byte[] publicKey)
         {
             Contract.Requires(originalMessage != null);
             Contract.Requires(signedMessage != null);
             Contract.Requires(publicKey != null);
-            // require the key exists in PKI???
-            // TODO: Verify this? Require that input is not equal? makes no sense to compare then.
             Contract.Requires(!originalMessage.Equals(signedMessage));
-            Contract.Requires(PublicKeyInfrastructure.ValidPublicKeyBlob(publicKey)); // TODO add to bon
+            Contract.Requires(PublicKeyInfrastructure.ValidPublicKeyBlob(publicKey));
             using (var rsa = new RSACryptoServiceProvider())
             {
                 var encoder = new UTF8Encoding();
@@ -279,7 +276,6 @@ namespace BDSA_Project_Cryptography
                 }
                 catch (CryptographicException e)
                 {
-                    Console.WriteLine(e.Message);
                     return false;
                 }
                 finally
@@ -297,7 +293,7 @@ namespace BDSA_Project_Cryptography
         public static string GenerateSHA2Hash(string uniqueId)
         {
             Contract.Requires(!string.IsNullOrEmpty(uniqueId));
-            Contract.Ensures(!Contract.Result<string>().Equals(uniqueId)); // TODO possible null?
+            Contract.Ensures(!Contract.Result<string>().Equals(uniqueId));
             byte[] dataToHash = Convert.FromBase64String(uniqueId);
 
             var sha = new SHA512Managed();
@@ -361,7 +357,7 @@ namespace BDSA_Project_Cryptography
         {
             Contract.Requires(PublicKeyInfrastructure.ValidPublicKeyBlob(publicKey));
             Contract.Requires(publicKey != null || uniqueIdentifier != null);
-            Contract.Ensures(Contract.Result<bool>() == PublicKeyInfrastructure.ContainsKey(uniqueIdentifier)); // TODO no true? if publishKey already contained, then contract fails, remove or make check for contains?
+            Contract.Ensures(Contract.Result<bool>() == PublicKeyInfrastructure.ContainsKey(uniqueIdentifier));
             return PublicKeyInfrastructure.StoreKey(publicKey, uniqueIdentifier);
         }
 
@@ -383,7 +379,6 @@ namespace BDSA_Project_Cryptography
         {
             Contract.Requires(privateKey != null);
             Contract.Requires(publicKeyIdentifier != null);
-            //// TODO Requires is in PKI?
             Contract.Requires(PublicKeyInfrastructure.ValidPublicKeyBlob(GetPublicKey(publicKeyIdentifier)));
             Contract.Requires(!PublicKeyInfrastructure.ValidPublicKeyBlob(privateKey));
 

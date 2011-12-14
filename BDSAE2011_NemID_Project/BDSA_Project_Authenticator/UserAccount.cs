@@ -52,7 +52,7 @@ namespace BDSA_Project_Authenticator
             this.password = password;
             this.cprNumber = cprNumber;
             this.email = email;
-            this.keycard = new KeyCard();
+            this.keycard = new KeyCard(username, password, cprNumber, email);
         }
 
         /// <summary>

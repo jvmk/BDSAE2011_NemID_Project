@@ -25,3 +25,5 @@ C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE20
 C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_Authenticator\obj\x86\Debug\ResolveAssemblyReference.cache
 C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_Authenticator\obj\x86\Debug\BDSA_Project_Authenticator.exe
 C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_Authenticator\obj\x86\Debug\BDSA_Project_Authenticator.pdb
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_Authenticator\bin\Debug\nunit.framework.dll
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_Authenticator\bin\Debug\nunit.framework.xml

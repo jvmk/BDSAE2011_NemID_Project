@@ -17,9 +17,9 @@ namespace BDSA_Project_Cryptography
     using BDSA_Project_Communication;
 
     /// <summary>
-    /// TODO: Update summary.
+    /// "Contains public key information for different domains and users
     /// </summary>
-    public static class PublicKeyInfrastructure
+    internal static class PublicKeyInfrastructure
     {
         /// <summary>
         /// The path at which to store the collection of keys.
@@ -38,7 +38,7 @@ namespace BDSA_Project_Cryptography
         /// <param name="uniqueIdentifier">The unique identifier for the domain</param>
         /// <returns>the corresponding key for the domain</returns>
         [Pure]
-        public static byte[] GetKey(string uniqueIdentifier)
+        internal static byte[] GetKey(string uniqueIdentifier)
         {
             Contract.Requires(uniqueIdentifier != null);
             Contract.Requires(uniqueIdentifier != string.Empty);
@@ -53,7 +53,7 @@ namespace BDSA_Project_Cryptography
         /// <param name="uniqueIdentifier">the unique ID for the domain</param>
         /// <returns>True if the key is present, otherwise false</returns>
         [Pure]
-        public static bool ContainsKey(string uniqueIdentifier)
+        internal static bool ContainsKey(string uniqueIdentifier)
         {
             Contract.Requires(uniqueIdentifier != null);
             Contract.Requires(uniqueIdentifier != string.Empty);
@@ -67,7 +67,7 @@ namespace BDSA_Project_Cryptography
         /// <param name="publicKey">The key to check for</param>
         /// <returns>returns true if the value exists in the PKI</returns>
         [Pure]
-        public static bool ContainsValue(byte[] publicKey)
+        internal static bool ContainsValue(byte[] publicKey)
         {
             Contract.Requires(publicKey != null);
             keyCollection = ReadFromFile(DatabasePath);
@@ -86,9 +86,9 @@ namespace BDSA_Project_Cryptography
         /// <returns>
         /// True if the key was succesfully stored, otherwise false
         /// </returns>
-        public static bool StoreKey(byte[] publicKey, string uniqueIdentifier)
+        internal static bool StoreKey(byte[] publicKey, string uniqueIdentifier)
         {
-            Contract.Requires(publicKey[0] == 0x06);
+            Contract.Requires(ValidPublicKeyBlob(publicKey));
             Contract.Requires(publicKey != null);
             Contract.Requires(uniqueIdentifier != null);
             Contract.Requires(uniqueIdentifier != string.Empty);
@@ -116,7 +116,7 @@ namespace BDSA_Project_Cryptography
         /// </summary>
         /// <param name="uniqueIdentifier">The unique identifier for the domain</param>
         /// <returns>True if the key is removed, otherwise false</returns>
-        public static bool RevokeKey(string uniqueIdentifier)
+        internal static bool RevokeKey(string uniqueIdentifier)
         {
             Contract.Requires(uniqueIdentifier != null);
             Contract.Requires(uniqueIdentifier != string.Empty);
@@ -138,7 +138,7 @@ namespace BDSA_Project_Cryptography
         /// <param name="keyBlob">The blob containing the key info</param>
         /// <returns>true if the blob has the signature of a public key blob</returns>
         [Pure]
-        public static bool ValidPublicKeyBlob(IEnumerable<byte> keyBlob)
+        internal static bool ValidPublicKeyBlob(IEnumerable<byte> keyBlob)
         {
             byte[] publicKeyTemplate = { 6, 2, 0, 0, 0, 164, 0, 0, 82, 83, 65, 49, 0, 16, 0, 0, 1, 0, 1, 0 };
 
@@ -216,26 +216,6 @@ namespace BDSA_Project_Cryptography
             stream.Close();
 
             return mp;
-        }
-
-        /// <summary>
-        /// The class invariant for the PublicKeyInfrastructure class
-        /// </summary>
-        [ContractInvariantMethod]
-        private static void PKIClassInvariant()
-        {
-
-            //// Each key must be unique
-            //// each identifier must be unique
-        }
-
-        /// <summary>
-        /// A helper method to 
-        /// </summary>
-        /// <returns></returns>
-        private static bool InvarianHelper()
-        {
-            return true;
         }
     }
 }

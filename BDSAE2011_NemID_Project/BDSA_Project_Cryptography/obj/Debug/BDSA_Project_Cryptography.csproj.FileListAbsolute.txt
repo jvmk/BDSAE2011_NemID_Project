@@ -13,3 +13,5 @@ C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE20
 C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_Cryptography\obj\Debug\ResolveAssemblyReference.cache
 C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_Cryptography\obj\Debug\BDSA_Project_Cryptography.dll
 C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_Cryptography\obj\Debug\BDSA_Project_Cryptography.pdb
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_Cryptography\bin\Debug\nunit.framework.dll
+C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\BDSA_Project_Cryptography\bin\Debug\nunit.framework.xml
