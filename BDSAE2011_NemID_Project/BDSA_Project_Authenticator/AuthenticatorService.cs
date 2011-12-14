@@ -208,7 +208,7 @@ namespace BDSA_Project_Authenticator
     }
 
     /// <summary>
-    /// TODO: Update summary.
+    /// Handles the requests sent from authentiator service clients."
     /// </summary>
     /// <author>
     /// Kenneth Lundum Søhrmann

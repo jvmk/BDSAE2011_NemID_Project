@@ -10,6 +10,7 @@ namespace BDSA_Project_Cryptography
 
     /// <summary>
     /// Several scenarios that tests the cryptographic functions of the cryptograph
+    /// <author>Simon Langhoff</author>
     /// </summary>
     [TestFixture]
     public class CryptographTest
