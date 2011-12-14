@@ -6,6 +6,7 @@ using System.Windows.Forms;
 namespace BDSA_Project_GUI
 {
     using System.IO;
+    using System.Runtime.InteropServices;
 
     using BDSA_Project_Communication;
 
@@ -17,8 +18,14 @@ namespace BDSA_Project_GUI
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main()
+        static void Main(String[] args)
         {
+            if (args == null)
+            {
+                return;
+            }
+            StringData.filePath = args[0];
+
             Console.WriteLine("Client browser starting, generating a test user.");
 
             // Test user, for demonstration purposes only.
@@ -35,5 +42,20 @@ namespace BDSA_Project_GUI
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new UsersBrowser());
         }
+    }
+
+    public class Win32
+    {
+        /// <summary>
+        /// Allocates a new console for current process.
+        /// </summary>
+        [DllImport("kernel32.dll")]
+        public static extern Boolean AllocConsole();
+
+        /// <summary>
+        /// Frees the console.
+        /// </summary>
+        [DllImport("kernel32.dll")]
+        public static extern Boolean FreeConsole();
     }
 }

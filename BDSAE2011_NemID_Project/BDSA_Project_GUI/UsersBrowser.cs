@@ -70,7 +70,16 @@ namespace BDSA_Project_GUI
                 output.Write(buf, 0, buf.Length);
 
                 // Send the request and get the response.
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                HttpWebResponse response = null;
+
+                try
+                {
+                    response = (HttpWebResponse)request.GetResponse();
+                }
+                catch (Exception)
+                {
+
+                }
 
                 // If the response was accepted (the third has the user name in it's database)...
                 if (response.StatusCode == HttpStatusCode.OK)

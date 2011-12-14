@@ -188,9 +188,7 @@ namespace BDSA_Project_Authenticator
         /// </returns>
         private bool TimedOut()
         {
-            return false;
-            /*
-            bool timedOut = this.timeOfLastValidRequest.AddMinutes(1) >= DateTime.Now;
+            bool timedOut = this.timeOfLastValidRequest.AddMinutes(1) <= DateTime.Now;
             this.timeOfLastValidRequest = DateTime.Now;
 
             if (this.currentState == SessionState.AwaitRedirection)
@@ -206,7 +204,6 @@ namespace BDSA_Project_Authenticator
 
             // No time out.
             return false;
-             * */
         }
     }
 

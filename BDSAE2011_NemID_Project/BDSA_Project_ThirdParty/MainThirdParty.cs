@@ -25,7 +25,13 @@ namespace BDSA_Project_ThirdParty
         /// <param name="args"></param>
         public static void Main(string[] args)
         {
-            Console.WriteLine("Generates public/private keypair for third party");
+            if (args == null)
+            {
+                return;
+            }
+            StringData.filePath = args[0];
+
+            Console.WriteLine("\nGenerates public/private keypair for third party");
 
             privateKey = BDSA_Project_Cryptography.Cryptograph.GenerateKeys(StringData.ThirdUri);
 

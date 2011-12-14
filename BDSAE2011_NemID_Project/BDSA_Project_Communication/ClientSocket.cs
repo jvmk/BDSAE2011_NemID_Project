@@ -204,7 +204,7 @@ namespace BDSA_Project_Communication
             Contract.Requires(this.HaveSentMessage());
             Contract.Ensures(!this.HaveSentMessage());
 
-            HttpWebResponse response = (HttpWebResponse)this.clientRequest.GetResponse();
+            HttpWebResponse response = response = (HttpWebResponse)this.clientRequest.GetResponse();
 
             Console.WriteLine("Client received response from server.");
             Console.WriteLine("Processing response...");
@@ -214,6 +214,11 @@ namespace BDSA_Project_Communication
             // 200 OK, the request wasn't accepted by the server.
             bool acceptedRequest = response.StatusCode == HttpStatusCode.OK;
 
+            if (!acceptedRequest)
+            {
+                return new Response(false, string.Empty);
+            }
+
             Stream responseStream = response.GetResponseStream();
             string rawMessageBody = MessageProcessingUtility.ReadFrom(responseStream);
 
@@ -222,11 +227,6 @@ namespace BDSA_Project_Communication
 
             // If true we are certain the response came from the authenticator. // TODO really?
             bool originMatch = this.serverDomain.Equals(responderDomain);
-
-            if (!acceptedRequest)
-            {
-                return new Response(false, string.Empty);
-            }
 
             // If the request is accepted the message body will also
             // contain a return value.
