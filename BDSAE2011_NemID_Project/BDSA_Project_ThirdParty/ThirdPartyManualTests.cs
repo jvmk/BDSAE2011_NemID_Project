@@ -14,6 +14,7 @@ namespace ThirdPartyComponentTests
 
     /// <summary>
     /// Manual tests for basic third party database operations based on scenario_chart THIRD_PARTY_MANUAL_TESTS
+    /// <author>Janus Varmarken</author>
     /// </summary>
     [TestFixture]
     public class ThirdPartyManualTests

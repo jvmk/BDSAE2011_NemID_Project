@@ -10,6 +10,7 @@ namespace BDSA_Project_ThirdParty
 
     /// <summary>
     /// Class used to generate and send http messages to the third party server.
+    /// <author>Janus Varmarken</author>
     /// </summary>
     public class ThirdPartyHttpGenerator
     {

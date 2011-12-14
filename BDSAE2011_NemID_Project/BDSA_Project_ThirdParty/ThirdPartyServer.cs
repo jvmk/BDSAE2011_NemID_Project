@@ -12,7 +12,6 @@ namespace BDSA_Project_ThirdParty
     using System.IO;
     using System.Linq;
     using System.Net;
-    using System.Text;
 
     using BDSA_Project_Communication;
 
@@ -20,6 +19,7 @@ namespace BDSA_Project_ThirdParty
 
     /// <summary>
     /// Class running the third party server.
+    /// <author>Janus Varmarken</author>
     /// </summary>
     public class ThirdPartyServer
     {

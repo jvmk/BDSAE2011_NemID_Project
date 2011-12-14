@@ -11,6 +11,7 @@ namespace BDSA_Project_Authenticator
 {
     /// <summary>
     /// Represents the account each user has at the authenticator.
+    /// <author>Janus Varmarken</author>
     /// </summary>
     internal class UserAccount
     {

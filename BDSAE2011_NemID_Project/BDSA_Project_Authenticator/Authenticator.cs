@@ -9,6 +9,7 @@ namespace BDSA_Project_Authenticator
 
     /// <summary>
     /// The backend database of the authenticator. Stores user accounts.
+    /// <author>Janus Varmarken</author>
     /// </summary>
     public class Authenticator
     {

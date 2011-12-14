@@ -294,7 +294,7 @@ namespace BDSA_Project_Cryptography
         {
             Contract.Requires(!string.IsNullOrEmpty(uniqueId));
             Contract.Ensures(!Contract.Result<string>().Equals(uniqueId));
-            byte[] dataToHash = Convert.FromBase64String(uniqueId);
+            byte[] dataToHash = Encoding.UTF8.GetBytes(uniqueId);
 
             var sha = new SHA512Managed();
 
@@ -385,6 +385,9 @@ namespace BDSA_Project_Cryptography
             const string TestMessage = "encrypt and decrypt this";
 
             //// Encrypt and decrypt info, fetching the public key information from the PKI
+            ////Encrypt(TestMessage, 
+
+
             string result = Decrypt(Encrypt(TestMessage, GetPublicKey(publicKeyIdentifier)), privateKey);
 
             return result.Equals(TestMessage);

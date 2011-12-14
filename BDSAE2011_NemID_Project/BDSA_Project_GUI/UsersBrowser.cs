@@ -14,13 +14,10 @@ namespace BDSA_Project_GUI
     using System.Net;
     using System.Text;
     using System.Windows.Forms;
-    using System.Threading;
 
     using BDSA_Project_Communication;
 
     using BDSA_Project_Cryptography;
-
-    using BDSA_Project_ThirdParty;
 
     /// <summary>
     /// The controller for the UserBrowser class (MVC)

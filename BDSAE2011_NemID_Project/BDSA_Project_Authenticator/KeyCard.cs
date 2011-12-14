@@ -134,7 +134,7 @@ namespace BDSA_Project_Authenticator
         {
             Contract.Requires(this.KeysLeft() > 0);
             Contract.Ensures(this.KeysLeft() == Contract.OldValue(this.KeysLeft()));
-            return this.keyCollection[this.currentIndex].ToString("D4");
+            return this.currentIndex.ToString("D4");
         }
 
         /// <summary>
@@ -307,9 +307,6 @@ namespace BDSA_Project_Authenticator
         private void KeyCardInvariantMethod()
         {
             Contract.Invariant(this.keyCollection.Count > 0 && this.keyCollection.Count < 255);
-            //Contract.Invariant(Contract.ForAll(keyCollection); // for all keys in keycollection, no two keys must be equal to eachother
-            //Contract.Invariant(Contract.ForAll(keyCollection)); // for all keyIndexes in keycollection, no two must be equal to eachother
-            //// For all values in keyCollection, none must be null, and must be unique.
         }
     }
 }

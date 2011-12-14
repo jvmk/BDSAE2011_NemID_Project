@@ -11,6 +11,7 @@ namespace BDSA_Project_ThirdParty
 
     /// <summary>
     /// Represents the backend database of the third party server.
+    /// <author>Janus Varmarken</author>
     /// </summary>
     internal class ThirdParty
     {

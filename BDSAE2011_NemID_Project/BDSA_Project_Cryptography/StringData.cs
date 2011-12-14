@@ -13,6 +13,6 @@ namespace BDSA_Project_Communication
 
         public static string ThirdUri = "http://localhost:8082/";
 
-        public static string filePath = @"C:\Users\Kenneth88\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\";
+        public static string filePath = @"C:\Users\Janus Varmarken\BDSAE2011_NemID_Project\BDSAE2011_NemID_Project\";
     }
 }

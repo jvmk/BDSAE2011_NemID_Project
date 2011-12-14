@@ -11,6 +11,7 @@ namespace BDSA_Project_ThirdParty
 
     /// <summary>
     /// Represents a user in the ThirdParty database.
+    /// <author>Janus Varmarken</author>
     /// </summary>
     internal class ThirdPartyUserAccount
     {

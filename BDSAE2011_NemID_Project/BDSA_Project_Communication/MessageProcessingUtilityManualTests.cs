@@ -14,8 +14,10 @@ namespace BDSAE2011_NemID_Project
     using NUnit.Framework;
 
     /// <summary>
-    /// TODO: Update summary.
+    /// Tests methods in MessageProcessingUtility that do not require generated keys.
+    /// <author>Janus Varmarken</author>
     /// </summary>
+    [TestFixture]
     public class MessageProcessingUtilityManualTests
     {
         [Test]

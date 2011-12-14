@@ -35,8 +35,11 @@ namespace BDSA_Project_Authenticator
             Assert.That(testCard.GetKeyCardNumber() == 1);
 
             Assert.That(testCard.KeysLeft() > 0);
-        }
 
-        
+            // Assert that the length of the index as a string always will be 4 digits.
+            Assert.That(testCard.GetKeyIndexAsString().Length == 4);
+
+            string keyCard = testCard.ToString();
+        }
     }
 }
