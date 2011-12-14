@@ -12,8 +12,11 @@ namespace BDSA_Project_Communication
     using BDSA_Project_Cryptography;
 
     /// <summary>
-    /// TODO: Update summary.
+    /// A proxy used by the client to send requests to the authenticator.
     /// </summary>
+    /// <author>
+    /// Kenneth Lundum Søhrmann
+    /// </author>
     public class AuthenticatorProxy
     {
         /// <summary>
@@ -50,6 +53,7 @@ namespace BDSA_Project_Communication
         }
 
         /// <summary>
+        /// Create a new account at the authenticator service.
         /// Requests creation of new user account at the authentication
         /// service with the specified properties.
         /// </summary>
@@ -89,6 +93,7 @@ namespace BDSA_Project_Communication
         }
 
         /// <summary>
+        /// Submit user name and password to the authenticator service.
         /// Submits log-in request to the authentication-server.
         /// </summary>
         /// <param name="userName">
@@ -120,6 +125,8 @@ namespace BDSA_Project_Communication
         }
 
         /// <summary>
+        /// Get the key index the server is expecting the corresponding
+        /// key for.
         /// When the user submitted an accepted combination of userId
         /// and password to the authentication server, this method
         /// returns the keyIndex from the users key card which 
@@ -189,6 +196,8 @@ namespace BDSA_Project_Communication
         }
 
         /// <summary>
+        /// Get the shared secret between the client and the third party used to \
+        /// establish a secure connection.
         /// Gets the the shared secret between the client and the third
         /// party, for which the client is being authenticated.
         /// When the user has proceeded via Proceed, this method can be
@@ -203,6 +212,7 @@ namespace BDSA_Project_Communication
         }
 
         /// <summary>
+        /// Abort the current authentication session at the authenticator service.
         /// Aborts the current authentication session at the authenticator.
         /// </summary>
         /// <param name="userName">
@@ -225,6 +235,7 @@ namespace BDSA_Project_Communication
         }
 
         /// <summary>
+        /// Revoke this user account from the authenticator service.
         /// Requests revocation of the user account specified
         /// by the user name. The client must have gone through the login
         /// procedure before this method can be invoked.

@@ -14,8 +14,12 @@ namespace BDSA_Project_Authenticator
     using BDSA_Project_Communication;
 
     /// <summary>
-    /// 
+    /// Records a client session making sure that the authenticator operations
+    /// are requested in the correct order.
     /// </summary>
+    /// <author>
+    /// Kenneth Lundum Søhrmann.
+    /// </author>
     internal class ClientSession
     {
         /// <summary>
@@ -82,10 +86,14 @@ namespace BDSA_Project_Authenticator
         }
 
         /// <summary>
-        /// Is the specified operation valid?
+        /// Is this operation valid to request?
         /// </summary>
-        /// <param name="operation"></param>
-        /// <returns></returns>
+        /// <param name="operation">
+        /// String represention of the operation.
+        /// </param>
+        /// <returns>
+        /// True if the operation is valid, false otherwise.
+        /// </returns>
         public bool IsOperationValid(string operation)
         {
             if (this.currentState == SessionState.AwaitRedirection)
@@ -154,6 +162,7 @@ namespace BDSA_Project_Authenticator
         /// <summary>
         /// Gets or sets the third party domain that the user is currently
         /// trying to get authenticated for.
+        /// What third party is the client session currently linked to?
         /// </summary>
         public string ThirdPartyDomain
         {
@@ -204,6 +213,9 @@ namespace BDSA_Project_Authenticator
     /// <summary>
     /// TODO: Update summary.
     /// </summary>
+    /// <author>
+    /// Kenneth Lundum Søhrmann
+    /// </author>
     public class AuthenticatorService
     {
         /// <summary>

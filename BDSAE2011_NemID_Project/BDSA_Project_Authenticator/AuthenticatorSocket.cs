@@ -19,6 +19,9 @@ namespace BDSA_Project_Authenticator
     /// Data structure that represents the properties of a client
     /// http message.
     /// </summary>
+    /// <author>
+    /// Kenneth Lundum Søhrmann.
+    /// </author>
     public struct Request
     {
         /// <summary>
@@ -105,8 +108,12 @@ namespace BDSA_Project_Authenticator
     }
 
     /// <summary>
-    /// TODO: Update summary.
+    /// Network socket that receives request from clients, send responses and
+    /// processes the HTTP-message exchanged during these operations.	
     /// </summary>
+    /// <author>
+    /// Kenneth Lundum Søhrmann
+    /// </author>
     public class AuthenticatorServer
     {
         /// <summary>

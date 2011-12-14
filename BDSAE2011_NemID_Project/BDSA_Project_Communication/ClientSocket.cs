@@ -19,6 +19,9 @@ namespace BDSA_Project_Communication
     /// Data structure representing the properties of the 
     /// HTTP response message from the authenticator.
     /// </summary>
+    /// <author>
+    /// Kenneth Lundum Søhrmann
+    /// </author>
     public struct Response
     {
         /// <summary>
@@ -78,8 +81,12 @@ namespace BDSA_Project_Communication
     }
 
     /// <summary>
-    /// TODO: Update summary.
+    /// The component that transform the client requests to HTTP request 
+    /// messages and communicates with the authenticator server.”
     /// </summary>
+    /// <author>
+    /// Kenneth Lundum Søhrmann;
+    /// </author>
     public class ClientSocket
     {
         /// <summary>

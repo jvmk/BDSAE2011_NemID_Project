@@ -43,7 +43,6 @@
     <Compile Include="ClientSocket.cs" />
     <Compile Include="MessageProcessingUtility.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StringData.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\BDSA_Project_Cryptography\BDSA_Project_Cryptography.csproj">

@@ -18,10 +18,13 @@ namespace BDSA_Project_Communication
     /// <summary>
     /// HTTP message body processing utilities.
     /// </summary>
+    /// <author>
+    /// Kenneth Lundum Søhrmann
+    /// </author>
     public class MessageProcessingUtility
     {
         /// <summary>
-        /// Helper method for ReadMessage.
+        /// Can I get the text from this stream?
         /// Reads the bytes from the specified stream and
         /// encodes them in UTF8.
         /// </summary>
@@ -59,6 +62,7 @@ namespace BDSA_Project_Communication
         }
 
         /// <summary>
+        /// Does this URL contain a request parameter?
         /// Determines if he url contains a request parameter.
         /// </summary>
         /// <param name="rawUrl">
@@ -76,8 +80,8 @@ namespace BDSA_Project_Communication
         }
 
         /// <summary>
+        /// Is this URL a valid URL?
         /// Checks if the given url is a valid url.
-        /// Source: http://stackoverflow.com/questions/7578857/how-to-check-whether-a-string-is-a-valid-http-url
         /// </summary>
         /// <param name="url">
         /// Stirng representation of the URL.
@@ -93,6 +97,7 @@ namespace BDSA_Project_Communication
         }
 
         /// <summary>
+        /// Get the requested operation from the this URL.
         /// Gets the requested operation specified in the given URL.
         /// </summary>
         /// <param name="url">
@@ -116,6 +121,7 @@ namespace BDSA_Project_Communication
         }
 
         /// <summary>
+        /// Get the requester’s domain from this raw HTTP message body.
         /// Gets the requester domain specified in the given
         /// raw HTTP message body.
         /// </summary>
@@ -267,8 +273,9 @@ namespace BDSA_Project_Communication
         }
 
         /// <summary>
+        /// Is this raw HTTP message body well formed?
         /// Determines if the specified raw message body of an HTTP message
-        /// is well formed as defined in the README. // TODO done?
+        /// is well formed as defined in the README.
         /// </summary>
         /// <param name="rawMessageBody">
         /// The string representing a raw HTTP message body.

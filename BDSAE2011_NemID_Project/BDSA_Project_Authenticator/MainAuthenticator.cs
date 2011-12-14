@@ -13,6 +13,9 @@ namespace BDSA_Project_Authenticator
     /// <summary>
     /// Entry point for setting up the authentication service.
     /// </summary>
+    /// <author>
+    /// Kenneth Lundum Søhrmann
+    /// </author>
     public class MainAuthenticator
     {
         /// <summary>

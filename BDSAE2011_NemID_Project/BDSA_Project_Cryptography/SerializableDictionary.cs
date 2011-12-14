@@ -10,10 +10,17 @@
     namespace Sample
     {
         /// <summary>
+        /// A dictionary data structure that is serializable.
+        /// The implementation of this class has been obtained from this site.
+        /// We have not altered the imported implementation in any way.
         /// http://www.dacris.com/blog/2010/07/31/c-serializable-dictionary-a-working-example/
         /// </summary>
-        /// <typeparam name="TKey"></typeparam>
-        /// <typeparam name="TVal"></typeparam>
+        /// <typeparam name="TKey">
+        /// Type of the keys stored in the dictionary.
+        /// </typeparam>
+        /// <typeparam name="TVal">
+        /// The type of the values stored in the dictionary.
+        /// </typeparam>
         [Serializable()]
         public class SerializableDictionary<TKey, TVal> : Dictionary<TKey, TVal>, IXmlSerializable, ISerializable
         {

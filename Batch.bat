@@ -1,0 +1,1 @@
+start .\BDSAE2011_NemID_Project\BDSA_Project_Authenticator\bin\Debug\BDSA_Project_Authenticator.exe
