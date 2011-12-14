@@ -52,7 +52,7 @@ namespace BDSA_Project_Cryptography
         {
             Cryptograph.GenerateKeys("PublicKey3");
             byte[] publicKey = PublicKeyInfrastructure.GetKey("PublicKey3");
-            Assert.That(PublicKeyInfrastructure.ContainsValue(publicKey));
+            Assert.That(PublicKeyInfrastructure.RevokeKey("PublicKey3"));
         }
     }
 }
