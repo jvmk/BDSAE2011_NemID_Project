@@ -66,10 +66,9 @@ namespace BDSA_Project_Cryptography
         [Test]
         public void WrongKeyTypeTest()
         {
-            Assert.Null(Cryptograph.Encrypt(TestMessage, this.privateKeyA));
-
             string correctCipherText = Cryptograph.Encrypt(TestMessage, PublicKeyInfrastructure.GetKey("publicKeyA"));
-            Assert.Null(Cryptograph.Decrypt(correctCipherText, PublicKeyInfrastructure.GetKey("publicKeyA")));
+
+            Assert.False(string.Equals(Cryptograph.Decrypt(correctCipherText, PublicKeyInfrastructure.GetKey("publicKeyA")), TestMessage));
         }
 
         /// <summary>
@@ -79,7 +78,7 @@ namespace BDSA_Project_Cryptography
         public void SignAndVerify()
         {
             string signedMessage = Cryptograph.SignData(TestMessage, this.privateKeyB);
-            
+
             Assert.True(Cryptograph.VerifyData(TestMessage, signedMessage, PublicKeyInfrastructure.GetKey("publicKeyB")));
         }
 

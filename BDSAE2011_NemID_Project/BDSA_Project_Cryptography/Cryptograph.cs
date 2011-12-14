@@ -16,6 +16,7 @@ namespace BDSA_Project_Cryptography
 
     /// <summary>
     /// The class for handling encryption and decryption of data
+    /// <author>Simon Langhoff</author>
     /// </summary>
     public static class Cryptograph
     {
@@ -64,7 +65,7 @@ namespace BDSA_Project_Cryptography
             Contract.Requires(publicKeyInfo != null);
             Contract.Requires(string.IsNullOrEmpty(messageToEncrypt));
             Contract.Ensures(!Contract.Result<string>().Equals(messageToEncrypt));
-            
+
 
             //// Our bytearray to hold all of our data after the encryption
             byte[] encryptedBytes;
@@ -227,7 +228,7 @@ namespace BDSA_Project_Cryptography
                     //// Sign the data, using SHA512 as the hashing algorithm 
                     signedBytes = rsa.SignData(originalData, CryptoConfig.MapNameToOID("SHA512"));
                 }
-                catch (CryptographicException e)
+                catch (CryptographicException)
                 {
                     return null;
                 }
@@ -284,7 +285,7 @@ namespace BDSA_Project_Cryptography
                 }
             }
         }
-        
+
         /// <summary>
         /// Generate a hash based upon this string.
         /// </summary>
@@ -384,13 +385,11 @@ namespace BDSA_Project_Cryptography
 
             const string TestMessage = "encrypt and decrypt this";
 
-            //// Encrypt and decrypt info, fetching the public key information from the PKI
-            ////Encrypt(TestMessage, 
+            string encryptedMessage = Encrypt(TestMessage, GetPublicKey(publicKeyIdentifier));
 
+            string decryptedMessage = Decrypt(encryptedMessage, privateKey);
 
-            string result = Decrypt(Encrypt(TestMessage, GetPublicKey(publicKeyIdentifier)), privateKey);
-
-            return result.Equals(TestMessage);
+            return string.Equals(TestMessage, decryptedMessage);
         }
     }
 }

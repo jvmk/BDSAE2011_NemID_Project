@@ -15,6 +15,7 @@ namespace BDSA_Project_Authenticator
 
     /// <summary>
     /// Testing several scenarios that aim to cover all the functionality of the key card class
+    /// <author>Simon Langhoff</author>
     /// </summary>
     [TestFixture]
     public class KeyCardTest

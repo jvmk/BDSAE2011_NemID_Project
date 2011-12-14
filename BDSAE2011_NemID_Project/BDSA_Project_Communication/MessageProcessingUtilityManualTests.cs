@@ -6,6 +6,7 @@
 
 namespace BDSAE2011_NemID_Project
 {
+    using System;
     using System.IO;
     using System.Text;
 
@@ -24,15 +25,16 @@ namespace BDSAE2011_NemID_Project
         public void TestReadFrom()
         {
             // write text to stream
-            Stream inputStream = new MemoryStream();
+            MemoryStream outputStream = new MemoryStream();
             string inputText = "Hello, world!";
             byte[] inputBytes = Encoding.UTF8.GetBytes(inputText);
-            inputStream.Write(inputBytes, 0, inputBytes.Length);
+            outputStream.Write(inputBytes, 0, inputBytes.Length);
 
             // use ReadFrom to recieve the data
-            string outputString = MessageProcessingUtility.ReadFrom(inputStream);
+            string outputString = MessageProcessingUtility.ReadFrom(outputStream);
+            Console.WriteLine(outputString);
             Assert.True(outputString.Equals(inputText));
-            inputStream.Close();
+            outputStream.Close();
         }
 
         [Test]
@@ -47,6 +49,7 @@ namespace BDSAE2011_NemID_Project
         [Test]
         public void TestIsValidUrl()
         {
+            // (these tests fail if scheme is set to http inside the IsValidUrl method in MessageProcessingUtility)
             Assert.True(MessageProcessingUtility.IsValidUrl("https://localhost:8080/")); // accepts ports
             Assert.True(MessageProcessingUtility.IsValidUrl("https://somepage.dk/")); // accepts domains
             Assert.True(MessageProcessingUtility.IsValidUrl("https://localhost:8080/subpage")); // subpage ok
@@ -70,6 +73,9 @@ namespace BDSAE2011_NemID_Project
             string wellformed = "origin=adkgfjkjgjkjg&fkjsgkfgkjgkjfggjjh&hdhgfhdfhd";
             Assert.True(MessageProcessingUtility.IsRawMessageBodyWellFormed(wellformed)); // has 'origin=' and 2 '&' 
 
+            string endsWithAmbs = "origin=adkgfjkjgjkjg&fkjsgkfgkjgkjfggjjhhdhgfhdfhd&";
+            Assert.True(MessageProcessingUtility.IsRawMessageBodyWellFormed(endsWithAmbs)); // empty, but still legal, request
+
             Assert.False(MessageProcessingUtility.IsRawMessageBodyWellFormed(null)); // null is not allowed (enter 1st if(!wellFormed))
             
             string noAmbs = "origin=kdgjjjjjjjjjjjjjjjjjjjjklkæjjsfsfdasfafadfa";
@@ -80,10 +86,7 @@ namespace BDSAE2011_NemID_Project
 
             string oneAmbs = "origin=adfsadfaf&agdgsgsfgfhfshfshsfhsfhsf"; 
             Assert.False(MessageProcessingUtility.IsRawMessageBodyWellFormed(oneAmbs)); // Only one '&' (enter 4th if(!wellFormed))
-
-            string endsWithAmbs = "origin=adkgfjkjgjkjg&fkjsgkfgkjgkjfggjjhhdhgfhdfhd&";
-            Assert.False(MessageProcessingUtility.IsRawMessageBodyWellFormed(endsWithAmbs)); // lacks data after last '&'
-            
+         
             string threeAmbs = "origin=adkgfjkjgjkjg&fkjsgkfgkjgk&jfggjjh&hdhgfhdfhd";
             Assert.False(MessageProcessingUtility.IsRawMessageBodyWellFormed(threeAmbs)); // only 2 x '&' allowed
         }

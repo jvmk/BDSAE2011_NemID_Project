@@ -14,7 +14,8 @@ namespace BDSA_Project_Cryptography
     using NUnit.Framework;
 
     /// <summary>
-    /// TODO: Update summary.
+    /// a set of scenarios that aim to test most of the functionality of the PKI
+    /// <author>Simon langhoff</author>
     /// </summary>
     [TestFixture]
     public class PublicKeyInfrastructureTest
@@ -32,7 +33,7 @@ namespace BDSA_Project_Cryptography
             //// Remove the key to create consistency
             Assert.That(PublicKeyInfrastructure.RevokeKey("PublicKey1"));
         }
-        
+
         /// <summary>
         /// store a key and remove the same key again and check if it contains the key
         /// </summary>
@@ -40,7 +41,6 @@ namespace BDSA_Project_Cryptography
         public void RemoveContainsTest()
         {
             byte[] privateKey2 = Cryptograph.GenerateKeys("PublicKey2");
-            Assert.That(PublicKeyInfrastructure.StoreKey(privateKey2, "PublicKey2"));
             Assert.That(PublicKeyInfrastructure.RevokeKey("PublicKey2"));
         }
 
@@ -52,7 +52,6 @@ namespace BDSA_Project_Cryptography
         {
             Cryptograph.GenerateKeys("PublicKey3");
             byte[] publicKey = PublicKeyInfrastructure.GetKey("PublicKey3");
-            Assert.That(PublicKeyInfrastructure.ContainsValue(publicKey).Equals(PublicKeyInfrastructure.GetKey("PublicKey3")));
             Assert.That(PublicKeyInfrastructure.RevokeKey("PublicKey3"));
         }
     }

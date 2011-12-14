@@ -18,6 +18,7 @@ namespace BDSA_Project_Cryptography
 
     /// <summary>
     /// "Contains public key information for different domains and users
+    /// <author>Simon Langhoff</author>
     /// </summary>
     internal static class PublicKeyInfrastructure
     {
@@ -148,7 +149,6 @@ namespace BDSA_Project_Cryptography
 
         /// <summary>
         /// This method takes the dictionary and reads it to a path, this is used to ensure persistency 
-        /// http://www.dotnetperls.com/dictionary-binary
         /// </summary>
         /// <param name="dictionary">The dictionary to write to path</param>
         /// <param name="path">The path to write the path to</param>
@@ -156,21 +156,6 @@ namespace BDSA_Project_Cryptography
         {
             Contract.Requires(dictionary != null);
             Contract.Requires(!string.IsNullOrEmpty(path));
-            /*
-            using (FileStream fs = File.OpenWrite(path))
-            using (var writer = new BinaryWriter(fs))
-            {
-                // Put count.
-                writer.Write(dictionary.Count);
-
-                // Write pairs.
-                foreach (var pair in dictionary)
-                {
-                    writer.Write(pair.Key);
-                    writer.Write(pair.Value);
-                }
-            }
-             * */
 
             Stream stream = File.Open(path, FileMode.Create);
             BinaryFormatter bformatter = new BinaryFormatter();
@@ -181,7 +166,6 @@ namespace BDSA_Project_Cryptography
 
         /// <summary>
         /// This is used to read a dictionary from a file
-        /// http://www.dotnetperls.com/dictionary-binary
         /// </summary>
         /// <param name="path">The path to the file</param>
         /// <returns>The dictionary read from the file</returns>
@@ -189,24 +173,6 @@ namespace BDSA_Project_Cryptography
         {
 
             Contract.Requires(!string.IsNullOrEmpty(path));
-            /*
-            var result = new Dictionary<string, byte[]>();
-            using (FileStream fs = File.OpenRead(path))
-            using (var reader = new BinaryReader(fs))
-            {
-                // Determine the amount of key value pairs to read.
-                int count = reader.ReadInt32();
-
-                // Read in all the pairs.
-                for (int i = 0; i < count; i++)
-                {
-                    string key = reader.ReadString();
-                    byte[] value = reader.ReadBytes(513);
-                    result[key] = value;
-                }
-            }
-            return result;
-             * */
 
             Stream stream = File.Open(path, FileMode.Open);
             BinaryFormatter bformatter = new BinaryFormatter();
