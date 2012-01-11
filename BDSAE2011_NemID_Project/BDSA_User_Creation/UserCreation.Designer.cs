@@ -136,7 +136,7 @@
             this.AbortButton.Name = "AbortButton";
             this.AbortButton.Size = new System.Drawing.Size(163, 28);
             this.AbortButton.TabIndex = 3;
-            this.AbortButton.Text = "ABANDON SHIP!";
+            this.AbortButton.Text = "Cancel";
             this.AbortButton.UseVisualStyleBackColor = true;
             // 
             // tableLayoutPanel2

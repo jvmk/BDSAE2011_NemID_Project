@@ -31,7 +31,7 @@ namespace BDSA_User_Creation
             if (result == DialogResult.OK)
             {
                 path = folderBrowserDialog1.SelectedPath;
-                if (privateKey.Equals(null))
+                if (ReferenceEquals(privateKey, null))
                 {
                     //Generate the keys for the user
                     privateKey = Cryptograph.GenerateKeys(EmailTextBox.Text);
@@ -39,10 +39,6 @@ namespace BDSA_User_Creation
             }
 
             // Save the key to the specified file path
-            if (path == string.Empty)
-            {
-                Console.Write("The path was not set");
-            }
             File.WriteAllBytes(path + usernameTextBox.Text + "privateKey", privateKey);
 
             //// Creates the auth proxy and creates an user
