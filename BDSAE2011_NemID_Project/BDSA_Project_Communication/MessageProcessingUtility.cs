@@ -211,7 +211,7 @@ namespace BDSA_Project_Communication
                 }
                 else
                 {
-                    e = decryptedMessage.IndexOf('&', currentIndex);
+                    e = decryptedMessage.IndexOf('&', s); // TODO added
                 }
 
                 parameters[i] = decryptedMessage.Substring(s, e - s);

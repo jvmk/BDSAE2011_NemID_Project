@@ -10,6 +10,7 @@ using System.Windows.Forms;
 namespace BDSA_User_Creation
 {
     using System.IO;
+    using System.Threading;
 
     using BDSA_Project_Communication;
 
@@ -26,6 +27,8 @@ namespace BDSA_User_Creation
         {
             string path = string.Empty;
             byte[] privateKey = null;
+            string email = EmailTextBox.Text;
+
             // Set the file path
             DialogResult result = folderBrowserDialog1.ShowDialog();
             if (result == DialogResult.OK)
@@ -34,23 +37,23 @@ namespace BDSA_User_Creation
                 if (ReferenceEquals(privateKey, null))
                 {
                     //Generate the keys for the user
-                    privateKey = Cryptograph.GenerateKeys(EmailTextBox.Text);
+                    privateKey = Cryptograph.GenerateKeys(email);
+                    //Thread.Sleep(1000);
                 }
             }
 
             // Save the key to the specified file path
-            File.WriteAllBytes(path + usernameTextBox.Text + "privateKey", privateKey);
+            File.WriteAllBytes(path + "/" + usernameTextBox.Text + "privateKey", privateKey);
 
             //// Creates the auth proxy and creates an user
-            AuthenticatorProxy proxy = new AuthenticatorProxy(StringData.AuthUri, EmailTextBox.Text, privateKey);
+            AuthenticatorProxy proxy = new AuthenticatorProxy(StringData.AuthUri, email, privateKey);
             bool creationSuccesfull = proxy.CreateUserAccount(
-                usernameTextBox.Text, passwordTextBox.Text, cprTextBox.Text, EmailTextBox.Text);
+                usernameTextBox.Text, passwordTextBox.Text, cprTextBox.Text, email);
             if (creationSuccesfull)
             {
                 Console.Write("The user has successfully been created and the application is now closing");
                 Application.Exit();
             }
-
             else
             {
                 Console.WriteLine("Something unexpected went wrong");

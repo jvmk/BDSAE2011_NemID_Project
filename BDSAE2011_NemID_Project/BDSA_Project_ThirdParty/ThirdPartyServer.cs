@@ -54,7 +54,7 @@ namespace BDSA_Project_ThirdParty
             string serverAddress = fullURI; // TODO update to https after testing!!!
             this.server.Prefixes.Add(serverAddress);
 
-            this.subpagesForPost.AddRange(new[] { "/request=loginpage", "/request=usertoken/", "/request=authtoken/" });
+            this.subpagesForPost.AddRange(new[] { "/request=loginpage", "/request=usertoken/", "/request=authtoken/", "/request=newuseradded/" });
         }
 
 

@@ -13,6 +13,8 @@ namespace BDSA_Project_User_Creation
     using System.Text;
     using System.Windows.Forms;
 
+    using BDSA_Project_Communication;
+
     using BDSA_User_Creation;
 
     /// <summary>
@@ -30,6 +32,9 @@ namespace BDSA_Project_User_Creation
             {
                 return;
             }
+
+            StringData.filePath = args[0];
+
             Console.WriteLine("Loading the user creation screen");
 
             // Start up application.

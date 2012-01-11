@@ -612,32 +612,32 @@ namespace BDSA_Project_Authenticator
             string email = processedRequest.Parameters[3];
 
             // Check if it is legal to call this operation
-            ClientSession userSession = this.userSessions[userName];
-            bool validOperation = userSession.IsOperationValid("createAccount");
+            // ClientSession userSession = this.userSessions[userName];
+            // bool validOperation = userSession.IsOperationValid("createAccount");
 
             // If the requested operation is valid...
-            if (validOperation)
+            // if (validOperation)
+            //{
+            // ...check if the request is valid.
+            validRequest = this.authenticator.AddNewUser(userName, password, cprNumber, email);
+
+            if (validRequest)
             {
-                // ...check if the request is valid.
-                validRequest = this.authenticator.AddNewUser(userName, password, cprNumber, email);
+                // Update the state of the client session.
+                // userSession.ChangeStateTo(ClientSession.SessionState.AwaitRedirection);
 
-                if (validRequest)
+                // The new account must be added to client sessions.
+                this.userSessions.Add(userName, new ClientSession());
+
+                // Multicast new user account to trusted third parties.
+                foreach (string trustedThirdPartyURI in this.authenticator.TrustedThirdPartyURIs)
                 {
-                    // Update the state of the client session.
-                    userSession.ChangeStateTo(ClientSession.SessionState.AwaitRedirection);
-
-                    // The new account must be added to client sessions.
-                    this.userSessions.Add(userName, new ClientSession());
-
-                    // Multicast new user account to trusted third parties.
-                    foreach (string trustedThirdPartyURI in this.authenticator.TrustedThirdPartyURIs)
-                    {
-                        ClientSocket socket = new ClientSocket(trustedThirdPartyURI, StringData.AuthUri, this.authenticatorPrivateKey);
-                        socket.SendMessage("newuseradded", "userName=" + userName);
-                    }
-
-                    return;
+                    ClientSocket socket = new ClientSocket(trustedThirdPartyURI, StringData.AuthUri, this.authenticatorPrivateKey);
+                    socket.SendMessage("newuseradded", "userName=" + userName);
                 }
+
+                return;
+                //}
             }
 
             validRequest = false;
