@@ -10,6 +10,7 @@
 namespace BDSA_Project_GUI
 {
     using System;
+    using System.Drawing;
     using System.IO;
     using System.Net;
     using System.Text;
@@ -76,24 +77,27 @@ namespace BDSA_Project_GUI
                 {
                     response = (HttpWebResponse)request.GetResponse();
                 }
-                catch (Exception)
+                catch (WebException)
                 {
-
+                    errorMessage.ForeColor = Color.Red;
+                    errorMessage.Text = "Username not valid.";
+                    return;
                 }
 
-                // If the response was accepted (the third has the user name in it's database)...
-                if (response.StatusCode == HttpStatusCode.OK)
-                {
-                    // ...redirect client to authenticator login screen.
-                    this.Controls.Clear(); // reset window
-                    this.Controls.Add(new NemIdCreateAuthProxy(username)); // go to nem id login screen
-                }
+                // The response was accepted (the third has the user name in it's database)...
+                //   if (response.StatusCode == HttpStatusCode.OK)
+                //   {
+                // ...redirect client to authenticator login screen.
+                this.Controls.Clear(); // reset window
+                this.Controls.Add(new NemIdCreateAuthProxy(username)); // go to nem id login screen
+                //   }
                 // If the request was not successful...
-                else
-                {
-                    // ...print an error message.
-                    errorMessage.Text = "Username not found.";
-                }
+
+                //else
+                // {
+                // ...print an error message.
+                //    errorMessage.Text = "Username not found.";
+                // }
             }
             // If the user input was not valid...
             else

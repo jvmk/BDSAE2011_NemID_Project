@@ -204,20 +204,37 @@ namespace BDSA_Project_Communication
             Contract.Requires(this.HaveSentMessage());
             Contract.Ensures(!this.HaveSentMessage());
 
-            HttpWebResponse response = response = (HttpWebResponse)this.clientRequest.GetResponse();
+            HttpWebResponse response;
+            bool acceptedRequest;
+
+            try
+            {
+                // If the request has any other HTTP response code than 200,
+                // the GetResponse-method will throw a WebException.
+                response = response = (HttpWebResponse)this.clientRequest.GetResponse();
+            }
+            catch (WebException)
+            {
+                acceptedRequest = false;
+                return new Response(acceptedRequest, null);
+            }
+
+            acceptedRequest = true;
 
             Console.WriteLine("Client received response from server.");
             Console.WriteLine("Processing response...");
 
+            /*
             // The HTTP status code indicates whether the request was 
             // accepted by the server. If the codes is anything other than
             // 200 OK, the request wasn't accepted by the server.
-            bool acceptedRequest = response.StatusCode == HttpStatusCode.OK;
+            acceptedRequest = response.StatusCode == HttpStatusCode.OK;
 
             if (!acceptedRequest)
             {
                 return new Response(false, string.Empty);
             }
+             * */
 
             Stream responseStream = response.GetResponseStream();
             string rawMessageBody = MessageProcessingUtility.ReadFrom(responseStream);
@@ -243,7 +260,7 @@ namespace BDSA_Project_Communication
 
             responseStream.Close();
 
-            return new Response(true, returnValue);
+            return new Response(acceptedRequest, returnValue);
         }
 
         /// <summary>

@@ -12,6 +12,7 @@ namespace BDSA_Project_ThirdParty
     using System.IO;
     using System.Linq;
     using System.Net;
+    using System.Text;
 
     using BDSA_Project_Communication;
 
@@ -254,7 +255,7 @@ namespace BDSA_Project_ThirdParty
                     break;
                 case @"/request=usertoken/":
                     Console.WriteLine("Processing /request=usertoken request with username=" + inputValues[0] + " and token value=" + inputValues[1]);
-                    this.AnswerUsertokenPost(response, inputValues[0], inputValues[1]); // index 0 is username, index 1 is token
+                    this.AnswerUsertokenPost(clientPki, response, inputValues[0], inputValues[1]); // index 0 is username, index 1 is token
                     break;
                 default:
                     // Resource either not found or not meant for posting
@@ -293,13 +294,32 @@ namespace BDSA_Project_ThirdParty
             Contract.Requires(!ReferenceEquals(expectedPkiId, null));
             string senderPkiId = MessageProcessingUtility.GetRequesterDomain(httpMessageBody, this.serversPrivateKey);
 
-
             if (ReferenceEquals(senderPkiId, null) || !senderPkiId.Equals(expectedPkiId))
             {
                 // Origin is not determable or not equal to expected origin
                 return false;
             }
 
+            string[] parts = httpMessageBody.Split('&');
+
+            for (int i = 0; i < 3; i++)
+            {
+                Console.WriteLine("Parameter " + i + ": " + parts[i]);
+            }
+
+            // encMessageBody is encrypted in the authenticator's public
+            // key. This text represents the text that is signed by the
+            // client.
+            string encMessageBody = parts[1];
+
+            // signedEncMessageBody is the signed text of the encMessageBody.
+            // It has been signed by the client's private key.
+            string signedEncMessageBody = parts[2];
+
+            return Cryptograph.VerifyData(
+                encMessageBody, signedEncMessageBody, Cryptograph.GetPublicKey(senderPkiId));
+
+            /*
             // Get the actual message that was decrypted
             string actualMessage = httpMessageBody.Substring(0, httpMessageBody.LastIndexOf('&'));
 
@@ -309,8 +329,12 @@ namespace BDSA_Project_ThirdParty
             string signedMessage = httpMessageBody.Substring(
                start, end - start);
 
+            Console.WriteLine("actual message: " + actualMessage);
+            Console.WriteLine("signed message: " + signedMessage);
+
             // verify data with sender's public key
             return Cryptograph.VerifyData(actualMessage, signedMessage, Cryptograph.GetPublicKey(expectedPkiId));
+             * */
         }
 
         // < HELPER METHODS FOR POST PROCESSING STARTS >
@@ -378,7 +402,7 @@ namespace BDSA_Project_ThirdParty
         /// <param name="response">The HttpListenerResponse obtained from the HttpListenerContext that is associated with the post to the request=userhtoken resource.</param>
         /// <param name="username">The username that provides the token (nonce)</param>
         /// <param name="tokenValue">The token (nonce) the user has send which is compared to the authenticator provided token.</param>
-        private void AnswerUsertokenPost(HttpListenerResponse response, string username, string tokenValue)
+        private void AnswerUsertokenPost(string clientPki, HttpListenerResponse response, string username, string tokenValue)
         {
             Contract.Requires(!ReferenceEquals(response, null));
             Contract.Requires(!ReferenceEquals(username, null));
@@ -387,6 +411,11 @@ namespace BDSA_Project_ThirdParty
             {
                 response.StatusCode = 200; // HTTP OK status
                 response.StatusDescription = "Authentication successful.";
+
+                String responseMessage = this.CompileMessageBody(clientPki, "Authenticated");
+                byte[] messageBytes = Encoding.UTF8.GetBytes(responseMessage);
+                response.OutputStream.Write(messageBytes, 0, messageBytes.Length);
+
                 response.Close();
             }
             else
@@ -394,6 +423,32 @@ namespace BDSA_Project_ThirdParty
                 response = this.SetupForbiddenResponse(response, "Access denied, possible timeout.");
                 response.Close();
             }
+        }
+
+        private string CompileMessageBody(string clientPki, string message)
+        {
+            Contract.Requires(message != null);
+
+            StringBuilder messageBody = new StringBuilder();
+
+            // Domain encrypted in third party's public key.
+            string encDomain = Cryptograph.Encrypt(
+                StringData.ThirdUri, Cryptograph.GetPublicKey(clientPki));
+
+            messageBody.Append("origin=" + encDomain + "&");
+
+            // Encrypt message in third party's public key.
+            string encMessage = Cryptograph.Encrypt(
+                message, Cryptograph.GetPublicKey(clientPki));
+
+            messageBody.Append(encMessage + "&");
+
+            // Sign encMessage in client's private key.
+            string signedEncMessage = Cryptograph.SignData(encMessage, this.serversPrivateKey);
+
+            messageBody.Append(signedEncMessage);
+
+            return messageBody.ToString();
         }
 
         // < / HELPER METHODS FOR POST PROCESSING ENDS >
