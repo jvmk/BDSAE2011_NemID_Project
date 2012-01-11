@@ -628,6 +628,14 @@ namespace BDSA_Project_Authenticator
 
                     // The new account must be added to client sessions.
                     this.userSessions.Add(userName, new ClientSession());
+
+                    // Multicast new user account to trusted third parties.
+                    foreach (string trustedThirdPartyURI in this.authenticator.TrustedThirdPartyURIs)
+                    {
+                        ClientSocket socket = new ClientSocket(trustedThirdPartyURI, StringData.AuthUri, this.authenticatorPrivateKey);
+                        socket.SendMessage("newuseradded", "userName=" + userName);
+                    }
+
                     return;
                 }
             }

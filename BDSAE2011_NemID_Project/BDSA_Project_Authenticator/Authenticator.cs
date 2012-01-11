@@ -27,6 +27,19 @@ namespace BDSA_Project_Authenticator
         private HashSet<string> trustedThirdPartyURIs = new HashSet<string>();
 
         /// <summary>
+        /// Gets all the trusted third party URIs.
+        /// </summary>
+        public string[] TrustedThirdPartyURIs
+        {
+            get
+            {
+                string[] tmp = new string[this.trustedThirdPartyURIs.Count];
+                this.trustedThirdPartyURIs.CopyTo(tmp);
+                return tmp;
+            }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the Authenticator class.
         /// </summary>
         public Authenticator()
