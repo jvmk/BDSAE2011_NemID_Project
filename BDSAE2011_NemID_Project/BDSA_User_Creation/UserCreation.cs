@@ -25,15 +25,18 @@ namespace BDSA_User_Creation
         private void CreateUserButton_Click(object sender, EventArgs e)
         {
             string path = string.Empty;
+            byte[] privateKey = null;
             // Set the file path
             DialogResult result = folderBrowserDialog1.ShowDialog();
             if (result == DialogResult.OK)
             {
                 path = folderBrowserDialog1.SelectedPath;
+                if (privateKey.Equals(null))
+                {
+                    //Generate the keys for the user
+                    privateKey = Cryptograph.GenerateKeys(EmailTextBox.Text);
+                }
             }
-
-            //Generate the keys for the user
-            byte[] privateKey = Cryptograph.GenerateKeys(EmailTextBox.Text);
 
             // Save the key to the specified file path
             if (path == string.Empty)
