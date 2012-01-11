@@ -6,6 +6,7 @@
 
 namespace BDSA_Project_ThirdParty
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
 
@@ -19,8 +20,8 @@ namespace BDSA_Project_ThirdParty
         /// <summary>
         /// The users in this third party's database.
         /// </summary>
-        private readonly Dictionary<string, ThirdPartyUserAccount> users = new Dictionary<string, ThirdPartyUserAccount>(); 
-        
+        private readonly Dictionary<string, ThirdPartyUserAccount> users = new Dictionary<string, ThirdPartyUserAccount>();
+
         /// <summary>
         /// Initializes a new instance of the ThirdParty class.
         /// </summary>
@@ -55,6 +56,7 @@ namespace BDSA_Project_ThirdParty
         internal bool ContainsUsername(string username)
         {
             Contract.Requires(!ReferenceEquals(username, null));
+
             return this.users.ContainsKey(username);
         }
 

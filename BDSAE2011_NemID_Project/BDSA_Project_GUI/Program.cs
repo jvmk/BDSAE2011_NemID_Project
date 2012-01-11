@@ -28,10 +28,10 @@ namespace BDSA_Project_GUI
 
             // Test user, for demonstration purposes only.
             // User name: testUser, password: password, cprNumber: 010101-0101, email: testUser@nemId.dk
-            byte[] testUserPrivateKey = Cryptograph.GenerateKeys("testUser@nemId.dk");
+            //byte[] testUserPrivateKey = Cryptograph.GenerateKeys("testUser@nemId.dk");
 
             // Write the private key to the execution path.
-            File.WriteAllBytes(StringData.filePath + "testUserPrivateKey.bin", testUserPrivateKey);
+            //            File.WriteAllBytes(StringData.filePath + "testUserPrivateKey.bin", testUserPrivateKey);
 
             Console.WriteLine("Test user generated, launching application.");
 

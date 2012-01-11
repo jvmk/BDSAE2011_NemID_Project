@@ -142,8 +142,13 @@ namespace BDSA_Project_ThirdParty
             {
                 case @"/request=loginpage":
                     response.StatusCode = 200;
-                    // the html for the loginpage should be here - write it to response outputstream
-                    response.Close();
+
+                    byte[] responseBytes = Encoding.UTF8.GetBytes("OK");
+
+                    response.OutputStream.Write(responseBytes, 0, responseBytes.Length); // the html for the loginpage should be here - write it to response outputstream
+                    response.OutputStream.Flush();
+                    response.OutputStream.Close();
+
                     break;
 
                 // no other sub pages designed for get requests
@@ -357,7 +362,7 @@ namespace BDSA_Project_ThirdParty
             {
                 // redirect to authenticator
                 response.StatusCode = 200;
-                response.StatusDescription = "Redirecting you to authenticator.";
+                // response.StatusDescription = "Redirecting you to authenticator.";
                 response.Redirect(StringData.AuthUri + "request=redirect&username=" + username + "&3rd=" + this.server.Prefixes.First());
                 response.Close();
             }

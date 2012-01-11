@@ -64,11 +64,14 @@ namespace BDSA_Project_GUI
 
                 // Create a request.
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(StringData.ThirdUri + "request=loginpage"); // TODO update to correct https URI
+
                 request.Method = "POST";
                 Stream output = request.GetRequestStream();
 
                 // Write the encrypted user name to the request.
                 output.Write(buf, 0, buf.Length);
+                output.Flush();
+                output.Close();
 
                 // Send the request and get the response.
                 HttpWebResponse response = null;

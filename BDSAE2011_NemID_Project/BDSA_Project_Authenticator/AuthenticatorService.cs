@@ -371,6 +371,8 @@ namespace BDSA_Project_Authenticator
             // Get the raw url of the request.
             string rawUrl = processedRequest.RawUrl;
 
+            Console.WriteLine("RAWURL: " + rawUrl);
+
             // If the redirected url is not well formed...
             if (!this.IsRedirectUrlWellFormed(rawUrl))
             {
@@ -385,6 +387,8 @@ namespace BDSA_Project_Authenticator
             int end = rawUrl.IndexOf('&', start);
 
             string userName = rawUrl.Substring(start, end - start);
+
+            Console.WriteLine("USERNAME AT AUTHENTCATOR: " + userName);
 
             // If the user is not in the userSession dictionary, the user
             // is not in the authenticator database: Invalid request.
@@ -728,7 +732,7 @@ namespace BDSA_Project_Authenticator
             int end = url.IndexOf('&', start) - 1;
 
             // Minimum 6 character user name string TODO agreed?
-            isValid = start + 6 < end;
+            isValid = start < end;                  // TODO Said start + 6 < end !!!!!!!!!
 
             if (!isValid)
             {
