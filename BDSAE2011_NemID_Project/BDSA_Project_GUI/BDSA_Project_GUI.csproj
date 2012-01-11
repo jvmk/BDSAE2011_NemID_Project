@@ -62,6 +62,7 @@
     <Compile Include="AuthedWithTp.Designer.cs">
       <DependentUpon>AuthedWithTp.cs</DependentUpon>
     </Compile>
+    <Compile Include="MainCreateUser.cs" />
     <Compile Include="NemIdAccountCreationSuccess.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -104,6 +105,12 @@
     <Compile Include="NemIdNewUserCreation.Designer.cs">
       <DependentUpon>NemIdNewUserCreation.cs</DependentUpon>
     </Compile>
+    <Compile Include="UserCreation.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UserCreation.Designer.cs">
+      <DependentUpon>UserCreation.cs</DependentUpon>
+    </Compile>
     <Compile Include="UsersBrowser.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -135,6 +142,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="NemIdNewUserCreation.resx">
       <DependentUpon>NemIdNewUserCreation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserCreation.resx">
+      <DependentUpon>UserCreation.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UsersBrowser.resx">
       <DependentUpon>UsersBrowser.cs</DependentUpon>

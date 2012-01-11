@@ -1,13 +1,13 @@
 ﻿namespace BDSA_Project_GUI
 {
-    partial class NemIdNewUserCreation
+    partial class UserCreation
     {
-        /// <summary> 
+        /// <summary>
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
 
-        /// <summary> 
+        /// <summary>
         /// Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
@@ -20,22 +20,22 @@
             base.Dispose(disposing);
         }
 
-        #region Component Designer generated code
+        #region Windows Form Designer generated code
 
-        /// <summary> 
-        /// Required method for Designer support - do not modify 
+        /// <summary>
+        /// Required method for Designer support - do not modify
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent()
         {
-            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.AbortButton = new System.Windows.Forms.Button();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.cprTextBox = new System.Windows.Forms.MaskedTextBox();
             this.passwordConfirmTextBox = new System.Windows.Forms.TextBox();
             this.passwordTextBox = new System.Windows.Forms.TextBox();
             this.cprLabel = new System.Windows.Forms.Label();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.AbortButton = new System.Windows.Forms.Button();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.usernameLabel = new System.Windows.Forms.Label();
             this.passwordLabel1 = new System.Windows.Forms.Label();
             this.passwordLabel2 = new System.Windows.Forms.Label();
@@ -52,11 +52,59 @@
             this.tableLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
             // 
+            // cprTextBox
+            // 
+            this.cprTextBox.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.cprTextBox.Location = new System.Drawing.Point(147, 68);
+            this.cprTextBox.Margin = new System.Windows.Forms.Padding(4);
+            this.cprTextBox.Mask = "000000-0000";
+            this.cprTextBox.Name = "cprTextBox";
+            this.cprTextBox.Size = new System.Drawing.Size(313, 22);
+            this.cprTextBox.TabIndex = 4;
+            this.cprTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.cprTextBox.MaskInputRejected += new System.Windows.Forms.MaskInputRejectedEventHandler(this.cprTextBox_MaskInputRejected);
+            // 
+            // passwordConfirmTextBox
+            // 
+            this.passwordConfirmTextBox.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.passwordConfirmTextBox.Location = new System.Drawing.Point(147, 174);
+            this.passwordConfirmTextBox.Margin = new System.Windows.Forms.Padding(4);
+            this.passwordConfirmTextBox.Name = "passwordConfirmTextBox";
+            this.passwordConfirmTextBox.Size = new System.Drawing.Size(313, 22);
+            this.passwordConfirmTextBox.TabIndex = 7;
+            this.passwordConfirmTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.passwordConfirmTextBox.UseSystemPasswordChar = true;
+            this.passwordConfirmTextBox.TextChanged += new System.EventHandler(this.passwordConfirmTextBox_TextChanged);
+            // 
+            // passwordTextBox
+            // 
+            this.passwordTextBox.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.passwordTextBox.Location = new System.Drawing.Point(147, 121);
+            this.passwordTextBox.Margin = new System.Windows.Forms.Padding(4);
+            this.passwordTextBox.Name = "passwordTextBox";
+            this.passwordTextBox.Size = new System.Drawing.Size(313, 22);
+            this.passwordTextBox.TabIndex = 6;
+            this.passwordTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.passwordTextBox.UseSystemPasswordChar = true;
+            this.passwordTextBox.TextChanged += new System.EventHandler(this.passwordTextBox_TextChanged);
+            // 
+            // cprLabel
+            // 
+            this.cprLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.cprLabel.AutoSize = true;
+            this.cprLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cprLabel.Location = new System.Drawing.Point(47, 70);
+            this.cprLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.cprLabel.Name = "cprLabel";
+            this.cprLabel.Size = new System.Drawing.Size(48, 18);
+            this.cprLabel.TabIndex = 1;
+            this.cprLabel.Text = "CPR:";
+            // 
             // splitContainer1
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.splitContainer1.Margin = new System.Windows.Forms.Padding(4);
             this.splitContainer1.Name = "splitContainer1";
             this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -68,10 +116,10 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.panel1);
-            this.splitContainer1.Size = new System.Drawing.Size(667, 615);
-            this.splitContainer1.SplitterDistance = 153;
+            this.splitContainer1.Size = new System.Drawing.Size(639, 593);
+            this.splitContainer1.SplitterDistance = 147;
             this.splitContainer1.SplitterWidth = 5;
-            this.splitContainer1.TabIndex = 1;
+            this.splitContainer1.TabIndex = 2;
             // 
             // panel1
             // 
@@ -80,7 +128,7 @@
             this.panel1.Controls.Add(this.CreateUserButton);
             this.panel1.Controls.Add(this.CreateUserLabel);
             this.panel1.Location = new System.Drawing.Point(96, 47);
-            this.panel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.panel1.Margin = new System.Windows.Forms.Padding(4);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(477, 366);
             this.panel1.TabIndex = 4;
@@ -88,7 +136,7 @@
             // AbortButton
             // 
             this.AbortButton.Location = new System.Drawing.Point(8, 314);
-            this.AbortButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.AbortButton.Margin = new System.Windows.Forms.Padding(4);
             this.AbortButton.Name = "AbortButton";
             this.AbortButton.Size = new System.Drawing.Size(163, 28);
             this.AbortButton.TabIndex = 3;
@@ -112,7 +160,7 @@
             this.tableLayoutPanel2.Controls.Add(this.EmailLabel, 0, 4);
             this.tableLayoutPanel2.Controls.Add(this.EmailTextBox, 1, 4);
             this.tableLayoutPanel2.Location = new System.Drawing.Point(8, 25);
-            this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.tableLayoutPanel2.Margin = new System.Windows.Forms.Padding(4);
             this.tableLayoutPanel2.Name = "tableLayoutPanel2";
             this.tableLayoutPanel2.RowCount = 5;
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 25F));
@@ -122,51 +170,6 @@
             this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 37F));
             this.tableLayoutPanel2.Size = new System.Drawing.Size(465, 250);
             this.tableLayoutPanel2.TabIndex = 2;
-            // 
-            // cprTextBox
-            // 
-            this.cprTextBox.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.cprTextBox.Location = new System.Drawing.Point(147, 68);
-            this.cprTextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.cprTextBox.Mask = "000000-0000";
-            this.cprTextBox.Name = "cprTextBox";
-            this.cprTextBox.Size = new System.Drawing.Size(313, 22);
-            this.cprTextBox.TabIndex = 4;
-            this.cprTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            // 
-            // passwordConfirmTextBox
-            // 
-            this.passwordConfirmTextBox.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.passwordConfirmTextBox.Location = new System.Drawing.Point(147, 174);
-            this.passwordConfirmTextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.passwordConfirmTextBox.Name = "passwordConfirmTextBox";
-            this.passwordConfirmTextBox.Size = new System.Drawing.Size(313, 22);
-            this.passwordConfirmTextBox.TabIndex = 7;
-            this.passwordConfirmTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.passwordConfirmTextBox.UseSystemPasswordChar = true;
-            // 
-            // passwordTextBox
-            // 
-            this.passwordTextBox.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.passwordTextBox.Location = new System.Drawing.Point(147, 121);
-            this.passwordTextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.passwordTextBox.Name = "passwordTextBox";
-            this.passwordTextBox.Size = new System.Drawing.Size(313, 22);
-            this.passwordTextBox.TabIndex = 6;
-            this.passwordTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.passwordTextBox.UseSystemPasswordChar = true;
-            // 
-            // cprLabel
-            // 
-            this.cprLabel.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.cprLabel.AutoSize = true;
-            this.cprLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cprLabel.Location = new System.Drawing.Point(47, 70);
-            this.cprLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.cprLabel.Name = "cprLabel";
-            this.cprLabel.Size = new System.Drawing.Size(48, 18);
-            this.cprLabel.TabIndex = 1;
-            this.cprLabel.Text = "CPR:";
             // 
             // usernameLabel
             // 
@@ -208,11 +211,12 @@
             // 
             this.usernameTextBox.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.usernameTextBox.Location = new System.Drawing.Point(147, 15);
-            this.usernameTextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.usernameTextBox.Margin = new System.Windows.Forms.Padding(4);
             this.usernameTextBox.Name = "usernameTextBox";
             this.usernameTextBox.Size = new System.Drawing.Size(313, 22);
             this.usernameTextBox.TabIndex = 4;
             this.usernameTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
+            this.usernameTextBox.TextChanged += new System.EventHandler(this.usernameTextBox_TextChanged);
             // 
             // EmailLabel
             // 
@@ -230,15 +234,16 @@
             // EmailTextBox
             // 
             this.EmailTextBox.Location = new System.Drawing.Point(146, 216);
-            this.EmailTextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.EmailTextBox.Margin = new System.Windows.Forms.Padding(4);
             this.EmailTextBox.Name = "EmailTextBox";
             this.EmailTextBox.Size = new System.Drawing.Size(313, 22);
             this.EmailTextBox.TabIndex = 9;
+            this.EmailTextBox.TextChanged += new System.EventHandler(this.EmailTextBox_TextChanged);
             // 
             // CreateUserButton
             // 
             this.CreateUserButton.Location = new System.Drawing.Point(331, 314);
-            this.CreateUserButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.CreateUserButton.Margin = new System.Windows.Forms.Padding(4);
             this.CreateUserButton.Name = "CreateUserButton";
             this.CreateUserButton.Size = new System.Drawing.Size(139, 28);
             this.CreateUserButton.TabIndex = 0;
@@ -258,14 +263,14 @@
             this.CreateUserLabel.Text = "Create NemID user account:";
             this.CreateUserLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
-            // NemIdNewUserCreation
+            // UserCreation
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.ClientSize = new System.Drawing.Size(639, 593);
             this.Controls.Add(this.splitContainer1);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.Name = "NemIdNewUserCreation";
-            this.Size = new System.Drawing.Size(667, 615);
+            this.Name = "UserCreation";
+            this.Text = "UserCreation";
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
@@ -279,22 +284,22 @@
 
         #endregion
 
-        private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.MaskedTextBox cprTextBox;
         private System.Windows.Forms.TextBox passwordConfirmTextBox;
         private System.Windows.Forms.TextBox passwordTextBox;
         private System.Windows.Forms.Label cprLabel;
+        private System.Windows.Forms.SplitContainer splitContainer1;
+        private System.Windows.Forms.Panel panel1;
+        private System.Windows.Forms.Button AbortButton;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
         private System.Windows.Forms.Label usernameLabel;
         private System.Windows.Forms.Label passwordLabel1;
         private System.Windows.Forms.Label passwordLabel2;
         private System.Windows.Forms.TextBox usernameTextBox;
-        private System.Windows.Forms.Button CreateUserButton;
-        private System.Windows.Forms.Label CreateUserLabel;
-        private System.Windows.Forms.Button AbortButton;
         private System.Windows.Forms.Label EmailLabel;
         private System.Windows.Forms.TextBox EmailTextBox;
+        private System.Windows.Forms.Button CreateUserButton;
+        private System.Windows.Forms.Label CreateUserLabel;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
     }
 }
