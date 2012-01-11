@@ -257,6 +257,10 @@ namespace BDSA_Project_ThirdParty
                     Console.WriteLine("Processing /request=usertoken request with username=" + inputValues[0] + " and token value=" + inputValues[1]);
                     this.AnswerUsertokenPost(clientPki, response, inputValues[0], inputValues[1]); // index 0 is username, index 1 is token
                     break;
+                case @"/request=newuseradded/":
+                    Console.WriteLine("Processing /request=newuseradded/ request...");
+                    this.ProcessNewUserRequestFromAuth(response, rawMessageBody);
+                    break;
                 default:
                     // Resource either not found or not meant for posting
                     Console.WriteLine("Requested resource not found.");
@@ -449,6 +453,26 @@ namespace BDSA_Project_ThirdParty
             messageBody.Append(signedEncMessage);
 
             return messageBody.ToString();
+        }
+
+        private void ProcessNewUserRequestFromAuth(HttpListenerResponse response, string rawMessageBody)
+        {
+            string[] parameters = MessageProcessingUtility.GetRequesterParameters(rawMessageBody, StringData.AuthUri, serversPrivateKey);
+            if (ReferenceEquals(parameters, null) || parameters.Length == 0) // Validation not sucessfull if either is true
+            {
+                // Message was tangled with or the sender was not the authenticator...
+                response = this.SetupForbiddenResponse(
+                    response, "You do not have rights to post to this resource.");
+                response.Close();
+                return;
+            }
+            // Request is from the authenticator, process the request and add the new user to the database...
+            string username = parameters[0];
+            Console.WriteLine("Added the username: " + username + "to the third party database.");
+            this.database.AddUserAccount(username);
+            response.StatusCode = 200;
+            response.StatusDescription = "User successfully added to database.";
+            response.Close();
         }
 
         // < / HELPER METHODS FOR POST PROCESSING ENDS >
