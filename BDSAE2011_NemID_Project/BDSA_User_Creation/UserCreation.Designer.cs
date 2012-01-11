@@ -1,4 +1,4 @@
-﻿namespace BDSA_Project_GUI
+﻿namespace BDSA_User_Creation
 {
     partial class UserCreation
     {
@@ -62,7 +62,6 @@
             this.cprTextBox.Size = new System.Drawing.Size(313, 22);
             this.cprTextBox.TabIndex = 4;
             this.cprTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.cprTextBox.MaskInputRejected += new System.Windows.Forms.MaskInputRejectedEventHandler(this.cprTextBox_MaskInputRejected);
             // 
             // passwordConfirmTextBox
             // 
@@ -74,7 +73,6 @@
             this.passwordConfirmTextBox.TabIndex = 7;
             this.passwordConfirmTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.passwordConfirmTextBox.UseSystemPasswordChar = true;
-            this.passwordConfirmTextBox.TextChanged += new System.EventHandler(this.passwordConfirmTextBox_TextChanged);
             // 
             // passwordTextBox
             // 
@@ -86,7 +84,6 @@
             this.passwordTextBox.TabIndex = 6;
             this.passwordTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.passwordTextBox.UseSystemPasswordChar = true;
-            this.passwordTextBox.TextChanged += new System.EventHandler(this.passwordTextBox_TextChanged);
             // 
             // cprLabel
             // 
@@ -110,14 +107,13 @@
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.BackgroundImage = global::BDSA_Project_GUI.Properties.Resources.nemidlogo;
             this.splitContainer1.Panel1.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Stretch;
             // 
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.panel1);
-            this.splitContainer1.Size = new System.Drawing.Size(639, 593);
-            this.splitContainer1.SplitterDistance = 147;
+            this.splitContainer1.Size = new System.Drawing.Size(671, 571);
+            this.splitContainer1.SplitterDistance = 141;
             this.splitContainer1.SplitterWidth = 5;
             this.splitContainer1.TabIndex = 2;
             // 
@@ -142,7 +138,6 @@
             this.AbortButton.TabIndex = 3;
             this.AbortButton.Text = "ABANDON SHIP!";
             this.AbortButton.UseVisualStyleBackColor = true;
-            this.AbortButton.Click += new System.EventHandler(this.AbortButton_Click);
             // 
             // tableLayoutPanel2
             // 
@@ -216,7 +211,6 @@
             this.usernameTextBox.Size = new System.Drawing.Size(313, 22);
             this.usernameTextBox.TabIndex = 4;
             this.usernameTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
-            this.usernameTextBox.TextChanged += new System.EventHandler(this.usernameTextBox_TextChanged);
             // 
             // EmailLabel
             // 
@@ -238,7 +232,6 @@
             this.EmailTextBox.Name = "EmailTextBox";
             this.EmailTextBox.Size = new System.Drawing.Size(313, 22);
             this.EmailTextBox.TabIndex = 9;
-            this.EmailTextBox.TextChanged += new System.EventHandler(this.EmailTextBox_TextChanged);
             // 
             // CreateUserButton
             // 
@@ -267,7 +260,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(639, 593);
+            this.ClientSize = new System.Drawing.Size(671, 571);
             this.Controls.Add(this.splitContainer1);
             this.Name = "UserCreation";
             this.Text = "UserCreation";

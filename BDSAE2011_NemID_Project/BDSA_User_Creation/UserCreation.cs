@@ -7,9 +7,13 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace BDSA_Project_GUI
+namespace BDSA_User_Creation
 {
     using System.IO;
+
+    using BDSA_Project_Communication;
+
+    using BDSA_Project_Cryptography;
 
     public partial class UserCreation : Form
     {
@@ -27,9 +31,9 @@ namespace BDSA_Project_GUI
             {
                 path = folderBrowserDialog1.SelectedPath;
             }
-            
+
             //Generate the keys for the user
-            byte[] privateKey = BDSA_Project_Cryptography.Cryptograph.GenerateKeys(EmailTextBox.Text);
+            byte[] privateKey = Cryptograph.GenerateKeys(EmailTextBox.Text);
 
             // Save the key to the specified file path
             if (path == string.Empty)
@@ -37,13 +41,21 @@ namespace BDSA_Project_GUI
                 Console.Write("The path was not set");
             }
             File.WriteAllBytes(path + usernameTextBox.Text + "privateKey", privateKey);
-            
 
-            //// TODO Send the information to the server and store user here
-            
-            Console.Write("The user has successfully been added and the application is now closing");
-            Application.Exit();
-            
+            //// Creates the auth proxy and creates an user
+            AuthenticatorProxy proxy = new AuthenticatorProxy(StringData.AuthUri, EmailTextBox.Text, privateKey);
+            bool creationSuccesfull = proxy.CreateUserAccount(
+                usernameTextBox.Text, passwordTextBox.Text, cprTextBox.Text, EmailTextBox.Text);
+            if (creationSuccesfull)
+            {
+                Console.Write("The user has successfully been created and the application is now closing");
+                Application.Exit();
+            }
+
+            else
+            {
+                Console.WriteLine("Something unexpected went wrong");
+            }
         }
 
         private void AbortButton_Click(object sender, EventArgs e)

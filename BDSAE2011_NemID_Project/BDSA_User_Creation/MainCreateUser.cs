@@ -4,7 +4,7 @@
 // </copyright>
 // -----------------------------------------------------------------------
 
-namespace BDSA_Project_GUI
+namespace BDSA_Project_User_Creation
 {
     using System;
     using System.Collections.Generic;
@@ -13,23 +13,12 @@ namespace BDSA_Project_GUI
     using System.Text;
     using System.Windows.Forms;
 
-    using BDSA_Project_Communication;
-
-    using BDSA_Project_Cryptography;
+    using BDSA_User_Creation;
 
     /// <summary>
     /// TODO: Update summary.
     /// </summary>
     public class MainCreateUser
-    {
-            using System.IO;
-    using System.Runtime.InteropServices;
-
-    using BDSA_Project_Communication;
-
-    using BDSA_Project_Cryptography;
-
-    internal static class Program
     {
         /// <summary>
         /// The main entry point for the application.
@@ -50,4 +39,4 @@ namespace BDSA_Project_GUI
         }
     }
 }
-}
+
