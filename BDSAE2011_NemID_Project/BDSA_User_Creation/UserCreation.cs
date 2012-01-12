@@ -82,6 +82,7 @@ namespace BDSA_User_Creation
 
             // Set the file path
             // TODO: Add an explanation.. Specify the location you want to save your private key file to
+            folderBrowserDialog1.Description = "Please choose the location you want to save your private key file to";
             DialogResult result = folderBrowserDialog1.ShowDialog();
             if (result == DialogResult.OK)
             {
@@ -100,6 +101,11 @@ namespace BDSA_User_Creation
                     ErrorMessageLabel.Refresh();
                     privateKey = Cryptograph.GenerateKeys(email);
                 }
+            }
+            // No path has been selected, thus do nothing.
+            else
+            {
+                return;
             }
 
             // Save the key to the specified file path

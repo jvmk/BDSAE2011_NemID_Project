@@ -35,6 +35,7 @@ namespace BDSA_Project_GUI
 
         private void privKeyPathBtn_Click(object sender, EventArgs e)
         {
+            openFileDialog1.Title = "Select your private key";
             DialogResult result = openFileDialog1.ShowDialog();
             {
                 if (result == DialogResult.OK)
