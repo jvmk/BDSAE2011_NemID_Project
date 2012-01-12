@@ -79,6 +79,7 @@ namespace BDSA_User_Creation
             }
 
             // Set the file path
+            // TODO: Add an explanation.. Specify the location you want to save your private key file to
             DialogResult result = folderBrowserDialog1.ShowDialog();
             if (result == DialogResult.OK)
             {
@@ -102,11 +103,16 @@ namespace BDSA_User_Creation
                 userName, password1, cprno, email);
             if (creationSuccesfull)
             {
+                // TODO Remove this:
+                /*
                 ErrorMessageLabel.Text = "Account creation was successful.\n"
                                          + "You can now use this account to log-in.";
                 ErrorMessageLabel.Refresh();
                 Thread.Sleep(4000);
                 Application.Exit();
+                 */
+                Application.OpenForms[0].Controls.Clear();
+                Application.OpenForms[0].Controls.Add(new UserCreationSuccess());
             }
             else
             {

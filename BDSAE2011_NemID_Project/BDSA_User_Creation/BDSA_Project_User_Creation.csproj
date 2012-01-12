@@ -54,6 +54,12 @@
     <Compile Include="UserCreation.Designer.cs">
       <DependentUpon>UserCreation.cs</DependentUpon>
     </Compile>
+    <Compile Include="UserCreationSuccess.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserCreationSuccess.Designer.cs">
+      <DependentUpon>UserCreationSuccess.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -62,9 +68,13 @@
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <EmbeddedResource Include="UserCreation.resx">
       <DependentUpon>UserCreation.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UserCreationSuccess.resx">
+      <DependentUpon>UserCreationSuccess.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -77,9 +87,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Properties\danske bank logo.jpg" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\BDSAE2011_NemID_Project.csproj">
       <Project>{B8509EC2-898C-4F2E-BC78-673578DFC529}</Project>
       <Name>BDSAE2011_NemID_Project</Name>
@@ -88,6 +95,9 @@
       <Project>{726F27B1-1930-4826-B74C-AAF63044CD5B}</Project>
       <Name>BDSA_Project_Cryptography</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Ressource\nemidlogo.jpg" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

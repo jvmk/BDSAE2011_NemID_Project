@@ -561,7 +561,6 @@ namespace BDSA_Project_Authenticator
 
                 return sessionToken;
 
-                // TODO Call read to send complete the send?
             }
 
             validRequest = false;
