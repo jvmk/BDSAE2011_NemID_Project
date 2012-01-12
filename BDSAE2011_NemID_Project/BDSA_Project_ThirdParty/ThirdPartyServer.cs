@@ -52,7 +52,7 @@ namespace BDSA_Project_ThirdParty
             this.server = new HttpListener();
             this.serversPrivateKey = serversPrivateKey;
             this.server.Prefixes.Add(serverAddress); // TODO update to https after testing!!!
-            this.subpagesForPost.AddRange(new[] { "/request=loginpage", "/request=usertoken/", "/request=authtoken/", "/request=newuseradded/" });
+            this.subpagesForPost.AddRange(new[] { "/request=loginpage", "/request=usertoken/", "/request=authtoken/", "/request=newuseradded/", "/request=userdeleted/" });
         }
 
 
@@ -186,31 +186,10 @@ namespace BDSA_Project_ThirdParty
             Contract.Requires(!ReferenceEquals(hlc, null));
             HttpListenerRequest request = hlc.Request;
             Stream input = request.InputStream; // access inputstream
-            //byte[] buf = new byte[input.Length]; // TODO Stream.Length is a long - possible int overflow here
-            //input.Read(buf, 0, buf.Length);
             string postedData = MessageProcessingUtility.ReadFrom(input); // Encoding.UTF8.GetString(buf);
             input.Close(); // close the stream
             return postedData;
         }
-
-        /// <summary>
-        /// Gets the decrypted PKI identifier of the sender.
-        /// </summary>
-        /// <param name="httpMessageBody">The decrypted content of a http message.</param>
-        /// <returns>Gets the decrypted PKI identifier of the sender.</returns>
-        //private String GetSenderPkiIdFromHttpMessage(string httpMessageBody)
-        //{
-        //Contract.Requires(!string.IsNullOrWhiteSpace(httpMessageBody));
-        //Contract.Requires(httpMessageBody.Contains("origin="));
-        //Contract.Requires(httpMessageBody.Contains('&'));
-        //Contract.Requires(httpMessageBody.IndexOf("origin=") < httpMessageBody.IndexOf('&'));
-        //Contract.Ensures(Contract.Result<string>() != null);
-        //int pkiIdStart = httpMessageBody.IndexOf("origin=") + "origin=".Length;
-        //int pkiIdEnd = httpMessageBody.IndexOf('&', pkiIdStart); // pkiId ends at next &
-        //String encPkiId = httpMessageBody.Substring(pkiIdStart, pkiIdEnd - pkiIdStart); // Get the pkiId substring
-        //String decPkiId = Cryptograph.Decrypt(encPkiId,  /* Third Party Private Key */); // TODO update this according to keys + what if it fails
-        //return decPkiId;
-        //}
 
         /// <summary>
         /// Processes an incoming http POST request and takes action according to target resource and the validity of the message body.
@@ -262,7 +241,11 @@ namespace BDSA_Project_ThirdParty
                     break;
                 case @"/request=newuseradded/":
                     Console.WriteLine("Processing /request=newuseradded/ request...");
-                    this.ProcessNewUserRequestFromAuth(response, rawMessageBody);
+                    this.ProcessUserDatabaseUpdate(response, rawMessageBody, true);
+                    break;
+                case @"/request=userdeleted/":
+                    Console.WriteLine("Processing /request=userdeleted/ request...");
+                    this.ProcessUserDatabaseUpdate(response, rawMessageBody, false);
                     break;
                 default:
                     // Resource either not found or not meant for posting
@@ -325,23 +308,6 @@ namespace BDSA_Project_ThirdParty
 
             return Cryptograph.VerifyData(
                 encMessageBody, signedEncMessageBody, Cryptograph.GetPublicKey(senderPkiId));
-
-            /*
-            // Get the actual message that was decrypted
-            string actualMessage = httpMessageBody.Substring(0, httpMessageBody.LastIndexOf('&'));
-
-            // Get the message signature
-            int start = httpMessageBody.LastIndexOf('&') + 1;
-            int end = httpMessageBody.Length;
-            string signedMessage = httpMessageBody.Substring(
-               start, end - start);
-
-            Console.WriteLine("actual message: " + actualMessage);
-            Console.WriteLine("signed message: " + signedMessage);
-
-            // verify data with sender's public key
-            return Cryptograph.VerifyData(actualMessage, signedMessage, Cryptograph.GetPublicKey(expectedPkiId));
-             * */
         }
 
         // < HELPER METHODS FOR POST PROCESSING STARTS >
@@ -458,24 +424,62 @@ namespace BDSA_Project_ThirdParty
             return messageBody.ToString();
         }
 
-        private void ProcessNewUserRequestFromAuth(HttpListenerResponse response, string rawMessageBody)
+        /// <summary>
+        /// Perform an update the third party database (add or delete a user).
+        /// Update will only be performed if the request comes from the authenticator.
+        /// </summary>
+        /// <param name="response">The HttpListernerResponse that is the response to the current request.</param>
+        /// <param name="rawMessageBody">The string representation of the message body of the current request.</param>
+        /// <param name="addUser">Set to: true if this is a request to add a user to the database,
+        /// false if this is a request to delete a user from the database.</param>
+        private void ProcessUserDatabaseUpdate(HttpListenerResponse response, string rawMessageBody, bool addUser)
+        {
+            // Request is from the authenticator, process the request and add the new user to the database...
+            bool authIsSender = false;
+            string[] parameters = this.GetMessageParametersAndEnsureAuthenticatorIsSender(rawMessageBody, ref authIsSender);
+            // If auth is sender it implies that the parameters array is not null and has a value on index 0.
+            if (authIsSender)
+            {
+                string username = parameters[0];
+                if (addUser)
+                {
+                    bool userAdded = this.database.AddUserAccount(username);
+                    Console.WriteLine("Added the username: " + username + " to the third party database: " + userAdded);
+                    response.StatusDescription = "User successfully added to database: " + userAdded + " (false indicates that user was already in the database).";
+                }
+                else
+                {
+                    bool userDeleted = this.database.DeleteUserAccount(username);
+                    Console.WriteLine("Deleted user with username " + username + " from the third party database: " + userDeleted);
+                    response.StatusDescription = "User successfully found and deleted from database: " + userDeleted + " (false indicates that user was not found in database).";
+                }
+                response.StatusCode = 200;
+                response.Close();
+            }
+            else
+            {
+                this.SetupForbiddenResponse(response, "You do not have rights to post to this resource.");
+                response.Close();
+            }
+        }
+
+        /// <summary>
+        /// Obtain the parameters of a request.
+        /// </summary>
+        /// <param name="rawMessageBody">The full message body of the HTTP request.</param>
+        /// <param name="authIsSender">A ref parameter indicating (after method execution) whether or not the authenticator is the sender of the request.</param>
+        /// <returns>A string array with the parameters. Null if the parameters cannot be obtained (fx decryption or verification fails)</returns>
+        private string[] GetMessageParametersAndEnsureAuthenticatorIsSender(string rawMessageBody, ref bool authIsSender)
         {
             string[] parameters = MessageProcessingUtility.GetRequesterParameters(rawMessageBody, StringData.AuthUri, serversPrivateKey);
             if (ReferenceEquals(parameters, null) || parameters.Length == 0) // Validation not sucessfull if either is true
             {
                 // Message was tangled with or the sender was not the authenticator...
-                response = this.SetupForbiddenResponse(
-                    response, "You do not have rights to post to this resource.");
-                response.Close();
-                return;
+                authIsSender = false;
+                return null;
             }
-            // Request is from the authenticator, process the request and add the new user to the database...
-            string username = parameters[0];
-            Console.WriteLine("Added the username: " + username + "to the third party database.");
-            this.database.AddUserAccount(username);
-            response.StatusCode = 200;
-            response.StatusDescription = "User successfully added to database.";
-            response.Close();
+            authIsSender = true;
+            return parameters;
         }
 
         // < / HELPER METHODS FOR POST PROCESSING ENDS >
