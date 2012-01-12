@@ -49,6 +49,18 @@ namespace BDSA_Project_ThirdParty
         }
 
         /// <summary>
+        /// Remove a user from the Third Party user database.
+        /// </summary>
+        /// <param name="username">The username of the user that is to be removed.</param>
+        /// <returns>True if the username was in the database and successfully removed, false if the username was not found in the database.</returns>
+        internal bool DeleteUserAccount(string username)
+        {
+            Contract.Ensures(!users.ContainsKey(username));
+            return this.users.Remove(username);
+
+        }
+
+        /// <summary>
         /// Is this username registered in the database?
         /// </summary>
         /// <param name="username">Username to look for in the database.</param>
