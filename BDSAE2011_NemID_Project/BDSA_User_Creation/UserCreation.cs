@@ -64,7 +64,7 @@ namespace BDSA_User_Creation
                 return;
             }
 
-            // Check if an email address has ben added.
+            // Check if an email field is empty
             if (string.IsNullOrEmpty(email))
             {
                 ErrorMessageLabel.ForeColor = Color.Red;
@@ -72,17 +72,25 @@ namespace BDSA_User_Creation
                 return;
             }
 
-            if (Cryptograph.KeyExists(email))
+            // Check if the email address already has been added
+            /*if (Cryptograph.KeyExists(email))
             {
                 ErrorMessageLabel.ForeColor = Color.Red;
                 ErrorMessageLabel.Text = "A public key is already registered with the email";
             }
+            */
 
             // Set the file path
             // TODO: Add an explanation.. Specify the location you want to save your private key file to
             DialogResult result = folderBrowserDialog1.ShowDialog();
             if (result == DialogResult.OK)
             {
+                if (Cryptograph.KeyExists(email))
+                {
+                    ErrorMessageLabel.ForeColor = Color.Red;
+                    ErrorMessageLabel.Text = "A public key is already registered with the email";
+                    return;
+                }
                 path = folderBrowserDialog1.SelectedPath;
                 if (ReferenceEquals(privateKey, null))
                 {
