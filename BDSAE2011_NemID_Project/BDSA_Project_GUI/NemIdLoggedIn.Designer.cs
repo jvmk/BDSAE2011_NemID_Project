@@ -81,6 +81,7 @@
             this.LogOut.TabIndex = 3;
             this.LogOut.Text = "Log Out";
             this.LogOut.UseVisualStyleBackColor = true;
+            this.LogOut.Click += new System.EventHandler(this.LogOut_Click);
             // 
             // optionsGroupBox
             // 

@@ -96,6 +96,11 @@ namespace BDSA_Project_Authenticator
         /// </returns>
         public bool IsOperationValid(string operation)
         {
+            if (operation.Equals("abort"))
+            {
+                return true;
+            }
+
             if (this.currentState == SessionState.AwaitRedirection)
             {
                 return true;
