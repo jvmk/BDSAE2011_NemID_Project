@@ -21,6 +21,11 @@ namespace BDSA_Project_ThirdParty
         private string username;
 
         /// <summary>
+        /// The PKI identifier associated with this account.
+        /// </summary>
+        private string pkiIdEmail;
+
+        /// <summary>
         /// The current authenticator supplied token (nonce) for this account.
         /// </summary>
         private string authToken;
@@ -40,10 +45,12 @@ namespace BDSA_Project_ThirdParty
         /// Initializes a new instance of the ThirdPartyUserAccount class.
         /// </summary>
         /// <param name="username">The username of the new user (same as at the authenticator).</param>
-        internal ThirdPartyUserAccount(string username)
+        /// <param name="pkiIdEmail">The PKI id to associate with this account.</param>
+        internal ThirdPartyUserAccount(string username, string pkiIdEmail)
         {
             Contract.Requires(!ReferenceEquals(username, null));
             this.username = username;
+            this.pkiIdEmail = pkiIdEmail;
         }
 
         /// <summary>
@@ -54,6 +61,17 @@ namespace BDSA_Project_ThirdParty
             get
             {
                 return this.username;
+            }
+        }
+
+        /// <summary>
+        /// Gets the pki identifier associated with this account.
+        /// </summary>
+        internal string PkiIdForAccount
+        {
+            get
+            {
+                return this.pkiIdEmail;
             }
         }
 

@@ -27,15 +27,15 @@ namespace BDSA_Project_ThirdParty
         /// </summary>
         internal ThirdParty()
         {
-            // Add some demo users to the database
-            this.AddUserAccount("testUser");
+            
         }
 
         /// <summary>
         /// Add a new user to the database.
         /// </summary>
         /// <param name="username">The new users username.</param>
-        internal bool AddUserAccount(string username)
+        /// <param name="pkiIdEmail">The PKI id to associate with this account.</param>
+        internal bool AddUserAccount(string username, string pkiIdEmail)
         {
             Contract.Requires(!ReferenceEquals(username, null));
             Contract.Ensures(this.users.ContainsKey(username));
@@ -44,7 +44,7 @@ namespace BDSA_Project_ThirdParty
                 return false;
             }
 
-            this.users.Add(username, new ThirdPartyUserAccount(username));
+            this.users.Add(username, new ThirdPartyUserAccount(username, pkiIdEmail));
             return true;
         }
 
@@ -88,6 +88,12 @@ namespace BDSA_Project_ThirdParty
             }
 
             return this.users[username].CompareTokens(clientToken);
+        }
+
+        internal string PkiIdForAccount(string username)
+        {
+            Contract.Requires(this.users.ContainsKey(username));
+            return this.users[username].PkiIdForAccount;
         }
 
         /// <summary>

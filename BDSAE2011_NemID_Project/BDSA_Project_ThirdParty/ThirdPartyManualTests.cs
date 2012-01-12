@@ -29,11 +29,12 @@ namespace BDSA_Project_ThirdParty
         public void TestAddUser()
         {
             string dwd = "darkwingduck";
+            string email = "e@dwd.dk";
             Assert.False(this.database.ContainsUsername(dwd));
-            Assert.True(this.database.AddUserAccount(dwd));
+            Assert.True(this.database.AddUserAccount(dwd, email));
             Assert.True(this.database.ContainsUsername(dwd));
             // Not possible to add user with equal username:
-            Assert.False(this.database.AddUserAccount(dwd));
+            Assert.False(this.database.AddUserAccount(dwd, email));
         }
         
         [Test]
@@ -51,7 +52,7 @@ namespace BDSA_Project_ThirdParty
         [Test]
         public void TestSuccessfulAuthTokenUpdate()
         {
-            Assert.True(this.database.AddUserAccount("yoda"));
+            Assert.True(this.database.AddUserAccount("yoda", "yoda@yoda.dk"));
             Assert.True(this.database.SetAuthTokenForAccount("yoda", "5691"));
         }
 
@@ -60,7 +61,7 @@ namespace BDSA_Project_ThirdParty
         {
             string usr = "chucknorris";
             string tkn = "1558";
-            Assert.True(this.database.AddUserAccount(usr));
+            Assert.True(this.database.AddUserAccount(usr, "usr@ussr.ru"));
             Assert.True(this.database.SetAuthTokenForAccount(usr, tkn));
             Assert.True(this.database.CompareTokens(tkn, usr));
         }
@@ -70,7 +71,7 @@ namespace BDSA_Project_ThirdParty
         {
             string usr = "bond";
             string tkn = "0000"; // initial value of the auth token field in ThirdPartyUserAccount
-            Assert.True(this.database.AddUserAccount(usr));
+            Assert.True(this.database.AddUserAccount(usr, "email@em.dk"));
             Assert.False(this.database.CompareTokens(tkn,usr)); // the server running the database is assumed to have a somewhat correct value of DateTime.Now (at least 1 minute greater than DateTime.MinValue)
         }
 
@@ -79,7 +80,7 @@ namespace BDSA_Project_ThirdParty
         {
             string usr = "bond";
             string tkn = "4558";
-            Assert.True(this.database.AddUserAccount(usr));
+            Assert.True(this.database.AddUserAccount(usr, "bond@007.dk"));
             Assert.True(this.database.SetAuthTokenForAccount(usr, tkn));
             Thread.Sleep(1001); // token is invalid after 1 minute
             Assert.False(this.database.CompareTokens(usr, tkn));
@@ -91,7 +92,7 @@ namespace BDSA_Project_ThirdParty
             string usr = "ratata";
             string validTkn = "1598";
             string invalidTkn = "1599";
-            Assert.True(this.database.AddUserAccount(usr));
+            Assert.True(this.database.AddUserAccount(usr, "lucky@luke.dk"));
             Assert.True(this.database.SetAuthTokenForAccount(usr, validTkn));
             Assert.False(this.database.CompareTokens(usr, invalidTkn)); // wrong token
             Assert.False(this.database.CompareTokens(usr, validTkn)); // token is correct, but access not allowed since an earlier attempt was made
@@ -100,7 +101,7 @@ namespace BDSA_Project_ThirdParty
         [Test]
         public void TestThirdPartyUserAccountUsernameProperty()
         {
-            ThirdPartyUserAccount tpua = new ThirdPartyUserAccount("kingkong");
+            ThirdPartyUserAccount tpua = new ThirdPartyUserAccount("kingkong", "king@kong.dk");
             Assert.True(tpua.Username.Equals("kingkong"));
         }
     }    
