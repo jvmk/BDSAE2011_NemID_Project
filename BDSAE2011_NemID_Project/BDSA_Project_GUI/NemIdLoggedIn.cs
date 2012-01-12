@@ -87,5 +87,11 @@ namespace BDSA_Project_GUI
                 Application.Exit();
             }
         }
+
+        private void LogOut_Click(object sender, EventArgs e)
+        {
+            this.authenticatorProxy.Abort(this.username);
+            Application.Exit();
+        }
     }
 }
