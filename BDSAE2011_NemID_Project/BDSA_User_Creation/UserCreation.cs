@@ -72,6 +72,12 @@ namespace BDSA_User_Creation
                 return;
             }
 
+            if (Cryptograph.KeyExists(email))
+            {
+                ErrorMessageLabel.ForeColor = Color.Red;
+                ErrorMessageLabel.Text = "A public key is already registered with the email";
+            }
+
             // Set the file path
             DialogResult result = folderBrowserDialog1.ShowDialog();
             if (result == DialogResult.OK)
@@ -80,6 +86,9 @@ namespace BDSA_User_Creation
                 if (ReferenceEquals(privateKey, null))
                 {
                     // Generate the keys for the user
+
+                    ErrorMessageLabel.Text = "Generating keys, please wait a moment...";
+                    ErrorMessageLabel.ForeColor = Color.Green;
                     privateKey = Cryptograph.GenerateKeys(email);
                 }
             }
@@ -93,7 +102,7 @@ namespace BDSA_User_Creation
                 userName, password1, cprno, email);
             if (creationSuccesfull)
             {
-                ErrorMessageLabel.ForeColor = Color.Green;
+                //ErrorMessageLabel.ForeColor = Color.Green;
                 ErrorMessageLabel.Text = "Account creation was successful.\n"
                                          + "You can now use this account to log-in.";
                 Thread.Sleep(4000);

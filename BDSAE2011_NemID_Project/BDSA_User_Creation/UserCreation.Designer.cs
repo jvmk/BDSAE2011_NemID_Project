@@ -230,6 +230,7 @@
             this.EmailTextBox.Name = "EmailTextBox";
             this.EmailTextBox.Size = new System.Drawing.Size(236, 20);
             this.EmailTextBox.TabIndex = 9;
+            this.EmailTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // CreateUserButton
             // 

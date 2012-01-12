@@ -107,7 +107,7 @@ namespace BDSA_Project_Authenticator
             {
                 // ... and the user unsuccesfully has submitted 3 requests
                 // when in either of these states...
-                if (++this.numberOfAttempts == 3)
+                if (++this.numberOfAttempts > 3)
                 {
                     // ...the operation is not valid.
                     return false;
