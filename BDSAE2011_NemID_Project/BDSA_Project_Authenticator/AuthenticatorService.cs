@@ -96,15 +96,10 @@ namespace BDSA_Project_Authenticator
         /// </returns>
         public bool IsOperationValid(string operation)
         {
-            if (operation.Equals("abort"))
-            {
-                return true;
-            }
-
-            if (this.currentState == SessionState.AwaitRedirection)
-            {
-                return true;
-            }
+            // if (operation.Equals("abort"))
+            // {
+            //     return true;
+            // }
 
             // If the session is awaiting either login and key submission...
             if (this.currentState == SessionState.AwaitLogin ||
@@ -121,7 +116,7 @@ namespace BDSA_Project_Authenticator
 
             if (this.TimedOut())
             {
-                this.currentState = SessionState.AwaitRedirection;
+                this.ChangeStateTo(SessionState.AwaitRedirection);
                 return false;
             }
 
@@ -194,7 +189,6 @@ namespace BDSA_Project_Authenticator
         private bool TimedOut()
         {
             bool timedOut = this.timeOfLastValidRequest.AddMinutes(1) <= DateTime.Now;
-            this.timeOfLastValidRequest = DateTime.Now;
 
             if (this.currentState == SessionState.AwaitRedirection)
             {
