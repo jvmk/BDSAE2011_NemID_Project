@@ -44,9 +44,10 @@
             // 
             // CancelButton
             // 
-            this.CancelButton.Location = new System.Drawing.Point(21, 72);
+            this.CancelButton.Location = new System.Drawing.Point(28, 89);
+            this.CancelButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.CancelButton.Name = "CancelButton";
-            this.CancelButton.Size = new System.Drawing.Size(75, 23);
+            this.CancelButton.Size = new System.Drawing.Size(100, 28);
             this.CancelButton.TabIndex = 2;
             this.CancelButton.Text = "Cancel";
             this.CancelButton.UseVisualStyleBackColor = true;
@@ -59,9 +60,11 @@
             this.KeyRequestBox.Controls.Add(this.KeyValueTextBox);
             this.KeyRequestBox.Controls.Add(this.KeyIndexLabel);
             this.KeyRequestBox.Controls.Add(this.SubmitKeyButton);
-            this.KeyRequestBox.Location = new System.Drawing.Point(119, 77);
+            this.KeyRequestBox.Location = new System.Drawing.Point(159, 95);
+            this.KeyRequestBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KeyRequestBox.Name = "KeyRequestBox";
-            this.KeyRequestBox.Size = new System.Drawing.Size(249, 113);
+            this.KeyRequestBox.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.KeyRequestBox.Size = new System.Drawing.Size(332, 139);
             this.KeyRequestBox.TabIndex = 0;
             this.KeyRequestBox.TabStop = false;
             this.KeyRequestBox.Text = "Provide key from keycard";
@@ -69,35 +72,39 @@
             // KeyIndex
             // 
             this.KeyIndex.AutoSize = true;
-            this.KeyIndex.Location = new System.Drawing.Point(45, 49);
+            this.KeyIndex.Location = new System.Drawing.Point(60, 60);
+            this.KeyIndex.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.KeyIndex.Name = "KeyIndex";
-            this.KeyIndex.Size = new System.Drawing.Size(51, 13);
+            this.KeyIndex.Size = new System.Drawing.Size(65, 17);
             this.KeyIndex.TabIndex = 5;
             this.KeyIndex.Text = "KeyIndex";
             // 
             // KeyValueTextBox
             // 
-            this.KeyValueTextBox.Location = new System.Drawing.Point(102, 46);
+            this.KeyValueTextBox.Location = new System.Drawing.Point(136, 57);
+            this.KeyValueTextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.KeyValueTextBox.Mask = "000000";
             this.KeyValueTextBox.Name = "KeyValueTextBox";
-            this.KeyValueTextBox.Size = new System.Drawing.Size(120, 20);
+            this.KeyValueTextBox.Size = new System.Drawing.Size(159, 22);
             this.KeyValueTextBox.TabIndex = 4;
             this.KeyValueTextBox.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             // 
             // KeyIndexLabel
             // 
             this.KeyIndexLabel.AutoSize = true;
-            this.KeyIndexLabel.Location = new System.Drawing.Point(6, 16);
+            this.KeyIndexLabel.Location = new System.Drawing.Point(8, 20);
+            this.KeyIndexLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.KeyIndexLabel.Name = "KeyIndexLabel";
-            this.KeyIndexLabel.Size = new System.Drawing.Size(206, 13);
+            this.KeyIndexLabel.Size = new System.Drawing.Size(274, 17);
             this.KeyIndexLabel.TabIndex = 3;
             this.KeyIndexLabel.Text = "Enter key corresponding to keycard index:";
             // 
             // SubmitKeyButton
             // 
-            this.SubmitKeyButton.Location = new System.Drawing.Point(147, 72);
+            this.SubmitKeyButton.Location = new System.Drawing.Point(196, 89);
+            this.SubmitKeyButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.SubmitKeyButton.Name = "SubmitKeyButton";
-            this.SubmitKeyButton.Size = new System.Drawing.Size(75, 23);
+            this.SubmitKeyButton.Size = new System.Drawing.Size(100, 28);
             this.SubmitKeyButton.TabIndex = 1;
             this.SubmitKeyButton.Text = "Submit key";
             this.SubmitKeyButton.UseVisualStyleBackColor = true;
@@ -107,6 +114,7 @@
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.splitContainer1.Name = "splitContainer1";
             this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -119,25 +127,28 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.errorLabel);
             this.splitContainer1.Panel2.Controls.Add(this.KeyRequestBox);
-            this.splitContainer1.Size = new System.Drawing.Size(500, 500);
-            this.splitContainer1.SplitterDistance = 125;
+            this.splitContainer1.Size = new System.Drawing.Size(667, 615);
+            this.splitContainer1.SplitterDistance = 153;
+            this.splitContainer1.SplitterWidth = 5;
             this.splitContainer1.TabIndex = 1;
             // 
             // errorLabel
             // 
             this.errorLabel.AutoSize = true;
-            this.errorLabel.Location = new System.Drawing.Point(116, 203);
+            this.errorLabel.Location = new System.Drawing.Point(155, 250);
+            this.errorLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.errorLabel.Name = "errorLabel";
-            this.errorLabel.Size = new System.Drawing.Size(0, 13);
+            this.errorLabel.Size = new System.Drawing.Size(0, 17);
             this.errorLabel.TabIndex = 1;
             // 
             // NemIdEnterKeyValue
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.splitContainer1);
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "NemIdEnterKeyValue";
-            this.Size = new System.Drawing.Size(500, 500);
+            this.Size = new System.Drawing.Size(667, 615);
             this.KeyRequestBox.ResumeLayout(false);
             this.KeyRequestBox.PerformLayout();
             this.splitContainer1.Panel2.ResumeLayout(false);

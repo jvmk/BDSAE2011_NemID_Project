@@ -121,7 +121,7 @@ namespace BDSA_Project_Authenticator
 
             if (this.TimedOut())
             {
-                this.currentState = SessionState.AwaitRedirection;
+                //this.currentState = SessionState.AwaitRedirection;
                 return false;
             }
 
@@ -194,7 +194,7 @@ namespace BDSA_Project_Authenticator
         private bool TimedOut()
         {
             bool timedOut = this.timeOfLastValidRequest.AddMinutes(1) <= DateTime.Now;
-            this.timeOfLastValidRequest = DateTime.Now;
+            //this.timeOfLastValidRequest = DateTime.Now;
 
             if (this.currentState == SessionState.AwaitRedirection)
             {

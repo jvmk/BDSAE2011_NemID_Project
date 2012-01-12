@@ -98,7 +98,7 @@
             {
                 KeyPathLabel.ForeColor = Color.Red;
                 KeyPathLabel.Text = "Wrong user name and password combination";
-                if (++this.numberOfLoginAttempts > 3)
+                if (++this.numberOfLoginAttempts >= 3)
                 {
                     KeyPathLabel.Text = "You have tried to submit wrong data 3 or more times.\n"
                                         + "To continue, cancel this session and start a new.";
