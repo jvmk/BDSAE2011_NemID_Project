@@ -96,11 +96,6 @@ namespace BDSA_Project_Authenticator
         /// </returns>
         public bool IsOperationValid(string operation)
         {
-            // if (operation.Equals("abort"))
-            // {
-            //     return true;
-            // }
-
             // If the session is awaiting either login and key submission...
             if (this.currentState == SessionState.AwaitLogin ||
                 this.currentState == SessionState.InitialLoginAccepted)
@@ -294,16 +289,6 @@ namespace BDSA_Project_Authenticator
                 // is valid. If it is invalid, can be empty.
                 string httpResponseMessageBody = string.Empty;
 
-                //// If the parameters is null...
-                //if (processedRequest.Parameters == null)
-                //{
-                //    // ... the request in invalid.
-                //    Console.WriteLine("Client request processed with success: " + validRequest);
-                //    Console.WriteLine("Server is responding to: " + processedRequest.RequesterDomain);
-                //    this.serverSocket.SendMessage(processedRequest, validRequest, httpResponseMessageBody);
-                //    continue;
-                //}
-
                 // Check if the requested operation is supported.
                 if (!this.supportedOperations.Contains(processedRequest.RequestedOperation))
                 {
@@ -407,9 +392,8 @@ namespace BDSA_Project_Authenticator
                 return;
             }
 
-
             // Retrieve the third party domain in the raw url.
-            start = rawUrl.LastIndexOf("3rd=") + "3rd=".Length;         // TODO validated
+            start = rawUrl.LastIndexOf("3rd=") + "3rd=".Length;
             end = rawUrl.Length;
 
             // Update the client session with the new third party url.
@@ -613,21 +597,11 @@ namespace BDSA_Project_Authenticator
             string cprNumber = processedRequest.Parameters[2];
             string email = processedRequest.Parameters[3];
 
-            // Check if it is legal to call this operation
-            // ClientSession userSession = this.userSessions[userName];
-            // bool validOperation = userSession.IsOperationValid("createAccount");
-
-            // If the requested operation is valid...
-            // if (validOperation)
-            //{
             // ...check if the request is valid.
             validRequest = this.authenticator.AddNewUser(userName, password, cprNumber, email);
 
             if (validRequest)
             {
-                // Update the state of the client session.
-                // userSession.ChangeStateTo(ClientSession.SessionState.AwaitRedirection);
-
                 // The new account must be added to client sessions.
                 this.userSessions.Add(userName, new ClientSession());
 
@@ -635,11 +609,11 @@ namespace BDSA_Project_Authenticator
                 foreach (string trustedThirdPartyURI in this.authenticator.TrustedThirdPartyURIs)
                 {
                     ClientSocket socket = new ClientSocket(trustedThirdPartyURI, StringData.AuthUri, this.authenticatorPrivateKey);
-                    socket.SendMessage("newuseradded", "userName=" + userName);
+                    socket.SendMessage("newuseradded",
+                        "userName=" + userName + "&email=" + email);
                 }
 
                 return;
-                //}
             }
 
             validRequest = false;
