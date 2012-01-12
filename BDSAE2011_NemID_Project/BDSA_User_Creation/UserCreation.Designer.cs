@@ -135,14 +135,14 @@
             // ErrorMessageLabel
             // 
             this.ErrorMessageLabel.AutoSize = true;
-            this.ErrorMessageLabel.Location = new System.Drawing.Point(194, 326);
+            this.ErrorMessageLabel.Location = new System.Drawing.Point(36, 293);
             this.ErrorMessageLabel.Name = "ErrorMessageLabel";
             this.ErrorMessageLabel.Size = new System.Drawing.Size(0, 17);
             this.ErrorMessageLabel.TabIndex = 4;
             // 
             // AbortButton
             // 
-            this.AbortButton.Location = new System.Drawing.Point(8, 293);
+            this.AbortButton.Location = new System.Drawing.Point(4, 326);
             this.AbortButton.Margin = new System.Windows.Forms.Padding(4);
             this.AbortButton.Name = "AbortButton";
             this.AbortButton.Size = new System.Drawing.Size(163, 28);
@@ -246,7 +246,7 @@
             // 
             // CreateUserButton
             // 
-            this.CreateUserButton.Location = new System.Drawing.Point(334, 293);
+            this.CreateUserButton.Location = new System.Drawing.Point(334, 326);
             this.CreateUserButton.Margin = new System.Windows.Forms.Padding(4);
             this.CreateUserButton.Name = "CreateUserButton";
             this.CreateUserButton.Size = new System.Drawing.Size(139, 28);
