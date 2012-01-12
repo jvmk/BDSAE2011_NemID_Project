@@ -46,17 +46,16 @@ namespace BDSA_Project_GUI
 
                         privateKey = File.ReadAllBytes(privateKeyPath);
 
-                        KeyPathLabel.Text = privateKeyPath;
-
                         KeyPathLabel.ForeColor = Color.Green;
+                        KeyPathLabel.Text = privateKeyPath;
 
                         //// TODO: Do additional stuff here, use the keys and such.
                         //// Maybe check if valid private key signature? create new isValidPrivateKey in crypto? Then save as field? 
                     }
                     else
                     {
-                        KeyPathLabel.Text = "No private key selected";
                         KeyPathLabel.ForeColor = Color.Red;
+                        KeyPathLabel.Text = "No private key selected";
                     }
                 }
             }
@@ -78,13 +77,14 @@ namespace BDSA_Project_GUI
                 }
                 else
                 {
+                    KeyPathLabel.ForeColor = Color.Red;
                     KeyPathLabel.Text = "Mismatch between key and key email identifier.";
                 }
             }
             else
             {
-                KeyPathLabel.Text = "Private key not selected.";
                 KeyPathLabel.ForeColor = Color.Red;
+                KeyPathLabel.Text = "Private key not selected.";
             }
         }
     }

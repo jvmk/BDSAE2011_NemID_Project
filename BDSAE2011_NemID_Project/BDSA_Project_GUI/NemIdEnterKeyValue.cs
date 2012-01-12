@@ -20,6 +20,8 @@ namespace BDSA_Project_GUI
 
         private AuthenticatorProxy auth;
 
+        private int numberOfLoginAttempts = 0;
+
         public NemIdEnterKeyValue(AuthenticatorProxy auth, ThirdPartyHttpGenerator tp, string keyIndexLabelText, string username)
         {
             InitializeComponent();
@@ -52,7 +54,14 @@ namespace BDSA_Project_GUI
             }
             else
             {
+                errorLabel.ForeColor = Color.Red;
                 errorLabel.Text = "Incorrect key value.";
+                if (++this.numberOfLoginAttempts > 3)
+                {
+                    errorLabel.Text = "You have tried to submit wrong data 3 or more times.\n"
+                                        + "To continue, cancel this session and start a new.";
+                    errorLabel.Refresh();
+                }
             }
         }
 

@@ -29,6 +29,8 @@
         /// </summary>
         private string thirdPartyUsername;
 
+        private int numberOfLoginAttempts = 0;
+
         /// <summary>
         /// Initializes a new instance of the NemIdLogin class.
         /// </summary>
@@ -94,8 +96,14 @@
             }
             else
             {
-                KeyPathLabel.Text = "Username/password combination mismatch.";
                 KeyPathLabel.ForeColor = Color.Red;
+                KeyPathLabel.Text = "Wrong user name and password combination";
+                if (++this.numberOfLoginAttempts > 3)
+                {
+                    KeyPathLabel.Text = "You have tried to submit wrong data 3 or more times.\n"
+                                        + "To continue, cancel this session and start a new.";
+                    KeyPathLabel.Refresh();
+                }
             }
         }
 
