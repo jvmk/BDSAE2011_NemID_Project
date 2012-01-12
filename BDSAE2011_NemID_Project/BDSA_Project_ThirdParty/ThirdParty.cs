@@ -90,6 +90,11 @@ namespace BDSA_Project_ThirdParty
             return this.users[username].CompareTokens(clientToken);
         }
 
+        /// <summary>
+        /// Retrieve the PKI identifier email for the specified username.
+        /// </summary>
+        /// <param name="username">The username for which the associated PKI identifier email is to be retrieved.</param>
+        /// <returns>The PKI identifier email for the specified username.</returns>
         internal string PkiIdForAccount(string username)
         {
             Contract.Requires(this.users.ContainsKey(username));
