@@ -47,13 +47,11 @@ namespace BDSA_Project_ThirdParty
         /// </summary>
         /// <param name="fullURI">The full URI for this server.</param>
         /// <param name="serversPrivateKey">The private key of this server.</param>
-        public ThirdPartyServer(string fullURI, byte[] serversPrivateKey)
+        public ThirdPartyServer(string serverAddress, byte[] serversPrivateKey)
         {
             this.server = new HttpListener();
             this.serversPrivateKey = serversPrivateKey;
-            string serverAddress = fullURI; // TODO update to https after testing!!!
-            this.server.Prefixes.Add(serverAddress);
-
+            this.server.Prefixes.Add(serverAddress); // TODO update to https after testing!!!
             this.subpagesForPost.AddRange(new[] { "/request=loginpage", "/request=usertoken/", "/request=authtoken/", "/request=newuseradded/" });
         }
 
