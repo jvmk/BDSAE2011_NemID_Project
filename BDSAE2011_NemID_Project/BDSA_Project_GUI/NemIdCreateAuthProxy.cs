@@ -63,7 +63,7 @@ namespace BDSA_Project_GUI
 
         private void continueBtn_Click(object sender, EventArgs e)
         {
-            if (!ReferenceEquals(privateKey, null))
+            if (!ReferenceEquals(privateKey, null) && Cryptograph.KeyExists(keyPkiIdTextBox.Text))
             {
                 if (Cryptograph.CheckConsistency(this.privateKey, this.keyPkiIdTextBox.Text))
                 {
@@ -84,7 +84,7 @@ namespace BDSA_Project_GUI
             else
             {
                 KeyPathLabel.ForeColor = Color.Red;
-                KeyPathLabel.Text = "Private key not selected.";
+                KeyPathLabel.Text = "Private key not selected or public key does not exist for that email.";
             }
         }
     }

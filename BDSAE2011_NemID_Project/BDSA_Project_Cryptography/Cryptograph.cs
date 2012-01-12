@@ -10,7 +10,9 @@
 namespace BDSA_Project_Cryptography
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics.Contracts;
+    using System.Linq;
     using System.Security.Cryptography;
     using System.Text;
 
@@ -383,6 +385,11 @@ namespace BDSA_Project_Cryptography
             Contract.Requires(PublicKeyInfrastructure.ValidPublicKeyBlob(GetPublicKey(publicKeyIdentifier)));
             Contract.Requires(!PublicKeyInfrastructure.ValidPublicKeyBlob(privateKey));
 
+            if (!ValidPrivateKeyBlob(privateKey))
+            {
+                return false;
+            }
+
             const string TestMessage = "encrypt and decrypt this";
 
             string encryptedMessage = Encrypt(TestMessage, GetPublicKey(publicKeyIdentifier));
@@ -390,6 +397,20 @@ namespace BDSA_Project_Cryptography
             string decryptedMessage = Decrypt(encryptedMessage, privateKey);
 
             return string.Equals(TestMessage, decryptedMessage);
+        }
+
+        /// <summary>
+        /// Does this key contain a valid private key header?
+        /// </summary>
+        /// <param name="keyBlob">The blob containing the key info</param>
+        /// <returns>true if the blob has the signature of a private key blob</returns>
+        [Pure]
+        internal static bool ValidPrivateKeyBlob(IEnumerable<byte> keyBlob)
+        {
+            byte[] publicKeyTemplate = { 7, 2, 0, 0, 0, 164, 0, 0, 82, 83, 65, 49, 0, 16, 0, 0, 1, 0, 1, 0 };
+
+            //// Compare the first 20 elements of the keyBlob collection to the template and see if they matches
+            return publicKeyTemplate.Take(1).SequenceEqual(keyBlob.Take(1));
         }
     }
 }

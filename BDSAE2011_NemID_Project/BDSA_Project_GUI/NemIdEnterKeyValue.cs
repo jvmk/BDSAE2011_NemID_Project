@@ -56,7 +56,7 @@ namespace BDSA_Project_GUI
             {
                 errorLabel.ForeColor = Color.Red;
                 errorLabel.Text = "Incorrect key value.";
-                if (++this.numberOfLoginAttempts > 3)
+                if (++this.numberOfLoginAttempts >= 3)
                 {
                     errorLabel.Text = "You have tried to submit wrong data 3 or more times.\n"
                                         + "To continue, cancel this session and start a new.";

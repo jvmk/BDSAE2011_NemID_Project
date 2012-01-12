@@ -64,7 +64,7 @@ namespace BDSA_User_Creation
                 return;
             }
 
-            // Check if an email address has ben added.
+            // Check if an email field is empty
             if (string.IsNullOrEmpty(email))
             {
                 ErrorMessageLabel.ForeColor = Color.Red;
@@ -72,16 +72,25 @@ namespace BDSA_User_Creation
                 return;
             }
 
-            if (Cryptograph.KeyExists(email))
+            // Check if the email address already has been added
+            /*if (Cryptograph.KeyExists(email))
             {
                 ErrorMessageLabel.ForeColor = Color.Red;
                 ErrorMessageLabel.Text = "A public key is already registered with the email";
             }
+            */
 
             // Set the file path
+            // TODO: Add an explanation.. Specify the location you want to save your private key file to
             DialogResult result = folderBrowserDialog1.ShowDialog();
             if (result == DialogResult.OK)
             {
+                if (Cryptograph.KeyExists(email))
+                {
+                    ErrorMessageLabel.ForeColor = Color.Red;
+                    ErrorMessageLabel.Text = "A public key is already registered with the email";
+                    return;
+                }
                 path = folderBrowserDialog1.SelectedPath;
                 if (ReferenceEquals(privateKey, null))
                 {
@@ -94,7 +103,7 @@ namespace BDSA_User_Creation
             }
 
             // Save the key to the specified file path
-            File.WriteAllBytes(path + "/" + userName + "privateKey", privateKey);
+            File.WriteAllBytes(path + "/" + userName + "privateKey.bin", privateKey);
 
             //// Creates the auth proxy and creates an user
             AuthenticatorProxy proxy = new AuthenticatorProxy(StringData.AuthUri, email, privateKey);
@@ -102,11 +111,8 @@ namespace BDSA_User_Creation
                 userName, password1, cprno, email);
             if (creationSuccesfull)
             {
-                ErrorMessageLabel.Text = "Account creation was successful.\n"
-                                         + "You can now use this account to log-in.";
-                ErrorMessageLabel.Refresh();
-                Thread.Sleep(4000);
-                Application.Exit();
+                Application.OpenForms[0].Controls.Clear();
+                Application.OpenForms[0].Controls.Add(new UserCreationSuccess());
             }
             else
             {
