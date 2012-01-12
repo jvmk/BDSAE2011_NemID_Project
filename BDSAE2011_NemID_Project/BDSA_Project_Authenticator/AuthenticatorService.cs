@@ -677,6 +677,12 @@ namespace BDSA_Project_Authenticator
                     // The user has been deleted from the authenticator database, and must
                     // also be deleted from the client sessions.
                     this.userSessions.Remove(userName);
+                    // Multicast new user account to trusted third parties.
+                    foreach (string trustedThirdPartyURI in this.authenticator.TrustedThirdPartyURIs)
+                    {
+                        ClientSocket socket = new ClientSocket(trustedThirdPartyURI, StringData.AuthUri, this.authenticatorPrivateKey);
+                        socket.SendMessage("userdeleted", "userName=" + userName);
+                    }
                     return;
                 }
             }
