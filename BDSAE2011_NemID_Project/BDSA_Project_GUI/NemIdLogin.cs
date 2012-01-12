@@ -85,12 +85,12 @@
                 return;
             }
 
-            bool loginAccept = this.authenticatorProxy.LogIn(username, password);
+            bool loginAccept = this.authenticatorProxy.LogIn(thirdPartyUsername, password);
             if (loginAccept)
             {
                 string keyIndexLabelText = authenticatorProxy.GetKeyIndex();
                 Application.OpenForms[0].Controls.Clear();
-                Application.OpenForms[0].Controls.Add(new NemIdEnterKeyValue(authenticatorProxy, tp, keyIndexLabelText, username));
+                Application.OpenForms[0].Controls.Add(new NemIdEnterKeyValue(authenticatorProxy, tp, keyIndexLabelText, this.thirdPartyUsername));
             }
             else
             {

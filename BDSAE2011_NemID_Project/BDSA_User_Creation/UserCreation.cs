@@ -86,9 +86,9 @@ namespace BDSA_User_Creation
                 if (ReferenceEquals(privateKey, null))
                 {
                     // Generate the keys for the user
-
-                    ErrorMessageLabel.Text = "Generating keys, please wait a moment...";
                     ErrorMessageLabel.ForeColor = Color.Green;
+                    ErrorMessageLabel.Text = "Generating keys, please wait a moment...";
+                    ErrorMessageLabel.Refresh();
                     privateKey = Cryptograph.GenerateKeys(email);
                 }
             }
@@ -102,9 +102,9 @@ namespace BDSA_User_Creation
                 userName, password1, cprno, email);
             if (creationSuccesfull)
             {
-                //ErrorMessageLabel.ForeColor = Color.Green;
                 ErrorMessageLabel.Text = "Account creation was successful.\n"
                                          + "You can now use this account to log-in.";
+                ErrorMessageLabel.Refresh();
                 Thread.Sleep(4000);
                 Application.Exit();
             }

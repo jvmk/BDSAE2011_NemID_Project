@@ -577,7 +577,7 @@ namespace BDSA_Project_Authenticator
         private void ProcessAbort(Request processedRequest, ref bool validRequest)
         {
             // The parameters for the requested operation.
-            string userName = processedRequest.Parameters[1];
+            string userName = processedRequest.Parameters[0];
 
             // Check if it is legal to call this operation
             ClientSession userSession = this.userSessions[userName];
