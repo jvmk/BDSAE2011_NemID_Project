@@ -9,7 +9,6 @@ namespace BDSA_Project_ThirdParty
     using System;
     using System.Collections.Specialized;
     using System.Diagnostics.Contracts;
-    using System.IO;
     using System.Linq;
     using System.Net;
     using System.Text;
@@ -45,7 +44,7 @@ namespace BDSA_Project_ThirdParty
         /// Initializes a new instance of the ThirdPartyServer class.
         /// Protocol cannot be specified since a server of this type should always use https.
         /// </summary>
-        /// <param name="fullURI">The full URI for this server.</param>
+        /// <param name="serverAddress">The full URI for this server.</param>
         /// <param name="serversPrivateKey">The private key of this server.</param>
         public ThirdPartyServer(string serverAddress, byte[] serversPrivateKey)
         {
@@ -77,9 +76,13 @@ namespace BDSA_Project_ThirdParty
                     + request.IsSecureConnection);
                 Console.WriteLine("<ThirdPartyServer>: User authenticated: " + request.IsAuthenticated);
 
+                // Extract the HTTP method of the request
                 string requestMethod = request.HttpMethod;
 
-                string rawMessageBody = this.GetPostString(hlc);
+                // Get the encrypted content of the message
+                string rawMessageBody = MessageProcessingUtility.ReadFrom(request.InputStream);
+                // Always close streams (don't allocate resources that are not needed)
+                request.InputStream.Close();
 
                 Console.WriteLine("HTTP request to " + this.server.Prefixes.First() + " recieved.");
                 Console.WriteLine("Request method: " + requestMethod + " to resource " + request.RawUrl);
@@ -98,7 +101,7 @@ namespace BDSA_Project_ThirdParty
                         {
                             // If requested url is not part of subpagesForPost, posting is not allowed!
                             response.StatusCode = 405; // Status code: http method not allowed
-                            response.Headers.Add(HttpRequestHeader.Allow, "GET"); // inform that only GET is allowed for any page not in subagesForPost
+                            response.Headers.Add(HttpRequestHeader.Allow, "GET"); // inform that only GET is allowed for any page not in subpagesForPost
                             response.Close(); // send response
                         }
                         else
@@ -107,9 +110,7 @@ namespace BDSA_Project_ThirdParty
                             this.ProcessIncomingPost(hlc, rawMessageBody);
                             Console.WriteLine("POST request processed!");
                         }
-
                         break;
-
                     default:
                         // Reply that an error has occured: http method was not supported
                         response.StatusCode = 501; // method not supported
@@ -177,27 +178,14 @@ namespace BDSA_Project_ThirdParty
         }
 
         /// <summary>
-        /// Extract the message body of a POST request.
-        /// </summary>
-        /// <param name="hlc">The context in which the request was recieved.</param>
-        /// <returns>The message body as an UTF8 encoded string. Returns null if posting is not allowed to the requested URL.</returns>
-        private string GetPostString(HttpListenerContext hlc)
-        {
-            Contract.Requires(!ReferenceEquals(hlc, null));
-            HttpListenerRequest request = hlc.Request;
-            Stream input = request.InputStream; // access inputstream
-            string postedData = MessageProcessingUtility.ReadFrom(input); // Encoding.UTF8.GetString(buf);
-            input.Close(); // close the stream
-            return postedData;
-        }
-
-        /// <summary>
         /// Processes an incoming http POST request and takes action according to target resource and the validity of the message body.
         /// </summary>
         /// <param name="hlc">The HttpListenerContext in which the request was recieved.</param>
+        /// <param name="rawMessageBody">The encrypted content of the request (the message body).</param>
         private void ProcessIncomingPost(HttpListenerContext hlc, string rawMessageBody)
         {
             Contract.Requires(!ReferenceEquals(hlc, null));
+            Contract.Requires(this.IsPostingAllowed(hlc));
             HttpListenerResponse response = hlc.Response; // obtain response object
             string urlForPost = hlc.Request.RawUrl; // Find out what subpage the data was posted to
 
@@ -251,7 +239,7 @@ namespace BDSA_Project_ThirdParty
                     // Resource either not found or not meant for posting
                     Console.WriteLine("Requested resource not found.");
                     response.StatusCode = 404; // Status code: NOT FOUND
-                    response.StatusDescription = "Resource does either not exist or is not accepting POST messages.";
+                    response.StatusDescription = "Resource not found.";
                     break;
             }
         }
@@ -398,6 +386,12 @@ namespace BDSA_Project_ThirdParty
             }
         }
 
+        /// <summary>
+        /// Used to encrypt and setup a message that corresponds to the standards used for messages.
+        /// </summary>
+        /// <param name="clientPki">The PKI identifier for the recipent of the message.</param>
+        /// <param name="message">The to-be encrypted complete message body.</param>
+        /// <returns>The encrypted message body to be send via a HTTP message.</returns>
         private string CompileMessageBody(string clientPki, string message)
         {
             Contract.Requires(message != null);
