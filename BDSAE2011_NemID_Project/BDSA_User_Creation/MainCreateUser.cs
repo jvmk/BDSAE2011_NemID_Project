@@ -10,6 +10,7 @@ namespace BDSA_Project_User_Creation
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Runtime.InteropServices;
     using System.Text;
     using System.Windows.Forms;
 
@@ -23,6 +24,19 @@ namespace BDSA_Project_User_Creation
     public class MainCreateUser
     {
         /// <summary>
+        /// This enables us to print to a console like a regular console application
+        /// Code found at:
+        /// http://social.msdn.microsoft.com/Forums/en-US/csharpgeneral/thread/701e02cc-ad77-46b9-b4fc-410bb3ff7a0d/
+        /// </summary>
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool AllocConsole();
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        [return: MarshalAs(UnmanagedType.Bool)]
+        static extern bool FreeConsole();
+
+        /// <summary>
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
@@ -32,6 +46,8 @@ namespace BDSA_Project_User_Creation
             {
                 return;
             }
+
+            AllocConsole();
 
             StringData.filePath = args[0];
 
