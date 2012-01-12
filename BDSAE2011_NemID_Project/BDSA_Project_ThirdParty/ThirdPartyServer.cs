@@ -9,7 +9,6 @@ namespace BDSA_Project_ThirdParty
     using System;
     using System.Collections.Specialized;
     using System.Diagnostics.Contracts;
-    using System.IO;
     using System.Linq;
     using System.Net;
     using System.Text;
@@ -45,7 +44,7 @@ namespace BDSA_Project_ThirdParty
         /// Initializes a new instance of the ThirdPartyServer class.
         /// Protocol cannot be specified since a server of this type should always use https.
         /// </summary>
-        /// <param name="fullURI">The full URI for this server.</param>
+        /// <param name="serverAddress">The full URI for this server.</param>
         /// <param name="serversPrivateKey">The private key of this server.</param>
         public ThirdPartyServer(string serverAddress, byte[] serversPrivateKey)
         {
@@ -182,6 +181,7 @@ namespace BDSA_Project_ThirdParty
         /// Processes an incoming http POST request and takes action according to target resource and the validity of the message body.
         /// </summary>
         /// <param name="hlc">The HttpListenerContext in which the request was recieved.</param>
+        /// <param name="rawMessageBody">The encrypted content of the request (the message body).</param>
         private void ProcessIncomingPost(HttpListenerContext hlc, string rawMessageBody)
         {
             Contract.Requires(!ReferenceEquals(hlc, null));
@@ -386,6 +386,12 @@ namespace BDSA_Project_ThirdParty
             }
         }
 
+        /// <summary>
+        /// Used to encrypt and setup a message that corresponds to the standards used for messages.
+        /// </summary>
+        /// <param name="clientPki">The PKI identifier for the recipent of the message.</param>
+        /// <param name="message">The to-be encrypted complete message body.</param>
+        /// <returns>The encrypted message body to be send via a HTTP message.</returns>
         private string CompileMessageBody(string clientPki, string message)
         {
             Contract.Requires(message != null);
