@@ -75,7 +75,7 @@ namespace BDSA_Project_ThirdParty
                 HttpListenerResponse response = hlc.Response;
 
                 Console.WriteLine(
-                    "SSL connection between 3rd Party and Client established: "
+                    "[ThirdPartyServer]: SSL connection between client and ThirdPartyServer established: "
                     + request.IsSecureConnection);
                 
                 // Extract the HTTP method of the request

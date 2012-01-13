@@ -277,7 +277,7 @@ namespace BDSA_Project_Cryptography
 
                     return rsa.VerifyData(bytesToVerify, CryptoConfig.MapNameToOID("SHA512"), signedBytes);
                 }
-                catch (CryptographicException e)
+                catch (CryptographicException)
                 {
                     return false;
                 }
