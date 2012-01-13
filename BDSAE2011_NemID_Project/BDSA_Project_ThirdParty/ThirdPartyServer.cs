@@ -61,21 +61,23 @@ namespace BDSA_Project_ThirdParty
         public void RunServer()
         {
             this.server.Start(); // start the server
-            Console.WriteLine(".Start() called on ThirdPartyServer...");
+            Console.WriteLine("[ThirdPartyServer]: Server started, waiting for incomning request...");
 
             // Run forever
             while (true)
             {
-                Console.WriteLine("ThirdPartyServer is now listening for request... (entered GetContext loop).");
+                Console.WriteLine();
+                Console.WriteLine("[ThirdPartyServer]: Waiting for incoming request...");
                 HttpListenerContext hlc = this.server.GetContext(); // blocking call
+                Console.WriteLine();
+                Console.WriteLine("[ThirdPartyServer]: Request received.");
                 HttpListenerRequest request = hlc.Request;
                 HttpListenerResponse response = hlc.Response;
 
                 Console.WriteLine(
                     "SSL connection between 3rd Party and Client established: "
                     + request.IsSecureConnection);
-                Console.WriteLine("<ThirdPartyServer>: User authenticated: " + request.IsAuthenticated);
-
+                
                 // Extract the HTTP method of the request
                 string requestMethod = request.HttpMethod;
 
@@ -84,8 +86,7 @@ namespace BDSA_Project_ThirdParty
                 // Always close streams (don't allocate resources that are not needed)
                 request.InputStream.Close();
 
-                Console.WriteLine("HTTP request to " + this.server.Prefixes.First() + " recieved.");
-                Console.WriteLine("Request method: " + requestMethod + " to resource " + request.RawUrl);
+                Console.WriteLine("[ThirdPartyServer]: Request method: " + requestMethod + ", to resource: " + request.RawUrl);
                 Console.WriteLine("--- REQUEST MESSAGE BODY BEGINS: ---");
                 Console.WriteLine(rawMessageBody);
                 Console.WriteLine("--- REQUEST MESSAGE BODY ENDS ---");
@@ -106,9 +107,9 @@ namespace BDSA_Project_ThirdParty
                         }
                         else
                         {
-                            Console.WriteLine("Processing the POST request...");
+                            Console.WriteLine("[ThirdPartyServer]: Processing the POST request...");
                             this.ProcessIncomingPost(hlc, rawMessageBody);
-                            Console.WriteLine("POST request processed!");
+                            Console.WriteLine("[ThirdPartyServer]: POST request processed!");
                         }
                         break;
                     default:
@@ -136,18 +137,15 @@ namespace BDSA_Project_ThirdParty
                 // guard against null ref if unspecified get string
                 requestedUrl = string.Empty;
             }
-            Console.WriteLine("Requested RawURL: " + requestedUrl);
             switch (requestedUrl)
             {
                 case @"/request=loginpage":
                     response.StatusCode = 200;
-
                     byte[] responseBytes = Encoding.UTF8.GetBytes("OK");
-
                     response.OutputStream.Write(responseBytes, 0, responseBytes.Length); // the html for the loginpage should be here - write it to response outputstream
                     response.OutputStream.Flush();
                     response.OutputStream.Close();
-
+                    response.Close();
                     break;
 
                 // no other sub pages designed for get requests
@@ -194,11 +192,18 @@ namespace BDSA_Project_ThirdParty
                 // special case where clientPkiId cannot be determined (no email to identify public key)
                 string encUsername = rawMessageBody;
                 // decrypt username
+                Console.WriteLine("[ThirdPartyServer]: Decrypting username...");
                 string decUsername = Cryptograph.Decrypt(encUsername, this.serversPrivateKey);
-
-                Console.WriteLine("Encrypted user name: " + encUsername);
-                Console.WriteLine("Decrypted user name: " + decUsername);
-
+                if (ReferenceEquals(decUsername, null))
+                {
+                    Console.WriteLine("[ThirdPartyServer]: The username was not encrypted in the public key of this server; aborting.");
+                    response.StatusCode = 400;
+                    response.StatusDescription =
+                        "Username not encrypted in the public key of the server, cannot process request.";
+                    response.Close();
+                    return;
+                }
+                Console.WriteLine("[ThirdPartyServer]: Decrypted user name: " + decUsername);
                 this.AnswerLoginpagePost(response, decUsername);
                 return;
             }
@@ -217,6 +222,7 @@ namespace BDSA_Project_ThirdParty
             if (ReferenceEquals(clientPki, null) || !Cryptograph.KeyExists(clientPki))
             {
                 // Not possible to indentify origin value attached to message (or origin value not found in PKI)
+                Console.WriteLine("[ThirdPartyServer]: Message origin could not be determined through the PKI; aborting request.");
                 response = this.SetupForbiddenResponse(response, "Origin could not be determined through the PKI.");
                 response.Close();
                 return;
@@ -228,24 +234,20 @@ namespace BDSA_Project_ThirdParty
             switch (urlForPost)
             {
                 case @"/request=authtoken/":
-                    Console.WriteLine("Processing /request=authtoken/ request");
                     this.AnswerAuthtokenPost(response, rawMessageBody);
                     break;
                 case @"/request=usertoken/":
-                    Console.WriteLine("Processing /request=usertoken/ request");
                     this.AnswerUsertokenPost(response, clientPki, rawMessageBody);
                     break;
                 case @"/request=newuseradded/":
-                    Console.WriteLine("Processing /request=newuseradded/ request...");
                     this.ProcessUserDatabaseUpdate(response, rawMessageBody, true);
                     break;
                 case @"/request=userdeleted/":
-                    Console.WriteLine("Processing /request=userdeleted/ request...");
                     this.ProcessUserDatabaseUpdate(response, rawMessageBody, false);
                     break;
                 default:
                     // Resource either not found or not meant for posting
-                    Console.WriteLine("Requested resource not found.");
+                    Console.WriteLine("[ThirdPartyServer]: Requested resource not found; aborting request.");
                     response.StatusCode = 404; // Status code: NOT FOUND
                     response.StatusDescription = "Resource not found.";
                     response.Close();
@@ -321,14 +323,18 @@ namespace BDSA_Project_ThirdParty
             // check username is valid in own database
             if (this.database.ContainsUsername(username))
             {
+                Console.WriteLine("[ThirdPartyServer]: Username '" + username + "' successfully found in user-database; redirecting to authenticator.");
                 // redirect to authenticator
                 response.StatusCode = 200;
                 // response.StatusDescription = "Redirecting you to authenticator.";
                 response.Redirect(StringData.AuthUri + "request=redirect&username=" + username + "&3rd=" + this.server.Prefixes.First());
                 response.Close();
+                Console.WriteLine("[ThirdPartyServer]: Successfully redirected '" + username + "' to " + 
+                    StringData.AuthUri + "request=redirect&username=" + username + "&3rd=" + this.server.Prefixes.First());
             }
             else
             {
+                Console.WriteLine("[ThirdPartyServer]: Username '" + username + "' not found in user-database; aborting request.");
                 response = this.SetupForbiddenResponse(response, "Username not found.");
                 response.Close();
             }
@@ -402,24 +408,25 @@ namespace BDSA_Project_ThirdParty
                 if(parameters.Length < 2)
                 {
                     // Malformed request for this resource
-                    Console.WriteLine("Authenticator tried to post a token but the message was malformed.");
+                    Console.WriteLine("[ThirdPartyServer]: Authenticator tried to post a token but the message was malformed; aborting request.");
                     response.StatusCode = 400;
                     response.StatusDescription = "Too few parameters for this resource.";
                     response.Close();
                 }
                 else
                 {
+                    Console.WriteLine("[ThirdPartyServer]: Updating authenticator token for username: " + parameters[0] + " to token value: " + parameters[1]);
                     this.database.SetAuthTokenForAccount(parameters[0], parameters[1]); // index 0 is username, index 1 is token value.
                     response.StatusCode = 200;
                     response.StatusDescription = "Authenticator token sucessfully submitted.";
                     response.Close();
-                    Console.WriteLine("Authenticator token sat for username: " + parameters[0]);
+                    Console.WriteLine("[ThirdPartyServer]: Authenticator token sat for username: " + parameters[0] + ". New token value: " + parameters[1]);
                 }
             }
             else
             {
                 // Request could not be verified to come from the authenticator
-                Console.WriteLine("Attempt to post auth token without authenticator signature was denied.");
+                Console.WriteLine("[ThirdPartyServer]: Attempt to post authenticator token without authenticator signature was denied; aborting request.");
                 response = this.SetupForbiddenResponse(response, "You do not have rights to POST to this resource.");
                 response.Close();
             }
@@ -462,7 +469,7 @@ namespace BDSA_Project_ThirdParty
             if (ReferenceEquals(parameters, null))
             {
                 // Request decryption and/or verification has failed
-                Console.WriteLine("Could not decrypt/verify a post to submit a usertoken.");
+                Console.WriteLine("[ThirdPartyServer]: Could not decrypt/verify a post to submit a usertoken; aborting request.");
                 response.StatusCode = 400;
                 response.StatusDescription =
                     "Could not decrypt and verify according to given origin.";
@@ -475,7 +482,7 @@ namespace BDSA_Project_ThirdParty
                 response.StatusCode = 400;
                 response.StatusDescription = "Malformed message, too few parameters for this resource.";
                 response.Close();
-                Console.WriteLine("Attempt to submit a usertoken was denied because of missing parameters in the request message.");
+                Console.WriteLine("[ThirdPartyServer]: Attempt to submit a usertoken was denied because of missing parameters in the request message.");
             }
             else
             {
@@ -484,22 +491,23 @@ namespace BDSA_Project_ThirdParty
                 {
                     // If the username is not found in the database or the pki id specified in origin does not match the pki
                     // id of the account, the sender cannot be verified as the actual owner of the account.
+                    Console.WriteLine("[ThirdPartyServer]: PKI of request did not match PKI of the target account for which the user token was submitted; aborting request.");
                     response = this.SetupForbiddenResponse(response, "You do not have rights to post to this resource.");
                     response.Close();
-                    Console.WriteLine("PKI of request did not match the target account for which the user token was submitted - aborting request.");
                     return;
                 }
                 // Sender is now verified to be the account owner, now comnpare tokens.
                 if (this.database.CompareTokens(parameters[1], parameters[0]))
                 {
+                    Console.WriteLine("[ThirdPartyServer]: Usertoken submission accepted (Username: '" + parameters[0] + "' Token: " + parameters[1] + ").");
                     response.StatusCode = 200; // HTTP OK status
                     response.StatusDescription = "Authentication successful.";
                     String responseMessage = this.CompileMessageBody(clientPki, "Authenticated");
                     byte[] messageBytes = Encoding.UTF8.GetBytes(responseMessage);
                     response.OutputStream.Write(messageBytes, 0, messageBytes.Length);
                     response.Close();
-                    Console.WriteLine("Authentication successful for user: " + parameters[0] + " (PKI id for account is: " + 
-                        this.database.PkiIdForAccount(parameters[0]) + ")");
+                    Console.WriteLine("[ThirdPartyServer]: Authentication successful for user: " + parameters[0] + " (PKI id for account is: " + 
+                        this.database.PkiIdForAccount(parameters[0]) + ").");
                 }
                 else
                 {
@@ -507,7 +515,9 @@ namespace BDSA_Project_ThirdParty
                     response = this.SetupForbiddenResponse(
                         response, "Token incorrect. You must restart authentication process.");
                     response.Close();
-                    Console.WriteLine("Incorrect token submitted for user " + parameters[0] + " (PKI id = " + this.database.PkiIdForAccount(parameters[0]) + ")");
+                    Console.WriteLine("[ThirdPartyServer]: Incorrect token submitted for user '" + parameters[0] + "' (PKI id = "
+                        + this.database.PkiIdForAccount(parameters[0]) +
+                        "). Submitted token value: " + parameters[1]);
                 }
             }
         }
@@ -565,13 +575,13 @@ namespace BDSA_Project_ThirdParty
                 if (addUser)
                 {
                     bool userAdded = this.database.AddUserAccount(username, pkiIdEmail);
-                    Console.WriteLine("Added the username: " + username + " to the third party database: " + userAdded);
+                    Console.WriteLine("[ThirdPartyServer]: Added the username: '" + username + "' to the user-database: " + userAdded);
                     response.StatusDescription = "User successfully added to database: " + userAdded + " (false indicates that user was already in the database).";
                 }
                 else
                 {
                     bool userDeleted = this.database.DeleteUserAccount(username);
-                    Console.WriteLine("Deleted user with username " + username + " from the third party database: " + userDeleted);
+                    Console.WriteLine("[ThirdPartyServer]: Deleted user with username '" + username + "' from the user-database: " + userDeleted);
                     response.StatusDescription = "User successfully found and deleted from database: " + userDeleted + " (false indicates that user was not found in database).";
                 }
                 response.StatusCode = 200;
@@ -579,6 +589,7 @@ namespace BDSA_Project_ThirdParty
             }
             else
             {
+                Console.WriteLine("[ThirdPartyServer]: Attempt to update user database denied (Request was not send by the authenticator).");
                 response = this.SetupForbiddenResponse(response, "You do not have rights to post to this resource.");
                 response.Close();
             }
