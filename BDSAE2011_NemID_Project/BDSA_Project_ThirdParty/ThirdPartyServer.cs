@@ -1,6 +1,6 @@
 ﻿// -----------------------------------------------------------------------
-// <copyright file="ThirdPartyServer.cs" company="">
-// TODO: Update copyright text.
+// <copyright file="ThirdPartyServer.cs" company="NemID Open Source Alternative">
+//  NemID Open Source Alternative
 // </copyright>
 // -----------------------------------------------------------------------
 
@@ -38,6 +38,9 @@ namespace BDSA_Project_ThirdParty
         /// </summary>
         private readonly ThirdParty database = new ThirdParty();
 
+        /// <summary>
+        /// The private key of the ThirdPartyServer.
+        /// </summary>
         private readonly byte[] serversPrivateKey;
 
         /// <summary>
@@ -50,7 +53,7 @@ namespace BDSA_Project_ThirdParty
         {
             this.server = new HttpListener();
             this.serversPrivateKey = serversPrivateKey;
-            this.server.Prefixes.Add(serverAddress); // TODO update to https after testing!!!
+            this.server.Prefixes.Add(serverAddress);
             this.subpagesForPost.AddRange(new[] { "/request=loginpage", "/request=usertoken/", "/request=authtoken/", "/request=newuseradded/", "/request=userdeleted/" });
         }
 
@@ -171,7 +174,6 @@ namespace BDSA_Project_ThirdParty
             {
                 return true;
             }
-
             return false;
         }
 
@@ -207,17 +209,8 @@ namespace BDSA_Project_ThirdParty
                 this.AnswerLoginpagePost(response, decUsername);
                 return;
             }
-
+            // Try to obtain the origin value attached to the message.
             string clientPki = MessageProcessingUtility.GetRequesterDomain(rawMessageBody, this.serversPrivateKey);
-            /*if (!this.ValidatePostOrigin(rawMessageBody, clientPki))
-            {
-                // message was not valid - message has been tampered with, end request here
-                response = this.SetupForbiddenResponse(
-                    response,
-                    "The server recognized an attempt to modify your message, the transaction was aborted.");
-                response.Close();
-                return;
-            }*/
 
             if (ReferenceEquals(clientPki, null) || !Cryptograph.KeyExists(clientPki))
             {
@@ -227,9 +220,6 @@ namespace BDSA_Project_ThirdParty
                 response.Close();
                 return;
             }
-
-            //string[] inputValues = MessageProcessingUtility.GetRequesterParameters(
-            //    rawMessageBody, clientPki, this.serversPrivateKey); // Processes the message body and obtains the values associated with the request's parametres
 
             switch (urlForPost)
             {
@@ -271,44 +261,6 @@ namespace BDSA_Project_ThirdParty
             return response;
         }
 
-        /// <summary>
-        /// Verify that the message came from the expected source.
-        /// </summary>
-        /// <param name="httpMessageBody">The encrypted http message body.</param>
-        /// <param name="expectedPkiId">The PKI identifier to verify against.</param>
-        /// <returns>True if the token was sent by expected source, false otherwise.</returns>
-        private bool ValidatePostOrigin(string httpMessageBody, string expectedPkiId)
-        {
-            Contract.Requires(!ReferenceEquals(httpMessageBody, null));
-            Contract.Requires(!ReferenceEquals(expectedPkiId, null));
-            string senderPkiId = MessageProcessingUtility.GetRequesterDomain(httpMessageBody, this.serversPrivateKey);
-
-            if (ReferenceEquals(senderPkiId, null) || !senderPkiId.Equals(expectedPkiId))
-            {
-                // Origin is not determable or not equal to expected origin
-                return false;
-            }
-
-            string[] parts = httpMessageBody.Split('&');
-
-            for (int i = 0; i < 3; i++)
-            {
-                Console.WriteLine("Parameter " + i + ": " + parts[i]);
-            }
-
-            // encMessageBody is encrypted in the authenticator's public
-            // key. This text represents the text that is signed by the
-            // client.
-            string encMessageBody = parts[1];
-
-            // signedEncMessageBody is the signed text of the encMessageBody.
-            // It has been signed by the client's private key.
-            string signedEncMessageBody = parts[2];
-
-            return Cryptograph.VerifyData(
-                encMessageBody, signedEncMessageBody, Cryptograph.GetPublicKey(senderPkiId));
-        }
-
         // < HELPER METHODS FOR POST PROCESSING STARTS >
 
         /// <summary>
@@ -346,60 +298,8 @@ namespace BDSA_Project_ThirdParty
         /// </summary>
         /// <param name="response">The HttpListenerResponse obtained from the HttpListenerContext that is associated with the post to the request=authtoken resource.</param>
         /// <param name="rawMessageBody">The full (encrypted) content of the request's message body.</param>
-        /// <param name="username">The username extracted from the rawMessageBody indicating what account to associate the tokenValue with.</param>
-        /// <param name="tokenValue">A token (nonce) generated by the authenticator to associate with the specified username.</param>
-        /*private void AnswerAuthtokenPost(HttpListenerResponse response, string rawMessageBody, string username, string tokenValue)
-        {
-            Contract.Requires(!ReferenceEquals(response, null));
-            Contract.Requires(!ReferenceEquals(rawMessageBody, null));
-            Contract.Requires(!ReferenceEquals(username, null));
-            Contract.Requires(!ReferenceEquals(tokenValue, null));
-            // check that the post came from the authenticator
-            if (this.ValidatePostOrigin(rawMessageBody, StringData.AuthUri))
-            {
-                this.database.SetAuthTokenForAccount(username, tokenValue);
-                response.StatusCode = 200;
-                response.StatusDescription = "Authenticator token successfully submitted.";
-                response.Close();
-            }
-            else
-            {
-                // Forbidden for anyone else than the authenticator
-                response = this.SetupForbiddenResponse(
-                    response, "You do not have rights to post to this resource.");
-                response.Close();
-            }
-        }*/
-
         private void AnswerAuthtokenPost(HttpListenerResponse response, string rawMessageBody)
         {
-            /* WORKING VERSION (13-01-2012)
-            string[] parameters = MessageProcessingUtility.GetRequesterParameters(rawMessageBody, StringData.AuthUri, this.serversPrivateKey);
-            if (ReferenceEquals(parameters, null))
-            {
-                // Request could not be verified to come from the authenticator
-                Console.WriteLine("Attempt to post auth token without authenticator signature was denied.");
-                response = this.SetupForbiddenResponse(response, "You do not have rights to POST to this resource.");
-                response.Close();
-                return;
-            }
-            if (parameters.Length < 2)
-            {
-                // Malformed request for this resource
-                Console.WriteLine("Authenticator tried to post a token but the message was malformed.");
-                response.StatusCode = 400;
-                response.StatusDescription = "Too few parameters for this resource.";
-                response.Close();
-            }
-            else
-            {
-                this.database.SetAuthTokenForAccount(parameters[0], parameters[1]); // index 0 is username, index 1 is token value.
-                response.StatusCode = 200;
-                response.StatusDescription = "Authenticator token sucessfully submitted.";
-                response.Close();
-                Console.WriteLine("Authenticator token sat for username: " + parameters[0]);
-            }
-            */
             bool authIsSender = false;
             string[] parameters = this.GetMessageParametersAndEnsureAuthenticatorIsSender(
                 rawMessageBody, ref authIsSender);
@@ -437,31 +337,8 @@ namespace BDSA_Project_ThirdParty
         /// This methods performs the final step in the authentication process assuring that the user provided and authenticator provided tokens are equal (and grants access if that is indeed the case).
         /// </summary>
         /// <param name="response">The HttpListenerResponse obtained from the HttpListenerContext that is associated with the post to the request=userhtoken resource.</param>
-        /// <param name="username">The username that provides the token (nonce)</param>
-        /// <param name="tokenValue">The token (nonce) the user has send which is compared to the authenticator provided token.</param>
-        /*private void AnswerUsertokenPost(string clientPki, HttpListenerResponse response, string username, string tokenValue)
-        {
-            Contract.Requires(!ReferenceEquals(response, null));
-            Contract.Requires(!ReferenceEquals(username, null));
-            Contract.Requires(!ReferenceEquals(tokenValue, null));
-            if (this.database.CompareTokens(tokenValue, username))
-            {
-                response.StatusCode = 200; // HTTP OK status
-                response.StatusDescription = "Authentication successful.";
-
-                String responseMessage = this.CompileMessageBody(clientPki, "Authenticated");
-                byte[] messageBytes = Encoding.UTF8.GetBytes(responseMessage);
-                response.OutputStream.Write(messageBytes, 0, messageBytes.Length);
-
-                response.Close();
-            }
-            else
-            {
-                response = this.SetupForbiddenResponse(response, "Access denied, possible timeout.");
-                response.Close();
-            }
-        }*/
-
+        /// <param name="clientPki">The PKI identifier extracted from the origin parameter of the message.</param>
+        /// <param name="rawMessageBody">The full (encrypted) message body.</param>
         private void AnswerUsertokenPost(HttpListenerResponse response, string clientPki, string rawMessageBody)
         {
             string[] parameters = MessageProcessingUtility.GetRequesterParameters(
