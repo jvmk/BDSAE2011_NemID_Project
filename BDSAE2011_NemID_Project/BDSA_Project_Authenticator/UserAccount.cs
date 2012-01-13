@@ -53,7 +53,7 @@ namespace BDSA_Project_Authenticator
             this.password = password;
             this.cprNumber = cprNumber;
             this.email = email;
-            this.keycard = new KeyCard(username, password, cprNumber, email);
+            this.keycard = new KeyCard(username, password, cprNumber, email, 1);
         }
 
         /// <summary>
@@ -68,7 +68,7 @@ namespace BDSA_Project_Authenticator
         }
 
         /// <summary>
-        /// Gets (TODO sets as well?) the user's password.
+        /// Gets the user's password
         /// </summary>
         public string Password
         {
@@ -86,6 +86,14 @@ namespace BDSA_Project_Authenticator
             get
             {
                 return this.email;
+            }
+        }
+
+        public string CprNumber
+        {
+            get
+            {
+                return this.cprNumber;
             }
         }
 
