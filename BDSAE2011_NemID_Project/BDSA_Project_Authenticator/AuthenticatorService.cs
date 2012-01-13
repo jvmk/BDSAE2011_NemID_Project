@@ -68,7 +68,7 @@ namespace BDSA_Project_Authenticator
             /// login operation, where they submit user name and
             /// password
             /// </summary>
-            //AwaitLogin,
+            AwaitLogin,
 
             /// <summary>
             /// After the client has submitted user name and password
@@ -96,8 +96,47 @@ namespace BDSA_Project_Authenticator
         /// </returns>
         public bool IsOperationValid(string operation)
         {
-            // If the session is awaiting either login and key submission...
-            if (//this.currentState == SessionState.AwaitLogin ||
+            if (this.TimedOut())
+            {
+                this.ChangeStateTo(SessionState.AwaitRedirection);
+                return false;
+            }
+
+            bool accepted;
+
+            // Is it legal to call the requested operation at the
+            // authenticator?
+            switch (operation)
+            {
+                case "redirect":
+                    accepted = this.currentState == SessionState.AwaitRedirection;
+                    break;
+                case "login":
+                    accepted = this.currentState == SessionState.AwaitLogin;
+                    break;
+                case "submitKey":
+                    accepted = this.currentState == SessionState.InitialLoginAccepted;
+                    break;
+                case "proceed":
+                    accepted = this.currentState == SessionState.KeyAccepted;
+                    break;
+                case "abort":
+                    accepted = this.currentState != SessionState.AwaitRedirection;
+                    break;
+                case "revokeAccount":
+                    accepted = this.currentState == SessionState.KeyAccepted;
+                    break;
+                default:
+                    accepted = false;
+                    break;
+            }
+
+            if (!accepted)
+            {
+                return false;
+            }
+
+            if (this.currentState == SessionState.AwaitLogin ||
                 this.currentState == SessionState.InitialLoginAccepted)
             {
                 // ... and the user unsuccesfully has submitted 3 requests
@@ -105,37 +144,13 @@ namespace BDSA_Project_Authenticator
                 if (++this.numberOfAttempts > 3)
                 {
                     // ...the operation is not valid.
+                    // Reset the state of client session.
+                    this.ChangeStateTo(SessionState.AwaitRedirection);
                     return false;
                 }
             }
 
-            if (this.TimedOut())
-            {
-                this.ChangeStateTo(SessionState.AwaitRedirection);
-                return false;
-            }
-
-            // Is it legal to call the requested operation at the
-            // authenticator?
-            switch (operation)
-            {
-                case "redirect":
-                    return this.currentState == SessionState.AwaitRedirection;
-                case "login":
-                    return this.currentState == SessionState.AwaitRedirection;//AwaitLogin;
-                case "submitKey":
-                    return this.currentState == SessionState.InitialLoginAccepted;
-                case "proceed":
-                    return this.currentState == SessionState.KeyAccepted;
-                case "abort":
-                    return this.currentState != SessionState.AwaitRedirection;
-                // case "createAccount":
-                //     return this.currentState == SessionState.AwaitRedirection;//AwaitLogin;
-                case "revokeAccount":
-                    return this.currentState == SessionState.KeyAccepted;
-                default:
-                    return false;
-            }
+            return true;
         }
 
         /// <summary>
@@ -444,7 +459,7 @@ namespace BDSA_Project_Authenticator
             validRequest = true;
 
             // Update the client session state.
-            // userSession.ChangeStateTo(ClientSession.SessionState.AwaitLogin);
+            userSession.ChangeStateTo(ClientSession.SessionState.AwaitLogin);
         }
 
         /// <summary>
