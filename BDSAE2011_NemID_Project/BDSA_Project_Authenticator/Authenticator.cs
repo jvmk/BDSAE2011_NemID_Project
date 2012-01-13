@@ -107,7 +107,8 @@ namespace BDSA_Project_Authenticator
         /// <returns>The keyindex corresponding to the expected key value.</returns>
         public string GetKeyIndex(string username)
         {
-            //// Contract.Requires(this.IsUserInDatabase(username));
+            Contract.Requires(this.IsUserInDatabase(username));
+ 
             return this.database[username].Keycard.GetKeyIndex().ToString();
         }
 
@@ -122,7 +123,20 @@ namespace BDSA_Project_Authenticator
             //// Contract.Requires(this.IsUserInDatabase(username));
             Contract.Requires(!string.IsNullOrWhiteSpace(username));
             uint parsedHash = uint.Parse(submittedKeycardValue);
-            return this.database[username].VerifyKeyNumber(parsedHash);
+
+            bool verified = this.database[username].VerifyKeyNumber(parsedHash);
+
+            UserAccount account = this.database[username];
+            uint cardnumber = this.database[username].Keycard.GetKeyCardNumber();
+
+            if (this.database[username].Keycard.KeysLeft() == 0)
+            {
+                this.database[username].Keycard = new KeyCard(username, account.Password, account.CprNumber, account.Email, cardnumber + 1);
+                this.SendKeyCardToUser(username);
+            }
+            
+
+            return verified;
         }
 
         /// <summary>

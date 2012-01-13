@@ -54,10 +54,11 @@ namespace BDSA_Project_Authenticator
         /// <param name="email">
         /// The email of the owner of this card.
         /// </param>
-        public KeyCard(string username, string password, string cprnumber, string email)
+        public KeyCard(string username, string password, string cprnumber, string email, uint cardNumber)
         {
             Contract.Requires(string.IsNullOrEmpty(username) && string.IsNullOrEmpty(password) && string.IsNullOrEmpty(cprnumber) && string.IsNullOrEmpty(email));
             Contract.Ensures(this.KeysLeft() > 0);
+            this.cardNumber = cardNumber;
             this.GenerateKeyCard();
             this.SetNextKeyIndex();
             this.uniqueID =
@@ -98,7 +99,7 @@ namespace BDSA_Project_Authenticator
         }
 
         /// <summary>
-        /// Can I get a text-representation of the key card? Also writes to file TODO: how should we deal with writing to file?
+        /// Can I get a text-representation of the key card? Also writes to file
         /// </summary>
         /// <returns>
         /// A <see cref="T:System.String"/> that represents the current <see cref="T:System.Object"/>.
@@ -127,7 +128,7 @@ namespace BDSA_Project_Authenticator
         }
 
         /// <summary>
-        /// TODO: So far no usages, remove?
+        /// Gives the index of the key as a formatted string
         /// </summary>
         /// <returns>Returns the index of the key the user has to login as a formatted string </returns>
         [Pure]
@@ -159,7 +160,10 @@ namespace BDSA_Project_Authenticator
             if (enteredKey.Equals(keyToBeEntered))
             {
                 this.RemoveKeyPair(this.currentIndex);
-                this.SetNextKeyIndex();
+                if (this.KeysLeft() > 0)
+                {
+                    this.SetNextKeyIndex();
+                }
                 success = true;
             }
 
@@ -227,10 +231,8 @@ namespace BDSA_Project_Authenticator
             //// Clears the collection, removing all the entries.
             this.keyCollection.Clear();
 
-            this.cardNumber = this.cardNumber + 1;
-
             //// Keep on adding key value pairs to the set until 100 elements have been stored succesfully.
-            for (var i = this.keyCollection.Count; i <= 100; i++)
+            for (var i = this.keyCollection.Count; i <= 99; i++)
             {
                 //// Creates 2 bytearrays, one for storing the key and the other for the index
                 var randomKeyIndex = new uint[4];
