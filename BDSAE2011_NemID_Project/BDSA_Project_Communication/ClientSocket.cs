@@ -162,8 +162,6 @@ namespace BDSA_Project_Communication
 
             this.clientRequest = (HttpWebRequest)WebRequest.Create(requestUrl);
 
-            Console.WriteLine(this.clientIdentifier + " sends message to " + this.serverDomain + ", url: " + requestUrl);
-
             // The client always have to sent data to the authenticator, so the
             // authenticator is able to verify the identity of the request message.
             // For this reason the client always must use the POST method.
@@ -178,6 +176,8 @@ namespace BDSA_Project_Communication
 
             // HTTP version 1.1 have the KeepAlive-property set to default.
             this.clientRequest.ProtocolVersion = HttpVersion.Version11;
+
+            Console.WriteLine(this.clientIdentifier + " sends message to " + this.serverDomain + ", url: " + requestUrl);
 
             Stream dataStream = this.clientRequest.GetRequestStream();
             dataStream.Write(messageBytes, 0, messageBytes.Length);
