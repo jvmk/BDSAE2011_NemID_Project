@@ -68,7 +68,7 @@ namespace BDSA_Project_Authenticator
             /// login operation, where they submit user name and
             /// password
             /// </summary>
-            //AwaitLogin,
+            AwaitLogin,
 
             /// <summary>
             /// After the client has submitted user name and password
@@ -97,7 +97,7 @@ namespace BDSA_Project_Authenticator
         public bool IsOperationValid(string operation)
         {
             // If the session is awaiting either login and key submission...
-            if (//this.currentState == SessionState.AwaitLogin ||
+            if (this.currentState == SessionState.AwaitLogin ||
                 this.currentState == SessionState.InitialLoginAccepted)
             {
                 // ... and the user unsuccesfully has submitted 3 requests
@@ -105,6 +105,8 @@ namespace BDSA_Project_Authenticator
                 if (++this.numberOfAttempts > 3)
                 {
                     // ...the operation is not valid.
+                    // Reset the state of client session.
+                    this.ChangeStateTo(SessionState.AwaitRedirection);
                     return false;
                 }
             }
@@ -122,15 +124,13 @@ namespace BDSA_Project_Authenticator
                 case "redirect":
                     return this.currentState == SessionState.AwaitRedirection;
                 case "login":
-                    return this.currentState == SessionState.AwaitRedirection;//AwaitLogin;
+                    return this.currentState == SessionState.AwaitLogin;
                 case "submitKey":
                     return this.currentState == SessionState.InitialLoginAccepted;
                 case "proceed":
                     return this.currentState == SessionState.KeyAccepted;
                 case "abort":
                     return this.currentState != SessionState.AwaitRedirection;
-                // case "createAccount":
-                //     return this.currentState == SessionState.AwaitRedirection;//AwaitLogin;
                 case "revokeAccount":
                     return this.currentState == SessionState.KeyAccepted;
                 default:
@@ -444,7 +444,7 @@ namespace BDSA_Project_Authenticator
             validRequest = true;
 
             // Update the client session state.
-            // userSession.ChangeStateTo(ClientSession.SessionState.AwaitLogin);
+            userSession.ChangeStateTo(ClientSession.SessionState.AwaitLogin);
         }
 
         /// <summary>
