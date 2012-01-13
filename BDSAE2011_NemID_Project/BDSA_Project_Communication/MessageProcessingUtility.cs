@@ -135,6 +135,7 @@ namespace BDSA_Project_Communication
         /// </param>
         /// <returns>
         /// The requester's domain.
+        /// Returns null if the message body has been tangled with.
         /// </returns>
         public static string GetRequesterDomain(string rawMessageBody, byte[] serverPrivateKey)
         {

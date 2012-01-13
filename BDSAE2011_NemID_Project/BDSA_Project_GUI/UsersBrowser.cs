@@ -26,7 +26,9 @@ namespace BDSA_Project_GUI
     public partial class UsersBrowser : Form
     {
 
-        // private AuthenticatorProxy authenticator; // TODO add this?
+        private AuthenticatorProxy authenticatorProxy;
+
+        private string username = "";
 
         /// <summary>
         /// Initializes a new instance of the UsersBrowser class.
@@ -52,7 +54,7 @@ namespace BDSA_Project_GUI
             if (!string.IsNullOrEmpty(UsernameTextbox.Text)) // Establish connection to authenticator by creating a new AuthenticatorProxy
             {
                 // Get entered user name
-                string username = UsernameTextbox.Text;
+                username = UsernameTextbox.Text;
 
                 Console.WriteLine("inserted user name: " + username);
 
@@ -88,19 +90,8 @@ namespace BDSA_Project_GUI
                 }
 
                 // The response was accepted (the third has the user name in it's database)...
-                //   if (response.StatusCode == HttpStatusCode.OK)
-                //   {
-                // ...redirect client to authenticator login screen.
                 this.Controls.Clear(); // reset window
                 this.Controls.Add(new NemIdCreateAuthProxy(username)); // go to nem id login screen
-                //   }
-                // If the request was not successful...
-
-                //else
-                // {
-                // ...print an error message.
-                //    errorMessage.Text = "Username not found.";
-                // }
             }
             // If the user input was not valid...
             else
@@ -108,6 +99,20 @@ namespace BDSA_Project_GUI
                 // ...print an error message.
                 errorMessage.Text = "No value inserted.";
             }
+        }
+
+        public void setAuthenticatorProxy(AuthenticatorProxy ap)
+        {
+            this.authenticatorProxy = ap;
+        }
+
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            base.OnFormClosing(e);
+
+            if (ReferenceEquals(this.authenticatorProxy, null)) return;
+
+            this.authenticatorProxy.Abort(username);
         }
     }
 }
