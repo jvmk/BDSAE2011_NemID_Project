@@ -108,9 +108,6 @@ namespace BDSA_User_Creation
                 return;
             }
 
-            // Save the key to the specified file path
-            File.WriteAllBytes(path + "/" + userName + "privateKey.bin", privateKey);
-
             //// Creates the auth proxy and creates an user
             AuthenticatorProxy proxy = new AuthenticatorProxy(StringData.AuthUri, email, privateKey);
             bool creationSuccesfull = proxy.CreateUserAccount(
@@ -127,6 +124,9 @@ namespace BDSA_User_Creation
                     "This might be that the requested user name already exists.";
                 return;
             }
+
+            // Save the key to the specified file path
+            File.WriteAllBytes(path + "/" + userName + "privateKey.bin", privateKey);
         }
 
         private void AbortButton_Click_1(object sender, EventArgs e)
