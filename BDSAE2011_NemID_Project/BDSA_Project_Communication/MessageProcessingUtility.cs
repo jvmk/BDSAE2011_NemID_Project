@@ -198,8 +198,6 @@ namespace BDSA_Project_Communication
             for (int i = 0; i < numberOfParameters; i++)
             {
                 int s = decryptedMessage.IndexOf('=', currentIndex) + 1;
-                Console.WriteLine(s);
-
                 int e = -1;
 
                 // If true, no more '&'-signs are present and the
@@ -247,11 +245,6 @@ namespace BDSA_Project_Communication
             Contract.Requires(IsRawMessageBodyWellFormed(rawMessageBody));
 
             string[] parts = rawMessageBody.Split('&');
-
-            for (int i = 0; i < 3; i++)
-            {
-                Console.WriteLine("Parameter " + i + ": " + parts[i]);
-            }
 
             // encMessageBody is encrypted in the authenticator's public
             // key. This text represents the text that is signed by the
@@ -363,6 +356,6 @@ namespace BDSA_Project_Communication
             }
 
             return true;
-        }  // TODO VERIFIED.
+        }
     }
 }

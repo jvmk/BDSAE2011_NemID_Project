@@ -162,7 +162,7 @@ namespace BDSA_Project_Communication
 
             this.clientRequest = (HttpWebRequest)WebRequest.Create(requestUrl);
 
-            Console.WriteLine("Client sends message to server, url: " + requestUrl);
+            Console.WriteLine(this.clientIdentifier + " sends message to " + this.serverDomain + ", url: " + requestUrl);
 
             // request.Credentials = CredentialCache.DefaultCredentials; // TODO remove?
             // ((HttpWebRequest)request).UserAgent = "AuthenticationSerivce";
@@ -175,7 +175,7 @@ namespace BDSA_Project_Communication
             // Compile the message body of the HTTP request.
             string compiledMessageBody = this.CompileMessageBody(message);
 
-            Console.Write("HTTP request message body is: \n" + compiledMessageBody);
+            // Console.Write("HTTP request message body is: \n" + compiledMessageBody);
 
             byte[] messageBytes = Encoding.UTF8.GetBytes(compiledMessageBody);
 
@@ -221,8 +221,7 @@ namespace BDSA_Project_Communication
 
             acceptedRequest = true;
 
-            Console.WriteLine("Client received response from server.");
-            Console.WriteLine("Processing response...");
+            Console.WriteLine(this.clientIdentifier + " received response from " + this.serverDomain);
 
             /*
             // The HTTP status code indicates whether the request was 

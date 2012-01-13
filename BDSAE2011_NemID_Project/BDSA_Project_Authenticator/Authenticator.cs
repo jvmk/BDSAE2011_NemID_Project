@@ -1,6 +1,7 @@
 ﻿
 namespace BDSA_Project_Authenticator
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics.Contracts;
     using System.IO;
@@ -45,7 +46,6 @@ namespace BDSA_Project_Authenticator
         public Authenticator()
         {
             // Add a test user. For demonstration purposed only.
-            this.AddNewUser("testUser", "password", "010101-0101", "testUser@nemId.dk");
             this.trustedThirdPartyURIs.Add(StringData.ThirdUri);
         }
 
@@ -71,6 +71,19 @@ namespace BDSA_Project_Authenticator
             string[] keysArray = new string[this.database.Count];
             this.database.Keys.CopyTo(keysArray, 0);
             return keysArray;
+        }
+
+        public string GetUserDomain(string userName)
+        {
+            try
+            {
+                return this.database[userName].Email;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
+
         }
 
         /// <summary>

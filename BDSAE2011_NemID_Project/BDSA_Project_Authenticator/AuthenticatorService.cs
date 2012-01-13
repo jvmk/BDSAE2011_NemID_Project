@@ -299,6 +299,29 @@ namespace BDSA_Project_Authenticator
                     continue;
                 }
 
+                // If the requested operation is different som either "redirect" or "createAccount"...
+                if (!(processedRequest.RequestedOperation.Equals("redirect") ||
+                    processedRequest.RequestedOperation.Equals("createAccount")))
+                {
+                    // ...check the message submitted client domain with the registered.
+                    string userName = processedRequest.Parameters[0];
+                    string registeredUserDomain = this.authenticator.GetUserDomain(userName);
+
+                    // If the requester domain in the message does not equal the one registered
+                    // in the authenticator's database...
+                    if (!processedRequest.RequesterDomain.Equals(registeredUserDomain))
+                    {
+                        // ...someone else is trying to submit the data, and the request is invalid. 
+                        Console.WriteLine("Client request processed with success: " + validRequest);
+                        Console.WriteLine("Server is responding to: " + processedRequest.RequesterDomain);
+                        this.serverSocket.SendMessage(processedRequest, validRequest, httpResponseMessageBody);
+
+                        // Reset the ClientSession
+                        this.userSessions[userName].ChangeStateTo(ClientSession.SessionState.AwaitRedirection);
+                        continue;
+                    }
+                }
+
                 switch (processedRequest.RequestedOperation)
                 {
                     case "redirect":
@@ -355,7 +378,7 @@ namespace BDSA_Project_Authenticator
             // Get the raw url of the request.
             string rawUrl = processedRequest.RawUrl;
 
-            Console.WriteLine("RAWURL: " + rawUrl);
+            // Console.WriteLine("RAWURL: " + rawUrl);
 
             // If the redirected url is not well formed...
             if (!this.IsRedirectUrlWellFormed(rawUrl))
@@ -367,12 +390,10 @@ namespace BDSA_Project_Authenticator
 
             // Retrieve the user name specified in the redirection
             // url.
-            int start = rawUrl.IndexOf("username=") + "username=".Length;   // TODO Validated
+            int start = rawUrl.IndexOf("username=") + "username=".Length;
             int end = rawUrl.IndexOf('&', start);
 
             string userName = rawUrl.Substring(start, end - start);
-
-            Console.WriteLine("USERNAME AT AUTHENTCATOR: " + userName);
 
             // If the user is not in the userSession dictionary, the user
             // is not in the authenticator database: Invalid request.
@@ -472,8 +493,8 @@ namespace BDSA_Project_Authenticator
         private void ProcessSubmitKey(Request processedRequest, ref bool validRequest)
         {
             // The parameters for the requested operation.
-            string key = processedRequest.Parameters[0];
-            string userName = processedRequest.Parameters[1];
+            string userName = processedRequest.Parameters[0];
+            string key = processedRequest.Parameters[1];
 
             // Check if it is legal to call this operation
             ClientSession userSession = this.userSessions[userName];

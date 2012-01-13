@@ -159,15 +159,10 @@ namespace BDSA_Project_Communication
             Contract.Requires(keyValue != null);
             Contract.Requires(userName != null);
 
-            Console.WriteLine("Client initiates subitKey-request to authenticator.");
-
             this.socket.SendMessage(
                 "submitKey",
-                "keyValue=" + keyValue + "&" + "userName=" + userName);
+                "userName=" + userName + "&" + "keyValue=" + keyValue);
             this.currentServerResponse = this.socket.ReadMessage();
-
-            Console.WriteLine("The submitKey-request at the authenticator was accepted: " +
-                currentServerResponse.Accepted);
 
             return this.currentServerResponse.Accepted;
         }

@@ -69,7 +69,7 @@ namespace BDSAE2011_NemID_Project
         [Test]
         public void TestIsRawMessageBodyWellFormed()
         {
-           
+
             string wellformed = "origin=adkgfjkjgjkjg&fkjsgkfgkjgkjfggjjh&hdhgfhdfhd";
             Assert.True(MessageProcessingUtility.IsRawMessageBodyWellFormed(wellformed)); // has 'origin=' and 2 '&' 
 
@@ -77,16 +77,16 @@ namespace BDSAE2011_NemID_Project
             Assert.True(MessageProcessingUtility.IsRawMessageBodyWellFormed(endsWithAmbs)); // empty, but still legal, request
 
             Assert.False(MessageProcessingUtility.IsRawMessageBodyWellFormed(null)); // null is not allowed (enter 1st if(!wellFormed))
-            
+
             string noAmbs = "origin=kdgjjjjjjjjjjjjjjjjjjjjklkæjjsfsfdasfafadfa";
             Assert.False(MessageProcessingUtility.IsRawMessageBodyWellFormed(noAmbs)); // '&' not found (enter 2nd if(!wellFormed))
 
             string notBase64Origin = "origin=lkdagkagkl_4343&adcadfdaf&hsdhdfh";
             Assert.False(MessageProcessingUtility.IsRawMessageBodyWellFormed(notBase64Origin)); // '_' is not a valid Base64 (enter 3rd if(!wellFormed))
 
-            string oneAmbs = "origin=adfsadfaf&agdgsgsfgfhfshfshsfhsfhsf"; 
+            string oneAmbs = "origin=adfsadfaf&agdgsgsfgfhfshfshsfhsfhsf";
             Assert.False(MessageProcessingUtility.IsRawMessageBodyWellFormed(oneAmbs)); // Only one '&' (enter 4th if(!wellFormed))
-         
+
             string threeAmbs = "origin=adkgfjkjgjkjg&fkjsgkfgkjgk&jfggjjh&hdhgfhdfhd";
             Assert.False(MessageProcessingUtility.IsRawMessageBodyWellFormed(threeAmbs)); // only 2 x '&' allowed
         }

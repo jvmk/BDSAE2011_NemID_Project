@@ -175,7 +175,7 @@ namespace BDSA_Project_Authenticator
         public void Start()
         {
             this.server.Start();
-            Console.WriteLine("Authenticator server is listening for client requests.");
+            Console.WriteLine("Authenticator server is listening for requests at " + this.authenticatorDomain);
         }
 
         /// <summary>
@@ -207,14 +207,11 @@ namespace BDSA_Project_Authenticator
             // Get the raw url of the requst:
             string rawUrl = request.RawUrl;
 
-            Console.WriteLine("Server received client request, url: " + rawUrl);
-            Console.WriteLine("url: " + request.Url);
+            Console.WriteLine("\nServer received request, URL: " + request.Url);
 
             // Get the raw messageBody of the HTTP request message.
             Stream requestDataStream = request.InputStream;
             string rawMessageBody = MessageProcessingUtility.ReadFrom(requestDataStream);
-
-            Console.WriteLine("The raw message body of the request is: \n" + rawMessageBody);
 
             // If the raw message body is null or empty...
             if (string.IsNullOrEmpty(rawMessageBody))
@@ -237,7 +234,7 @@ namespace BDSA_Project_Authenticator
             // Update the state of the socket.
             this.hasReadHappened = true;
 
-            requestDataStream.Close(); // TODO ADDED.
+            requestDataStream.Close();
 
             // Return a Request struct containing the properties just
             // achieved.
@@ -284,8 +281,7 @@ namespace BDSA_Project_Authenticator
                 output = responseMessage.OutputStream;
                 byte[] messageBodyBytes = Encoding.UTF8.GetBytes("origin=" + encOrigin);
                 output.Write(messageBodyBytes, 0, messageBodyBytes.Length);
-                Console.WriteLine("Server sent response to client request: " + request.RequesterDomain +
-                    "\nResponding to request with the url: " + request.RawUrl);
+                Console.WriteLine("Responding to request with the url: " + this.authenticatorDomain + request.RawUrl);
                 output.Close();
                 return;
             }
@@ -313,16 +309,22 @@ namespace BDSA_Project_Authenticator
             output = responseMessage.OutputStream;
             output.Write(compiledMessageBytes, 0, compiledMessageBytes.Length);
 
-            Console.WriteLine("Server sent response to client: " + request.RequesterDomain +
-                "\nResponding to request with the url: " + request.RawUrl);
+            Console.WriteLine("Responding to request with the url: " + request.RawUrl);
 
+            output.Flush();
             output.Close();
-            responseMessage.Close(); // TODO ADDED
+
+            responseMessage.Close();
 
             // Update the state of the socket.
             this.hasReadHappened = false;
         }
 
+        /// <summary>
+        /// Used for redirection requests.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <param name="accepted"></param>
         public void SendMessage(Request request, bool accepted)
         {
             Contract.Requires(this.HasReadHappened());
@@ -364,8 +366,10 @@ namespace BDSA_Project_Authenticator
             Console.WriteLine("Server sent response to redirect." +
                 "\nResponding to request with the url: " + request.RawUrl);
 
+            output.Flush();
             output.Close();
-            responseMessage.Close(); // TODO ADDED
+
+            responseMessage.Close();
 
             // Update the state of the socket.
             this.hasReadHappened = false;
