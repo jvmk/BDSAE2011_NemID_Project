@@ -49,9 +49,6 @@ namespace BDSA_Project_GUI
 
                         KeyPathLabel.ForeColor = Color.Green;
                         KeyPathLabel.Text = privateKeyPath;
-
-                        //// TODO: Do additional stuff here, use the keys and such.
-                        //// Maybe check if valid private key signature? create new isValidPrivateKey in crypto? Then save as field? 
                     }
                     else
                     {
@@ -71,11 +68,10 @@ namespace BDSA_Project_GUI
                     this.auth = new AuthenticatorProxy(StringData.AuthUri, keyPkiIdTextBox.Text, privateKey);
 
                     UsersBrowser usersBrowser = (UsersBrowser)this.ParentForm;
-                    usersBrowser.setAuthenticatorProxy(this.auth);
+                    usersBrowser.SetAuthenticatorProxy(this.auth);
 
-                    this.tp = new ThirdPartyHttpGenerator(StringData.ThirdUri, keyPkiIdTextBox.Text, privateKey);
+                    this.tp = new ThirdPartyHttpGenerator(StringData.ThirdUri, this.keyPkiIdTextBox.Text, this.privateKey);
                     Application.OpenForms[0].Controls.Clear();
-                    // this.ParentForm.Controls.Clear();
                     Console.WriteLine(Application.OpenForms[0].Controls);
 
                     Application.OpenForms[0].Controls.Add(new NemIdLogin(this.auth, this.tp, username));

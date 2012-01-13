@@ -143,7 +143,7 @@
             this.danskeBankLoginButton.TabIndex = 0;
             this.danskeBankLoginButton.Text = "Login";
             this.danskeBankLoginButton.UseVisualStyleBackColor = true;
-            this.danskeBankLoginButton.Click += new System.EventHandler(this.danskeBankLoginButton_Click);
+            this.danskeBankLoginButton.Click += new System.EventHandler(this.DanskeBankLoginButton_Click);
             // 
             // UsersBrowser
             // 

@@ -448,9 +448,9 @@ namespace BDSA_Project_ThirdParty
             if (authIsSender)
             {
                 string username = parameters[0];
-                string pkiIdEmail = parameters[1];
                 if (addUser)
                 {
+                    string pkiIdEmail = parameters[1];
                     bool userAdded = this.database.AddUserAccount(username, pkiIdEmail);
                     Console.WriteLine("[ThirdPartyServer]: Added the username: '" + username + "' to the user-database: " + userAdded);
                     response.StatusDescription = "User successfully added to database: " + userAdded + " (false indicates that user was already in the database).";
