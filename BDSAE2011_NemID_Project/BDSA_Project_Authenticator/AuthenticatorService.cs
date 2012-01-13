@@ -129,8 +129,8 @@ namespace BDSA_Project_Authenticator
                     return this.currentState == SessionState.KeyAccepted;
                 case "abort":
                     return this.currentState != SessionState.AwaitRedirection;
-                case "createAccount":
-                    return this.currentState == SessionState.AwaitRedirection;//AwaitLogin;
+                // case "createAccount":
+                //     return this.currentState == SessionState.AwaitRedirection;//AwaitLogin;
                 case "revokeAccount":
                     return this.currentState == SessionState.KeyAccepted;
                 default:

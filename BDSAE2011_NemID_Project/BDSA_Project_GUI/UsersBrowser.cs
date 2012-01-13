@@ -25,7 +25,6 @@ namespace BDSA_Project_GUI
     /// </summary>
     public partial class UsersBrowser : Form
     {
-
         private AuthenticatorProxy authenticatorProxy;
 
         private string username = "";
@@ -40,6 +39,42 @@ namespace BDSA_Project_GUI
         }
 
         /// <summary>
+        /// Sets the AuthenticatorProxy-object to the specified one.
+        /// </summary>
+        /// <param name="ap">
+        /// The AuthenticatorProxy-object to be assigned to this instance.
+        /// </param>
+        public void SetAuthenticatorProxy(AuthenticatorProxy ap)
+        {
+            this.authenticatorProxy = ap;
+        }
+
+        /// <summary>
+        /// Called when the window closes.
+        /// Aborts the current client session at the authenticator
+        /// if the AuthenticatorProxy is set.
+        /// </summary>
+        /// <param name="e">
+        /// Form closing event arguments.
+        /// </param>
+        protected override void OnFormClosing(FormClosingEventArgs e)
+        {
+            base.OnFormClosing(e);
+
+            if (e.CloseReason != CloseReason.UserClosing)
+            {
+                return;
+            }
+
+            if (ReferenceEquals(this.authenticatorProxy, null))
+            {
+                return;
+            }
+
+            this.authenticatorProxy.Abort(this.username);
+        }
+
+        /// <summary>
         /// This method is called, when the login button on the third party
         /// login screen is pressed.
         /// </summary>
@@ -49,14 +84,17 @@ namespace BDSA_Project_GUI
         /// <param name="e">
         /// Arguments associated with the event.
         /// </param>
-        private void danskeBankLoginButton_Click(object sender, EventArgs e)
+        private void DanskeBankLoginButton_Click(object sender, EventArgs e)
         {
-            if (!string.IsNullOrEmpty(UsernameTextbox.Text)) // Establish connection to authenticator by creating a new AuthenticatorProxy
+            // Establish connection to authenticator by creating a new AuthenticatorProxy
+            if (!string.IsNullOrEmpty(UsernameTextbox.Text))
             {
                 // Get entered user name
                 username = UsernameTextbox.Text;
 
-                Console.WriteLine("inserted user name: " + username);
+                Console.WriteLine("Client inserted user name: " + username);
+
+                Console.WriteLine("Client encrypts the request message");
 
                 // Encrypt user name in thirds party's public key.
                 string encryptedUsername = Cryptograph.Encrypt(username, Cryptograph.GetPublicKey(StringData.ThirdUri));
@@ -65,21 +103,24 @@ namespace BDSA_Project_GUI
                 byte[] buf = Encoding.UTF8.GetBytes(encryptedUsername);
 
                 // Create a request.
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(StringData.ThirdUri + "request=loginpage"); // TODO update to correct https URI
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(StringData.ThirdUri + "request=loginpage");
 
                 request.Method = "POST";
                 Stream output = request.GetRequestStream();
+
+                Console.WriteLine("Client sends message to " + StringData.ThirdUri
+                    + ", url: " + StringData.ThirdUri + "request=loginpage");
 
                 // Write the encrypted user name to the request.
                 output.Write(buf, 0, buf.Length);
                 output.Flush();
                 output.Close();
 
-                // Send the request and get the response.
                 HttpWebResponse response = null;
 
                 try
                 {
+                    // Get the response.
                     response = (HttpWebResponse)request.GetResponse();
                 }
                 catch (WebException)
@@ -89,30 +130,21 @@ namespace BDSA_Project_GUI
                     return;
                 }
 
+                Console.WriteLine("Client received response from " + response.ResponseUri);
+
                 // The response was accepted (the third has the user name in it's database)...
-                this.Controls.Clear(); // reset window
-                this.Controls.Add(new NemIdCreateAuthProxy(username)); // go to nem id login screen
+                this.Controls.Clear(); // Reset window
+
+                // Go to nem id login screen
+                this.Controls.Add(new NemIdCreateAuthProxy(username));
             }
+
             // If the user input was not valid...
             else
             {
                 // ...print an error message.
                 errorMessage.Text = "No value inserted.";
             }
-        }
-
-        public void setAuthenticatorProxy(AuthenticatorProxy ap)
-        {
-            this.authenticatorProxy = ap;
-        }
-
-        protected override void OnFormClosing(FormClosingEventArgs e)
-        {
-            base.OnFormClosing(e);
-
-            if (ReferenceEquals(this.authenticatorProxy, null)) return;
-
-            this.authenticatorProxy.Abort(username);
         }
     }
 }
