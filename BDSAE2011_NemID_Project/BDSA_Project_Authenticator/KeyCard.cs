@@ -108,6 +108,8 @@ namespace BDSA_Project_Authenticator
         public override string ToString()
         {
             var sb = new StringBuilder();
+            sb.AppendLine("UniqueID: " + uniqueID);
+            sb.AppendLine("Cardnumber:" + cardNumber);
             foreach (var element in this.keyCollection)
             {
                 sb.AppendLine("Index = " + element.Key.ToString("D4") + "  " + "key = " + element.Value.ToString("D6"));
