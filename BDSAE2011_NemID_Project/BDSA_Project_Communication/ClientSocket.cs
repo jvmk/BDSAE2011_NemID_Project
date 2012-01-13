@@ -164,9 +164,6 @@ namespace BDSA_Project_Communication
 
             Console.WriteLine(this.clientIdentifier + " sends message to " + this.serverDomain + ", url: " + requestUrl);
 
-            // request.Credentials = CredentialCache.DefaultCredentials; // TODO remove?
-            // ((HttpWebRequest)request).UserAgent = "AuthenticationSerivce";
-
             // The client always have to sent data to the authenticator, so the
             // authenticator is able to verify the identity of the request message.
             // For this reason the client always must use the POST method.
@@ -174,8 +171,6 @@ namespace BDSA_Project_Communication
 
             // Compile the message body of the HTTP request.
             string compiledMessageBody = this.CompileMessageBody(message);
-
-            // Console.Write("HTTP request message body is: \n" + compiledMessageBody);
 
             byte[] messageBytes = Encoding.UTF8.GetBytes(compiledMessageBody);
 
@@ -223,18 +218,6 @@ namespace BDSA_Project_Communication
 
             Console.WriteLine(this.clientIdentifier + " received response from " + this.serverDomain);
 
-            /*
-            // The HTTP status code indicates whether the request was 
-            // accepted by the server. If the codes is anything other than
-            // 200 OK, the request wasn't accepted by the server.
-            acceptedRequest = response.StatusCode == HttpStatusCode.OK;
-
-            if (!acceptedRequest)
-            {
-                return new Response(false, string.Empty);
-            }
-             * */
-
             Stream responseStream = response.GetResponseStream();
             string rawMessageBody = MessageProcessingUtility.ReadFrom(responseStream);
 
@@ -244,9 +227,19 @@ namespace BDSA_Project_Communication
             // If true we are certain the response came from the authenticator. // TODO really?
             bool originMatch = this.serverDomain.Equals(responderDomain);
 
+            // If the origin does not equal the expected, the message has been
+            // tangled with.
+            if (!originMatch)
+            {
+                return new Response(false, string.Empty);
+            }
+
             // If the request is accepted the message body will also
             // contain a return value.
             string returnValue = this.GetResponderReturnValue(rawMessageBody);
+
+            Console.WriteLine("Client " + this.clientIdentifier + " decrypted and verified response with success: " +
+                (!ReferenceEquals(responderDomain, null) && !ReferenceEquals(returnValue, null)));
 
             // If the returnValue is null, that message has been tangled with.
             if (returnValue == null)
@@ -300,16 +293,22 @@ namespace BDSA_Project_Communication
 
             messageBody.Append("origin=" + encDomain + "&");
 
+            Console.WriteLine("Client " + this.clientIdentifier + " encrypting request message");
+
             // Encrypt message in authenticator's public key.
             string encMessage = Cryptograph.Encrypt(
                 message, Cryptograph.GetPublicKey(this.serverDomain));
 
             messageBody.Append(encMessage + "&");
 
+            Console.WriteLine("Client " + this.clientIdentifier + " signing request message");
+
             // Sign encMessage in client's private key.
             string signedEncMessage = Cryptograph.SignData(encMessage, this.clientPrivateKey);
 
             messageBody.Append(signedEncMessage);
+
+            Console.WriteLine("Client " + this.clientIdentifier + " compiling request message.");
 
             return messageBody.ToString();
         }
@@ -345,7 +344,10 @@ namespace BDSA_Project_Communication
             string encRequesterDomain = rawMessageBody.Substring(start, end - start);
 
             // Decrypt using client's private key.
-            return Cryptograph.Decrypt(encRequesterDomain, this.clientPrivateKey); // TODO client private key.
+
+            string decryptedResponse = Cryptograph.Decrypt(encRequesterDomain, this.clientPrivateKey);
+
+            return decryptedResponse;
         }
 
         /// <summary>

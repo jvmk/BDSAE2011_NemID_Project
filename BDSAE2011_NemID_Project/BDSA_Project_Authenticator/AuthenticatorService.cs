@@ -68,7 +68,7 @@ namespace BDSA_Project_Authenticator
             /// login operation, where they submit user name and
             /// password
             /// </summary>
-            AwaitLogin,
+            //AwaitLogin,
 
             /// <summary>
             /// After the client has submitted user name and password
@@ -97,7 +97,7 @@ namespace BDSA_Project_Authenticator
         public bool IsOperationValid(string operation)
         {
             // If the session is awaiting either login and key submission...
-            if (this.currentState == SessionState.AwaitLogin ||
+            if (//this.currentState == SessionState.AwaitLogin ||
                 this.currentState == SessionState.InitialLoginAccepted)
             {
                 // ... and the user unsuccesfully has submitted 3 requests
@@ -122,7 +122,7 @@ namespace BDSA_Project_Authenticator
                 case "redirect":
                     return this.currentState == SessionState.AwaitRedirection;
                 case "login":
-                    return this.currentState == SessionState.AwaitLogin;
+                    return this.currentState == SessionState.AwaitRedirection;//AwaitLogin;
                 case "submitKey":
                     return this.currentState == SessionState.InitialLoginAccepted;
                 case "proceed":
@@ -130,7 +130,7 @@ namespace BDSA_Project_Authenticator
                 case "abort":
                     return this.currentState != SessionState.AwaitRedirection;
                 case "createAccount":
-                    return this.currentState == SessionState.AwaitLogin;
+                    return this.currentState == SessionState.AwaitRedirection;//AwaitLogin;
                 case "revokeAccount":
                     return this.currentState == SessionState.KeyAccepted;
                 default:
@@ -289,6 +289,18 @@ namespace BDSA_Project_Authenticator
                 // is valid. If it is invalid, can be empty.
                 string httpResponseMessageBody = string.Empty;
 
+                // If the properties of the processed request is not complete,
+                // it indicates that the message has been tangled with
+                if (!processedRequest.IsComplete() &&
+                    !processedRequest.RequestedOperation.Equals("redirect"))
+                {
+                    // Send a negative response to the requester.
+                    Console.WriteLine("Client request processed with success: " + validRequest);
+                    Console.WriteLine("Server is responding to: " + processedRequest.RequesterDomain);
+                    this.serverSocket.SendMessage(processedRequest, validRequest, httpResponseMessageBody);
+                    continue;
+                }
+
                 // Check if the requested operation is supported.
                 if (!this.supportedOperations.Contains(processedRequest.RequestedOperation))
                 {
@@ -432,7 +444,7 @@ namespace BDSA_Project_Authenticator
             validRequest = true;
 
             // Update the client session state.
-            userSession.ChangeStateTo(ClientSession.SessionState.AwaitLogin);
+            // userSession.ChangeStateTo(ClientSession.SessionState.AwaitLogin);
         }
 
         /// <summary>
@@ -552,6 +564,9 @@ namespace BDSA_Project_Authenticator
                 // Generate session token for client and third party.
                 string sessionToken = this.GenerateToken();
 
+                Console.WriteLine("Authenticator generated session token with value: " + sessionToken);
+                Console.WriteLine("Authenticator sending session token to third party.");
+
                 // Send session token to third party:
                 ClientSocket thirdPartyClient = new ClientSocket(
                     userSession.ThirdPartyDomain, StringData.AuthUri, this.authenticatorPrivateKey);
@@ -626,6 +641,8 @@ namespace BDSA_Project_Authenticator
                 // The new account must be added to client sessions.
                 this.userSessions.Add(userName, new ClientSession());
 
+                Console.WriteLine("Authenticator server multicasting new user to registered third parties.");
+
                 // Multicast new user account to trusted third parties.
                 foreach (string trustedThirdPartyURI in this.authenticator.TrustedThirdPartyURIs)
                 {
@@ -670,12 +687,14 @@ namespace BDSA_Project_Authenticator
                     // The user has been deleted from the authenticator database, and must
                     // also be deleted from the client sessions.
                     this.userSessions.Remove(userName);
+
                     // Multicast new user account to trusted third parties.
                     foreach (string trustedThirdPartyURI in this.authenticator.TrustedThirdPartyURIs)
                     {
                         ClientSocket socket = new ClientSocket(trustedThirdPartyURI, StringData.AuthUri, this.authenticatorPrivateKey);
                         socket.SendMessage("userdeleted", "userName=" + userName);
                     }
+
                     return;
                 }
             }

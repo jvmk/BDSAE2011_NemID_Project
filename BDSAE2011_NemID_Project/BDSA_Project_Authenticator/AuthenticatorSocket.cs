@@ -105,6 +105,23 @@ namespace BDSA_Project_Authenticator
                 return this.parameters;
             }
         }
+
+        /// <summary>
+        /// Determines if all the values of the Request have been
+        /// set. If they are not set, decryption and verification of
+        /// the message failed indicating that the message has
+        /// been tangled with.
+        /// </summary>
+        /// <returns>
+        /// True if the values of the Request-struct is set, false otherwise.
+        /// </returns>
+        public bool IsComplete()
+        {
+            bool isComplete = !ReferenceEquals(this.rawUrl, null);
+            isComplete = isComplete && !ReferenceEquals(this.requesterIdentifier, null);
+            isComplete = isComplete && !ReferenceEquals(this.parameters, null);
+            return isComplete;
+        }
     }
 
     /// <summary>
@@ -207,16 +224,16 @@ namespace BDSA_Project_Authenticator
             // Get the raw url of the requst:
             string rawUrl = request.RawUrl;
 
-            Console.WriteLine("\nServer received request, URL: " + request.Url);
+            Console.WriteLine("\nAuthenticator received request, URL: " + request.Url);
 
             // Get the raw messageBody of the HTTP request message.
             Stream requestDataStream = request.InputStream;
             string rawMessageBody = MessageProcessingUtility.ReadFrom(requestDataStream);
 
-            // If the raw message body is null or empty...
-            if (string.IsNullOrEmpty(rawMessageBody))
+            // If the raw message body is not well formed...
+            if (!MessageProcessingUtility.IsRawMessageBodyWellFormed(rawMessageBody))
             {
-                //... We return a Request with the properties known.
+                //... we return a Request with the properties known.
                 return new Request(rawUrl, null, MessageProcessingUtility.GetRequesterOperation(rawUrl), null);
             }
 
@@ -230,6 +247,10 @@ namespace BDSA_Project_Authenticator
             // Get requester's parameters.
             string[] parameters = MessageProcessingUtility.GetRequesterParameters(
                 rawMessageBody, requesterDomain, this.authenticatorPrivateKey);
+
+            Console.WriteLine("Requester message was successfully veryfied and decrypted: " +
+                !(ReferenceEquals(requesterDomain, null) && !ReferenceEquals(requestedOperation, null) &&
+                !ReferenceEquals(parameters, null)));
 
             // Update the state of the socket.
             this.hasReadHappened = true;
@@ -269,9 +290,6 @@ namespace BDSA_Project_Authenticator
             // Stream used to write the response HTTP-message.
             Stream output = null;
 
-            string encOrigin = Cryptograph.Encrypt(
-                this.authenticatorDomain, Cryptograph.GetPublicKey(request.RequesterDomain));
-
             // If the request was not succesfully completed...
             if (!accepted)
             {
@@ -279,9 +297,6 @@ namespace BDSA_Project_Authenticator
                 responseMessage.StatusCode = 403;
 
                 output = responseMessage.OutputStream;
-                byte[] messageBodyBytes = Encoding.UTF8.GetBytes("origin=" + encOrigin);
-                output.Write(messageBodyBytes, 0, messageBodyBytes.Length);
-                Console.WriteLine("Responding to request with the url: " + this.authenticatorDomain + request.RawUrl);
                 output.Close();
                 return;
             }
@@ -289,13 +304,22 @@ namespace BDSA_Project_Authenticator
             // The request was accepted; HTTP status code 200 OK
             responseMessage.StatusCode = 200;
 
+            Console.WriteLine("Authenticator encrypting in public key of: " + request.RequesterDomain);
+
+            string encOrigin = Cryptograph.Encrypt(
+                 this.authenticatorDomain, Cryptograph.GetPublicKey(request.RequesterDomain));
+
             // Encrypt message in requester's public key.
             string encMessage = Cryptograph.Encrypt(
                 message, Cryptograph.GetPublicKey(request.RequesterDomain));
 
+            Console.WriteLine("Authenticator signing encrypted message.");
+
             // Sign the encrypted message with the authenticator's private key.
             string signedEncMessage = Cryptograph.SignData(
                 encMessage, this.authenticatorPrivateKey);
+
+            Console.WriteLine("Authenticator compiling response message.");
 
             // Finally assemble the message body that the requester will
             // receive.
@@ -309,7 +333,7 @@ namespace BDSA_Project_Authenticator
             output = responseMessage.OutputStream;
             output.Write(compiledMessageBytes, 0, compiledMessageBytes.Length);
 
-            Console.WriteLine("Responding to request with the url: " + request.RawUrl);
+            Console.WriteLine("Authenticator responding to request with the url: " + request.RawUrl);
 
             output.Flush();
             output.Close();
@@ -331,7 +355,7 @@ namespace BDSA_Project_Authenticator
             Contract.Ensures(!this.HasReadHappened());
 
             // Obtain a response object.
-            HttpListenerResponse responseMessage = this.currentListenerContext.Response; // TODO use response in request objekt instead.
+            HttpListenerResponse responseMessage = this.currentListenerContext.Response;
 
             // Stream used to write the response HTTP-message.
             Stream output = null;
@@ -343,7 +367,7 @@ namespace BDSA_Project_Authenticator
                 responseMessage.StatusCode = 403;
 
                 output = responseMessage.OutputStream;
-                Console.WriteLine("Server sent response to client request: " + request.RequesterDomain +
+                Console.WriteLine("Authenticator sent response to client request: " + request.RequesterDomain +
                     "\nResponding to request with the url: " + request.RawUrl);
                 output.Close();
                 return;
@@ -363,7 +387,7 @@ namespace BDSA_Project_Authenticator
             output = responseMessage.OutputStream;
             output.Write(compiledMessageBytes, 0, compiledMessageBytes.Length);
 
-            Console.WriteLine("Server sent response to redirect." +
+            Console.WriteLine("Authenticator sent response to redirect." +
                 "\nResponding to request with the url: " + request.RawUrl);
 
             output.Flush();
@@ -374,7 +398,5 @@ namespace BDSA_Project_Authenticator
             // Update the state of the socket.
             this.hasReadHappened = false;
         }
-
-        // TODO closing of stream and sockets.
     }
 }

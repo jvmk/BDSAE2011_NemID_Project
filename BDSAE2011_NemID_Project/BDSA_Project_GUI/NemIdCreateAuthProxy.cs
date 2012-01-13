@@ -69,6 +69,10 @@ namespace BDSA_Project_GUI
                 if (Cryptograph.CheckConsistency(this.privateKey, this.keyPkiIdTextBox.Text))
                 {
                     this.auth = new AuthenticatorProxy(StringData.AuthUri, keyPkiIdTextBox.Text, privateKey);
+
+                    UsersBrowser usersBrowser = (UsersBrowser)this.ParentForm;
+                    usersBrowser.setAuthenticatorProxy(this.auth);
+
                     this.tp = new ThirdPartyHttpGenerator(StringData.ThirdUri, keyPkiIdTextBox.Text, privateKey);
                     Application.OpenForms[0].Controls.Clear();
                     // this.ParentForm.Controls.Clear();
