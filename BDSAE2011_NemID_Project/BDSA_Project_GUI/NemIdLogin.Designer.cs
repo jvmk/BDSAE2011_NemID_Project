@@ -49,7 +49,6 @@
             // 
             this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.splitContainer1.Name = "splitContainer1";
             this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -63,28 +62,25 @@
             this.splitContainer1.Panel2.Controls.Add(this.label2);
             this.splitContainer1.Panel2.Controls.Add(this.KeyPathLabel);
             this.splitContainer1.Panel2.Controls.Add(this.LoginGroupBox);
-            this.splitContainer1.Size = new System.Drawing.Size(667, 615);
-            this.splitContainer1.SplitterDistance = 153;
-            this.splitContainer1.SplitterWidth = 5;
+            this.splitContainer1.Size = new System.Drawing.Size(500, 500);
+            this.splitContainer1.SplitterDistance = 124;
             this.splitContainer1.TabIndex = 1;
             // 
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(137, 48);
-            this.label2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.label2.Location = new System.Drawing.Point(103, 39);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(125, 17);
+            this.label2.Size = new System.Drawing.Size(93, 13);
             this.label2.TabIndex = 7;
             this.label2.Text = "Enter login details:";
             // 
             // KeyPathLabel
             // 
             this.KeyPathLabel.AutoSize = true;
-            this.KeyPathLabel.Location = new System.Drawing.Point(137, 219);
-            this.KeyPathLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.KeyPathLabel.Location = new System.Drawing.Point(103, 178);
             this.KeyPathLabel.Name = "KeyPathLabel";
-            this.KeyPathLabel.Size = new System.Drawing.Size(0, 17);
+            this.KeyPathLabel.Size = new System.Drawing.Size(0, 13);
             this.KeyPathLabel.TabIndex = 4;
             // 
             // LoginGroupBox
@@ -96,23 +92,20 @@
             this.LoginGroupBox.Controls.Add(this.passwordTextBox);
             this.LoginGroupBox.Controls.Add(this.usernameTextBox);
             this.LoginGroupBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.LoginGroupBox.Location = new System.Drawing.Point(141, 68);
-            this.LoginGroupBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.LoginGroupBox.MaximumSize = new System.Drawing.Size(380, 129);
-            this.LoginGroupBox.MinimumSize = new System.Drawing.Size(380, 129);
+            this.LoginGroupBox.Location = new System.Drawing.Point(106, 55);
+            this.LoginGroupBox.MaximumSize = new System.Drawing.Size(285, 105);
+            this.LoginGroupBox.MinimumSize = new System.Drawing.Size(285, 105);
             this.LoginGroupBox.Name = "LoginGroupBox";
-            this.LoginGroupBox.Padding = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.LoginGroupBox.Size = new System.Drawing.Size(380, 129);
+            this.LoginGroupBox.Size = new System.Drawing.Size(285, 105);
             this.LoginGroupBox.TabIndex = 3;
             this.LoginGroupBox.TabStop = false;
             this.LoginGroupBox.Text = "Login";
             // 
             // CancelButton
             // 
-            this.CancelButton.Location = new System.Drawing.Point(17, 91);
-            this.CancelButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.CancelButton.Location = new System.Drawing.Point(13, 74);
             this.CancelButton.Name = "CancelButton";
-            this.CancelButton.Size = new System.Drawing.Size(93, 28);
+            this.CancelButton.Size = new System.Drawing.Size(70, 23);
             this.CancelButton.TabIndex = 5;
             this.CancelButton.Text = "Cancel";
             this.CancelButton.UseVisualStyleBackColor = true;
@@ -122,10 +115,9 @@
             // 
             this.authButton.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.authButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.authButton.Location = new System.Drawing.Point(192, 91);
-            this.authButton.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.authButton.Location = new System.Drawing.Point(144, 74);
             this.authButton.Name = "authButton";
-            this.authButton.Size = new System.Drawing.Size(180, 28);
+            this.authButton.Size = new System.Drawing.Size(135, 23);
             this.authButton.TabIndex = 4;
             this.authButton.Text = "Submit";
             this.authButton.UseVisualStyleBackColor = true;
@@ -135,10 +127,9 @@
             // 
             this.passwordLabel.AutoSize = true;
             this.passwordLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.passwordLabel.Location = new System.Drawing.Point(13, 59);
-            this.passwordLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.passwordLabel.Location = new System.Drawing.Point(10, 48);
             this.passwordLabel.Name = "passwordLabel";
-            this.passwordLabel.Size = new System.Drawing.Size(88, 18);
+            this.passwordLabel.Size = new System.Drawing.Size(73, 15);
             this.passwordLabel.TabIndex = 3;
             this.passwordLabel.Text = "Password:";
             this.passwordLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -147,10 +138,9 @@
             // 
             this.usernameLabel.AutoSize = true;
             this.usernameLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.usernameLabel.Location = new System.Drawing.Point(8, 27);
-            this.usernameLabel.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.usernameLabel.Location = new System.Drawing.Point(6, 22);
             this.usernameLabel.Name = "usernameLabel";
-            this.usernameLabel.Size = new System.Drawing.Size(90, 18);
+            this.usernameLabel.Size = new System.Drawing.Size(77, 15);
             this.usernameLabel.TabIndex = 2;
             this.usernameLabel.Text = "Username:";
             this.usernameLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -158,20 +148,18 @@
             // passwordTextBox
             // 
             this.passwordTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.passwordTextBox.Location = new System.Drawing.Point(131, 58);
-            this.passwordTextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.passwordTextBox.Location = new System.Drawing.Point(98, 47);
             this.passwordTextBox.Name = "passwordTextBox";
-            this.passwordTextBox.Size = new System.Drawing.Size(240, 24);
+            this.passwordTextBox.Size = new System.Drawing.Size(181, 21);
             this.passwordTextBox.TabIndex = 1;
             this.passwordTextBox.UseSystemPasswordChar = true;
             // 
             // usernameTextBox
             // 
             this.usernameTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.usernameTextBox.Location = new System.Drawing.Point(131, 26);
-            this.usernameTextBox.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.usernameTextBox.Location = new System.Drawing.Point(98, 21);
             this.usernameTextBox.Name = "usernameTextBox";
-            this.usernameTextBox.Size = new System.Drawing.Size(240, 24);
+            this.usernameTextBox.Size = new System.Drawing.Size(181, 21);
             this.usernameTextBox.TabIndex = 0;
             // 
             // openFileDialog1
@@ -180,12 +168,11 @@
             // 
             // NemIdLogin
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.splitContainer1);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "NemIdLogin";
-            this.Size = new System.Drawing.Size(667, 615);
+            this.Size = new System.Drawing.Size(500, 500);
             this.splitContainer1.Panel2.ResumeLayout(false);
             this.splitContainer1.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();

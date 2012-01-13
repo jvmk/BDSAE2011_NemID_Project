@@ -64,7 +64,7 @@ namespace BDSA_Project_GUI
             {
                 string token = this.authenticatorProxy.GetToken();
 
-                Console.WriteLine("Token: " + token);
+                Console.WriteLine("Sesion Token: " + token);
 
                 bool authWithTpOk = thirdPartyProxy.SubmitUserToken(username, token);
                 if (authWithTpOk)
