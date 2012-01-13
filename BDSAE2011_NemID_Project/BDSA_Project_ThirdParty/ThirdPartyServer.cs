@@ -248,6 +248,7 @@ namespace BDSA_Project_ThirdParty
                     Console.WriteLine("Requested resource not found.");
                     response.StatusCode = 404; // Status code: NOT FOUND
                     response.StatusDescription = "Resource not found.";
+                    response.Close();
                     break;
             }
         }
@@ -366,6 +367,7 @@ namespace BDSA_Project_ThirdParty
 
         private void AnswerAuthtokenPost(HttpListenerResponse response, string rawMessageBody)
         {
+            /* WORKING VERSION (13-01-2012)
             string[] parameters = MessageProcessingUtility.GetRequesterParameters(rawMessageBody, StringData.AuthUri, this.serversPrivateKey);
             if (ReferenceEquals(parameters, null))
             {
@@ -390,6 +392,36 @@ namespace BDSA_Project_ThirdParty
                 response.StatusDescription = "Authenticator token sucessfully submitted.";
                 response.Close();
                 Console.WriteLine("Authenticator token sat for username: " + parameters[0]);
+            }
+            */
+            bool authIsSender = false;
+            string[] parameters = this.GetMessageParametersAndEnsureAuthenticatorIsSender(
+                rawMessageBody, ref authIsSender);
+            if (authIsSender)
+            {
+                if(parameters.Length < 2)
+                {
+                    // Malformed request for this resource
+                    Console.WriteLine("Authenticator tried to post a token but the message was malformed.");
+                    response.StatusCode = 400;
+                    response.StatusDescription = "Too few parameters for this resource.";
+                    response.Close();
+                }
+                else
+                {
+                    this.database.SetAuthTokenForAccount(parameters[0], parameters[1]); // index 0 is username, index 1 is token value.
+                    response.StatusCode = 200;
+                    response.StatusDescription = "Authenticator token sucessfully submitted.";
+                    response.Close();
+                    Console.WriteLine("Authenticator token sat for username: " + parameters[0]);
+                }
+            }
+            else
+            {
+                // Request could not be verified to come from the authenticator
+                Console.WriteLine("Attempt to post auth token without authenticator signature was denied.");
+                response = this.SetupForbiddenResponse(response, "You do not have rights to POST to this resource.");
+                response.Close();
             }
         }
 
